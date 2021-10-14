@@ -1,0 +1,36 @@
+﻿@page
+@using Recruit.Career.Models
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<h3>Job Openings</h3>
+
+@if (Model.Jobs == null || Model.Jobs.Count() == 0)
+{
+    <p>There are no job openings at this time.</p>
+}
+else
+{
+    <ul class="list-unstyled mt-3" id="jobs-list">
+        @foreach (var item in Model.Jobs ?? Enumerable.Empty<JobViewModel>())
+        {
+            <li class="p-3 mb-2 job-item">
+                <a class="" asp-area="" asp-page="/JobDetails" asp-route-id="@item.Id">
+                    <div class="d-flex flex-column">
+                        <div>
+                            <h5 class="mb-0">@item.Title</h5>
+                            <span>Posted: @item.PostDate.ToString("dd MMM yyyy")</span>
+                        </div>
+                        <div class="d-flex mt-2 job-details">
+                            <span>@item.City, @item.Country</span>
+                            <span class="ms-2">@item.Department</span>
+                            <span class="ms-2">@item.JobType</span>
+                        </div>
+                    </div>
+                </a>
+            </li>
+        }
+    </ul>
+}

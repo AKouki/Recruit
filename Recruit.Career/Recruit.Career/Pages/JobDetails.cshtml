@@ -1,0 +1,35 @@
+﻿@page "/Jobs/{id}"
+@model JobDetailsModel
+@{
+    ViewData["Title"] = "Job Details";
+}
+
+@if (Model.Job == null)
+{
+    <p>Couldn't fetch job details.</p>
+}
+else
+{
+    <div class="d-flex flex-column job-details">
+        <h3 class="mb-1">@Model.Job.Title</h3>
+        <div class="d-flex job-details mt-1">
+            <span class="fs-14 text-secondary">@Model.Job.City, @Model.Job.Country</span>
+            <span class="ms-2 fs-14 text-secondary">@Model.Job.Department</span>
+            <span class="ms-2 fs-14 text-secondary">@Model.Job.JobType</span>
+        </div>
+    </div>
+
+    <h5 class="mt-4 mb-3 text-primary">Job Description</h5>
+
+    <div class="job-description">
+        <p>
+            @Model.Job.Description
+        </p>
+    </div>
+
+    <div class="text-center">
+        <a class="btn btn-primary" asp-area="" asp-page="/JobApplication" asp-route-id="@Model.Id">
+            Apply for this job
+        </a>
+    </div>
+}

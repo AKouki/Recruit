@@ -1,0 +1,47 @@
+﻿@if (IsVisible)
+{
+    <div class="modal fade show d-block" id="myModal" style="background-color:rgba(0,0,0,.5)" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">@Title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="Cancel"></button>
+                </div>
+                <div class="modal-body">
+                    <span>@Text</span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal" @onclick="Cancel">Cancel</button>
+                    <button type="button" class="btn btn-danger btn-sm" @onclick="Ok">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string? Title { get; set; }
+
+    [Parameter]
+    public string? Text { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OnClose { get; set; }
+
+    [Parameter]
+    public bool IsVisible { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsVisibleChanged { get; set; }
+
+    private async Task Cancel()
+    {
+        await OnClose.InvokeAsync(false);
+    }
+
+    private async Task Ok()
+    {
+        await OnClose.InvokeAsync(true);
+    }
+}

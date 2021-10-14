@@ -1,0 +1,160 @@
+﻿@page "/Jobs"
+@inject HttpClient Http
+@attribute [Authorize]
+
+<PageTitle>Jobs</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center">
+    <h3>Jobs</h3>
+    <NavLink class="btn btn-primary btn-sm d-flex align-items-center" href="Jobs/Create">
+        Create
+    </NavLink>
+</div>
+
+@if (jobs == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="table-wrapper table-responsive mt-3">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Title</th>
+                    <th scope="col">Applicants</th>
+                    <th scope="col">Department</th>
+                    <th scope="col">Manager</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Experience</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var job in jobs)
+                {
+                    if (job != null)
+                    {
+                        <tr>
+                            <td width="380">
+                                <div class="d-flex flex-column justify-content-center align-items-start">
+                                    <div>
+                                        <NavLink class="fw-500" href="@($"Jobs/{job.Id}")">
+                                            @job.Title
+                                        </NavLink>
+                                        @if (!job.Published)
+                                        {
+                                            <span class="text-warning fs-14 fw-400 ms-2">Draft</span>
+                                        }
+                                    </div>
+                                    <span>@($"{job.City}, {job.Country}")</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="fw-500 text-primary">@(job?.Applicants?.Count())</span>
+                            </td>
+                            <td>@job?.Department</td>
+                            <td>@job?.Manager</td>
+                            <td>@job?.JobType.ToString()</td>
+                            <td>@job?.JobExperience.ToString()</td>
+                            <td>
+                                <div class="dropdown">
+                                    <a class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-secondary feather feather-more-horizontal"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            @if (job?.Published == true)
+                                            {
+                                                <a class="dropdown-item" onclick="@(() => Publish(job.Id, false))">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-eye-off"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                                                    Unpublish
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <a class="dropdown-item" onclick="@(() => Publish(job!.Id, true))">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-eye"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                                    Publish
+                                                </a>
+                                            }
+                                        </li>
+                                        <li>
+                                            <NavLink class="dropdown-item" href="@($"Jobs/Edit/{job?.Id}")">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                                                Edit
+                                            </NavLink>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <a class="dropdown-item text-danger" @onclick="@(() => OpenDeleteDialog(job!))">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x-circle"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                                                Delete
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<ConfirmDialog Title="Delete"
+               Text="Are you sure you want to delete this job?"
+               OnClose="OnDeleteDialogClose"
+               @bind-IsVisible="ShowDeleteDialog" />
+
+@code {
+    private List<Job>? jobs;
+    public Job? SelectedJob { get; set; }
+
+    private bool ShowDeleteDialog = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        jobs = await Http.GetFromJsonAsync<List<Job>?>("api/Jobs");
+    }
+
+    private async Task Publish(int jobId, bool value)
+    {
+        var response = value == true ?
+            await Http.GetAsync($"api/Jobs/{jobId}/Publish") :
+            await Http.GetAsync($"api/Jobs/{jobId}/Unpublish");
+
+        if (response.IsSuccessStatusCode)
+        {
+            var jobToUpdate = jobs?.FirstOrDefault(j => j.Id == jobId);
+            if (jobToUpdate != null)
+            {
+                jobToUpdate.Published = value;
+                StateHasChanged();
+            }
+        }
+    }
+
+    private void OpenDeleteDialog(Job job)
+    {
+        ShowDeleteDialog = true;
+        SelectedJob = job;
+        StateHasChanged();
+    }
+
+    private async Task OnDeleteDialogClose(bool confirmed)
+    {
+        if (confirmed && SelectedJob != null)
+        {
+            var response = await Http.DeleteAsync($"api/Jobs/{SelectedJob.Id}");
+            if (response.IsSuccessStatusCode)
+            {
+                jobs?.Remove(SelectedJob);
+            }
+        }
+
+        ShowDeleteDialog = false;
+        StateHasChanged();
+    }
+}

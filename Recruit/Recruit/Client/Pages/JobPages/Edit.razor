@@ -1,0 +1,142 @@
+﻿@page "/Jobs/Edit/{Id}"
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@attribute [Authorize]
+
+<h3 class="max-width-960 mx-auto">Edit</h3>
+
+@if (job == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <EditForm Model="@job" OnValidSubmit="@HandleSubmit" class="row g-3 mb-3 max-width-960 mx-auto">
+        <DataAnnotationsValidator />
+        <div class="col-12">
+            <ValidationSummary />
+        </div>
+
+        <div class="col-12">
+            <label for="title" class="form-label d-block">Title</label>
+            <InputText id="title" @bind-Value="job.Title" class="form-control" />
+        </div>
+        <div class="col-12">
+            <label for="description" class="form-label">Description</label>
+            <InputTextArea id="description" @bind-Value="job.Description" class="form-control"></InputTextArea>
+        </div>
+        <div class="col-md-6">
+            <label for="country" class="form-label">Country</label>
+            <InputText id="country" @bind-Value="job.Country" class="form-control" />
+        </div>
+        <div class="col-md-6">
+            <label for="city" class="form-label">City</label>
+            <InputText id="city" @bind-Value="job.City" class="form-control" />
+        </div>
+        <div class="col-md-6">
+            <label for="email" class="form-label">Contact Email</label>
+            <InputText id="email" @bind-Value="job.ContactEmail" class="form-control" />
+        </div>
+        <div class="col-md-6">
+            <label for="phone" class="form-label">Contact Phone</label>
+            <InputText id="phone" @bind-Value="job.ContactPhone" class="form-control" />
+        </div>
+        <div class="col-6">
+            <label for="department" class="form-label">Department</label>
+            <InputText id="department" @bind-Value="job.Department" class="form-control" />
+        </div>
+        <div class="col-6">
+            <label for="manager" class="form-label">Hiring Manager</label>
+            <InputText id="manager" @bind-Value="job.Manager" class="form-control" />
+        </div>
+        <div class="col-md-6">
+            <label for="jobType" class="form-label">Job Type</label>
+            <InputSelect id="jobType" @bind-Value="job.JobType" class="form-select">
+                @foreach (var item in Enum.GetValues(typeof(JobType)))
+                {
+                <option>@item</option>
+                }
+            </InputSelect>
+        </div>
+        <div class="col-md-6">
+            <label for="jobExperience" class="form-label">Experience</label>
+            <InputSelect id="jobExperience" @bind-Value="job.JobExperience" class="form-select">
+                @foreach (var item in Enum.GetValues(typeof(JobExperience)))
+                    {
+                    <option>@item</option>
+                    }
+            </InputSelect>
+        </div>
+        <div class="col-12">
+            <label for="skills" class="form-label">Skills</label>
+            <InputText id="skills" @bind-Value="job.RequiredSkills" class="form-control" />
+            <div id="skills" class="form-text">Comma-seperated required job skills.</div>
+        </div>
+
+        <div class="col-12">
+            <label for="expires" class="form-label">Expires</label>
+            <InputDate id="expires" @bind-Value="job.Expires" class="form-control" />
+        </div>
+
+        <div class="col-md-6">
+            <label for="salaryFrom" class="form-label">Min Salary</label>
+            <InputNumber id="salaryFrom" @bind-Value="job.SalaryFrom" class="form-control" />
+        </div>
+
+        <div class="col-md-6">
+            <label for="salaryTo" class="form-label">Max Salary</label>
+            <InputNumber id="salaryTo" pattern="[0-9]" @bind-Value="job.SalaryTo" class="form-control" />
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-check">
+                <InputCheckbox id="published" @bind-Value="job.Published" class="form-check-input" />
+                <label class="form-check-label" for="published">
+                    Published
+                </label>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <button type="button" class="btn btn-light" @onclick="BackToList">Cancel</button>
+            <button type="submit" class="btn btn-primary" disabled="@IsDisabled">Submit</button>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public string? Id { get; set; }
+
+    private Job? job = new Job();
+
+    public bool IsDisabled { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrEmpty(Id))
+        {
+            var result = await Http.GetAsync($"api/Jobs/{Id}");
+            if (result.IsSuccessStatusCode)
+            {
+                job = await result.Content.ReadFromJsonAsync<Job>();
+            }
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        IsDisabled = true;
+        var response = await Http.PutAsJsonAsync<Job?>($"api/Jobs/{job?.Id}", job);
+        if (response.IsSuccessStatusCode)
+        {
+            BackToList();
+        }
+        IsDisabled = false;
+    }
+
+    private void BackToList()
+    {
+        NavigationManager.NavigateTo("/Jobs");
+    }
+}

@@ -1,0 +1,93 @@
+﻿@page "/Register"
+@layout EmptyLayout
+@inject IAuthService AuthService
+@inject NavigationManager NavigationManager
+
+@if (ShowErrors)
+{
+    <div class="alert alert-danger" role="alert">
+        @foreach (var error in Errors ?? Enumerable.Empty<string>())
+        {
+            <p>@error</p>
+        }
+    </div>
+}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-md-6 col-lg-4 col-xl-4 bg-white box-shadow p-25">
+        <div class="text-center">
+            <h1 class="fw-400">Register</h1>
+            <p class="mt-2 text-muted">Please enter your details.</p>
+        </div>
+        <EditForm Model="RegisterModel" OnValidSubmit="HandleRegistration" class="row g-2">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <div class="col-12">
+                <label for="email" class="form-label">Email</label>
+                <InputText id="email" @bind-Value="RegisterModel.Email" class="form-control" placeholder="Email" />
+                <ValidationMessage For="@(() => RegisterModel.Email)" />
+            </div>
+            <div class="col-12">
+                <label for="fullName" class="form-label">Full Name</label>
+                <InputText id="fullName" @bind-Value="RegisterModel.FullName" class="form-control" placeholder="Full Name" />
+                <ValidationMessage For="@(() => RegisterModel.FullName)" />
+            </div>
+            <div class="col-12">
+                <label for="password" class="form-label">Password</label>
+                <InputText id="password" type="password" @bind-Value="RegisterModel.Password" class="form-control" placeholder="Password" />
+                <ValidationMessage For="@(() => RegisterModel.Password)" />
+            </div>
+            <div class="col-12">
+                <label for="password" class="form-label">Confirm Password</label>
+                <InputText id="password" type="password" @bind-Value="RegisterModel.Password" class="form-control" placeholder="Confirm Password" />
+                <ValidationMessage For="@(() => RegisterModel.Password)" />
+            </div>
+            <div class="col-12 mt-3">
+                <button type="submit" class="btn btn-primary w-100" disabled="@IsDisabled">
+                    @if (IsDisabled)
+                    {
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    }
+                    Sign up
+                </button>
+            </div>
+            <div class="col-12">
+                <p class="text-muted">
+                    Already have an account?
+                    <NavLink href="Login" class="text-primary">
+                        Log in
+                    </NavLink>
+                </p>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private UserViewModel RegisterModel = new UserViewModel();
+    private bool ShowErrors;
+    public bool IsDisabled { get; set; }
+
+    private IEnumerable<string>? Errors;
+
+    private async Task HandleRegistration()
+    {
+        ShowErrors = false;
+        IsDisabled = true;
+
+        var result = await AuthService.Register(RegisterModel);
+        if (result.Succeeded)
+        {
+            NavigationManager.NavigateTo("/Login");
+        }
+        else
+        {
+            Errors = result?.Errors;
+            ShowErrors = true;
+        }
+
+        await Task.Delay(2000);
+        IsDisabled = false;
+    }
+
+}

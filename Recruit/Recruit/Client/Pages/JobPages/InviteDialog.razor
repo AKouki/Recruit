@@ -1,0 +1,78 @@
+﻿@inject HttpClient Http
+
+@if (IsVisible)
+{
+    <div class="modal fade show d-block" id="myModal" style="background-color:rgba(0,0,0,.5)" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <EditForm Model="@inviteModel" OnValidSubmit="@HandleSubmit">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Invite an Applicant</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="Cancel"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="col-12">
+                            <span>Position: <span class="fw-500">@JobTitle</span></span>
+                        </div>
+                        <div class="col-12">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+                        </div>
+                        <div class="col-12 mt-2">
+                            <label for="email" class="form-label d-block">Email</label>
+                            <InputText id="email" @bind-Value="inviteModel.ApplicantEmail" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal" @onclick="Cancel">Cancel</button>
+                        <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int JobId { get; set; }
+
+    [Parameter]
+    public string? JobTitle { get; set; }
+
+    private InviteModel inviteModel = new InviteModel();
+
+    [Parameter]
+    public EventCallback<bool> OnClose { get; set; }
+
+    [Parameter]
+    public bool IsVisible { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsVisibleChanged { get; set; }
+
+    private async Task Cancel()
+    {
+        await OnClose.InvokeAsync(false);
+    }
+
+    private async Task Ok()
+    {
+        await OnClose.InvokeAsync(true);
+    }
+
+    private async Task HandleSubmit()
+    {
+        var newModel = new InviteModel()
+            {
+                JobId = JobId,
+                ApplicantEmail = inviteModel.ApplicantEmail
+            };
+
+        var response = await Http.PostAsJsonAsync<InviteModel>($"api/Jobs/Invite", newModel);
+        inviteModel.ApplicantEmail = "";
+
+        //IsVisible = false;
+        await OnClose.InvokeAsync(true);
+    }
+}

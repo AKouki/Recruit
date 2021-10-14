@@ -1,0 +1,49 @@
+﻿.dashboard {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+::deep .dashboard-item {
+    min-width: 250px;
+    /*background: #f2f4f8;*/
+    border: 1px solid #ddd;
+    height: 500px;
+    border-radius: 0.25rem;
+    padding: 1rem 1.25rem;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+::deep .dashboard-item > h6 {
+    margin-bottom: 1rem;
+}
+
+::deep .dashboard-item a {
+    
+}
+
+::deep .dashboard-item a:hover:not(.btn){
+    color: #3845bf;
+}
+
+::deep .recent-applicants ul {
+    overflow-y: auto;
+    height: calc(100% - 55px);
+}
+
+@media (max-width: 640.98px) {
+    .dashboard {
+        flex-direction: column;
+    }
+
+    ::deep .dashboard-item {
+        width: 100% !important;
+        height: auto;
+    }
+}
+
+@media (min-width: 641px) {
+
+}

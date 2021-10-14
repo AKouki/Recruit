@@ -1,0 +1,86 @@
+﻿.stages-list {
+    display: flex;
+    /*background: blue;*/
+    overflow-x: auto;
+    padding-bottom: 10px;
+}
+
+.stage-item {
+    background: #f2f4f8;
+    width: 280px;
+    min-width: 280px;
+    margin-right: 10px;
+    padding: 10px;
+    border-radius: .25rem;
+}
+
+.stage-item > * {
+    /*background: yellow;*/
+}
+
+.stage-item:first-child {
+    margin-left: 0;
+}
+
+.stage-item:last-child {
+    margin-right: 0;
+}
+
+.stage-item-applicants {
+    min-height: 500px;
+    max-height: 700px;
+    overflow-y: auto;
+}
+
+.stage-item-header {
+    margin: 0 2px;
+}
+
+
+.applicant-card {
+    padding: 0.5rem;
+    background: white;
+    border-radius: 0.25rem;
+    border: 2px solid transparent;
+    transition: all 0.15s ease;
+}
+
+.applicant-card:hover {
+    cursor: pointer;
+    background: rgba(56, 69, 191, 0.1);
+}
+
+.applicant-card .name {
+
+}
+
+.applicant-card .headline {
+    color: #555;
+}
+
+.applicant-card .footer {
+    border-top: 1px solid #f2f4f8;
+}
+
+
+@media (max-width: 640.98px) {
+    .stages-list {
+        flex-direction: column;
+    }
+
+    .stage-item {
+        width: 100%;
+        min-width: 100%;
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
+    .stage-item-applicants {
+        min-height: auto;
+    }
+
+}
+
+@media (min-width: 641px) {
+}
+
