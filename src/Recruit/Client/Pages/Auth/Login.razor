@@ -1,0 +1,83 @@
+﻿@page "/Login"
+@layout EmptyLayout
+@inject IAuthService AuthService
+@inject NavigationManager NavigationManager
+
+@if (ShowErrors)
+{
+    <div class="alert alert-danger" role="alert">
+        @foreach (var error in Errors ?? Enumerable.Empty<string>())
+        {
+            <p>@error</p>
+        }
+    </div>
+}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-md-6 col-lg-4 col-xl-4 bg-white box-shadow p-25">
+        <div class="text-center">
+            <h1 class="fw-400">Log in</h1>
+            <p class="mt-2 text-muted">Login to your account to continue.</p>
+        </div>
+        <EditForm Model="loginModel" OnValidSubmit="HandleLogin" class="row g-3">
+            <DataAnnotationsValidator />
+            <div class="col-12">
+                <ValidationSummary />
+            </div>
+            <div class="col-12">
+                <label for="email" class="form-label d-block">Email</label>
+                <InputText id="email" @bind-Value="loginModel.Email" class="form-control" />
+            </div>
+            <div class="col-12">
+                <label for="password" class="form-label d-block">Password</label>
+                <InputText id="password" type="password" @bind-Value="loginModel.Password" class="form-control" />
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary w-100" disabled="@IsDisabled">
+                    @if (IsDisabled)
+                    {
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    }
+                    Log in
+                </button>
+            </div>
+            <div class="col-12">
+                <p class="text-muted">
+                    Don't have an account?
+                    <NavLink href="Register" class="text-primary">
+                        Sign Up
+                    </NavLink>
+                </p>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+
+@code {
+    private UserViewModel loginModel = new UserViewModel();
+    private bool ShowErrors;
+    public bool IsDisabled { get; set; }
+
+    private IEnumerable<string>? Errors;
+
+    private async Task HandleLogin()
+    {
+        ShowErrors = false;
+        IsDisabled = true;
+
+        var result = await AuthService.Login(loginModel);
+        if (result.Succeeded)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            Errors = result?.Errors;
+            ShowErrors = true;
+        }
+        await Task.Delay(2000);
+        IsDisabled = false;
+    }
+
+}

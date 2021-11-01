@@ -1,0 +1,145 @@
+﻿@page "/Applicants"
+@inject HttpClient Http
+@attribute [Authorize]
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>Applicants</h3>
+</div>
+
+@if (applicants == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <TableTemplate Items="applicants" Context="applicant" ShowTableBorder="true">
+        <TableHeader>
+            <th scope="col">Name</th>
+            <th scope="col">Applied for</th>
+            <th scope="col">Applied on</th>
+            <th scope="col">Stage</th>
+            <th scope="col">Email</th>
+            <th scope="col">Phone</th>
+            <th scope="col">Actions</th>
+        </TableHeader>
+        <RowTemplate>
+            <td>
+                <div class="d-flex align-items-center">
+                    @if (!string.IsNullOrEmpty(applicant.ProfilePhoto))
+                    {
+                        <img src="@applicant.ProfilePhoto" class="avatar me-2" />
+                    }
+                    else
+                    {
+                        <span class="avatar avatar-green me-2">@applicant.FirstName?.ToUpper()[0]</span>
+                    }
+                    <div class="d-flex flex-column">
+                        <a @onclick="@(() => ShowDetails(applicant.Id))" @onclick:stopPropagation="true" class="name fw-500">
+                            @applicant.FirstName @applicant.LastName
+                        </a>
+                        <span>@applicant.Headline</span>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <NavLink class="fw-500" href="@($"Jobs/{applicant.Job?.Id}")">
+                    @applicant.Job?.Title
+                </NavLink>
+            </td>
+            <td>@applicant.ApplyDate.ToString("dd/MM/yyyy")</td>
+            <td>@applicant.Stage?.Name</td>
+            <td>
+                <NavLink href="@($"mailto:{applicant.Email?.ToLower()}")">
+                    @applicant.Email?.ToLower()
+                </NavLink>
+            </td>
+            <td>@applicant.Phone</td>
+            <td>
+                <div class="dropdown">
+                    <a class="btn btn-light dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-secondary feather feather-more-horizontal"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item" href="Interviews/Schedule">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                Schedule Interview
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item text-danger" @onclick="@(() => OpenDeleteDialog(applicant))">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user-x"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="18" y1="8" x2="23" y2="13"></line><line x1="23" y1="8" x2="18" y2="13"></line></svg>
+                                Remove
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </td>
+        </RowTemplate>
+    </TableTemplate>
+}
+
+<ApplicantDetails ApplicantId="CurrentApplicantId"
+                  OnStageUpdate="HandleStageUpdate"
+                  OnClose="HideDetails" />
+
+<ConfirmDialog Title="Delete"
+               Text="Are you sure you want to delete this applicant?"
+               OnClose="OnDeleteDialogClose"
+               @bind-IsVisible="ShowDeleteDialog" />
+
+@code {
+    private List<Applicant>? applicants;
+    private int? CurrentApplicantId { get; set; }
+    private Applicant? applicantToDelete { get; set; }
+
+    private bool ShowDeleteDialog = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        applicants = await Http.GetFromJsonAsync<List<Applicant>>("api/Applicants");
+    }
+
+    public void ShowDetails(int? id)
+    {
+        CurrentApplicantId = id;
+    }
+
+    public void HideDetails()
+    {
+        CurrentApplicantId = null;
+    }
+
+    private void OpenDeleteDialog(Applicant applicant)
+    {
+        ShowDeleteDialog = true;
+        applicantToDelete = applicant;
+        StateHasChanged();
+    }
+
+    private async Task OnDeleteDialogClose(bool confirmed)
+    {
+        if (confirmed && applicantToDelete != null)
+        {
+            var response = await Http.DeleteAsync($"api/Applicants/{applicantToDelete.Id}");
+            if (response.IsSuccessStatusCode)
+            {
+                applicants?.Remove(applicantToDelete);
+            }
+        }
+
+        ShowDeleteDialog = false;
+        StateHasChanged();
+    }
+
+    private void HandleStageUpdate(Applicant applicant)
+    {
+        var applicantToUpdate = applicants?.FirstOrDefault(a => a.Id == applicant.Id);
+        if (applicantToUpdate != null)
+        {
+            applicantToUpdate.Stage = applicant.Stage;
+            StateHasChanged();
+        }
+    }
+}

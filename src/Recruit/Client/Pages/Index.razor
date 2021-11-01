@@ -1,0 +1,31 @@
+﻿@page "/"
+@inject HttpClient Http
+@attribute [Authorize]
+
+<PageTitle>Home</PageTitle>
+
+<AuthorizeView>
+    <h3>Hello, @context.User?.FindFirst("name")?.Value.Split(" ")[0]!</h3>
+    <div class="dashboard mt-3">
+        <UpcomingInterviews OnSelectApplicant="ShowDetails" />
+        <RecentApplicants OnSelectApplicant="ShowDetails" />
+        <DuePositions />
+    </div>
+    <ApplicantDetails ApplicantId="@CurrentApplicantId"
+                      OnStageUpdate="() => {}"
+                      OnClose="HideDetails" />
+</AuthorizeView>
+
+@code {
+    private int? CurrentApplicantId { get; set; }
+
+    private void ShowDetails(int? id)
+    {
+        CurrentApplicantId = id;
+    }
+
+    private void HideDetails()
+    {
+        CurrentApplicantId = null;
+    }
+}

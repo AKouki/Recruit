@@ -1,0 +1,32 @@
+﻿@inject HttpClient Http
+
+<div class="dashboard-item due-positions" style="width: 27%">
+    <h6>Due Positions</h6>
+    <TableTemplate Items="Jobs" Context="job" IsSmall="true">
+        <TableHeader>
+            <th scope="col">Position</th>
+            <th scope="col">Due Date</th>
+        </TableHeader>
+        <NoDataTemplate>
+            <td colspan="2">No Positions</td>
+        </NoDataTemplate>
+        <RowTemplate>
+            <td>
+                <NavLink href="@($"Jobs/{job.Id}")">
+                    @job.Title
+                </NavLink>
+            </td>
+            <td>@job.Expires.ToString("dd/MM/yyyy")</td>
+        </RowTemplate>
+    </TableTemplate>
+</div>
+
+@code {
+    public List<Job>? Jobs { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Jobs = await Http.GetFromJsonAsync<List<Job>>("api/Jobs/Due");
+    }
+
+}

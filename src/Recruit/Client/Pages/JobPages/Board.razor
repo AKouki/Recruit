@@ -1,0 +1,176 @@
+﻿@page "/Jobs/{Id}"
+@inject HttpClient Http
+@attribute [Authorize]
+
+@if (job == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h3 class="mb-0">@job.JobTitle</h3>
+            <div class="job-details">
+                @if (!string.IsNullOrEmpty(job.Location))
+                {
+                    <span class="text-secondary fs-14">@job.Location</span>
+                }
+                @if (!string.IsNullOrEmpty(job.Department))
+                {
+                    <span class="text-secondary fs-14">@job.Department</span>
+                }
+                @if (!string.IsNullOrEmpty(job.JobType))
+                {
+                    <span class="text-secondary fs-14">@job.JobType</span>
+                }
+            </div>
+        </div>
+        <div class="d-flex align-items-center">
+            <a class="btn btn-primary btn-sm me-2" @onclick="OpenInviteDialog" @onclick:stopPropagation="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user-plus me-1"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+                Invite
+            </a>
+            <div class="dropdown">
+                <a class="btn btn-light btn-sm dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-secondary feather feather-more-horizontal"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <NavLink href=@($"Jobs/Edit/{job?.JobId}") class="dropdown-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                            Edit
+                        </NavLink>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="stages-list mt-4" @onclick="HideDetails">
+        @foreach (var stage in GetStages())
+        {
+            <div class="stage-item">
+                <div class="stage-item-header d-flex justify-content-between align-items-center fs-14 fw-500 mb-2">
+                    <span>@stage.Name</span>
+                    <span>@GetApplicantsCount(stage)</span>
+                </div>
+                <div class="stage-item-applicants">
+                    @foreach (var applicant in GetApplicants(stage))
+                    {
+                        <a @onclick="@(() => ShowDetails(applicant))" @onclick:stopPropagation="true" class="d-block">
+                            <div class="applicant-card d-flex flex-column mb-2 overflow-hidden">
+                                <div class="d-flex justify-content-start align-items-start">
+                                    @if (!string.IsNullOrEmpty(applicant.ProfilePhoto))
+                                    {
+                                        <img src="@applicant.ProfilePhoto" class="avatar mt-1 me-2" />
+                                    }
+                                    else
+                                    {
+                                        <span class="avatar avatar-green mt-1 me-2">@applicant.FirstName?.ToUpper()[0]</span>
+                                    }
+                                    <div class="d-flex flex-column overflow-hidden">
+                                        <span class="name fs-14 fw-500">@($"{applicant.FirstName} {applicant.LastName}")</span>
+                                        <span class="headline fs-14 fw-400 single-line">@applicant.Headline</span>
+                                        <span class="text-secondary fs-14 fw-400 single-line">@applicant.Address</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+}
+
+<ApplicantDetails ApplicantId="CurrentApplicantId"
+                  OnStageUpdate="HandleStageUpdate"
+                  OnClose="HideDetails"/>
+
+@if (job != null)
+{
+    <InviteDialog JobId="@job.JobId"
+              JobTitle="@job.JobTitle"
+              OnClose="OnInviteDialogClose"
+              @bind-IsVisible="ShowInviteDialog" />
+}
+
+
+@code {
+    [Parameter]
+    public string? Id { get; set; }
+
+    private JobDetailsModel? job;
+    private int? CurrentApplicantId { get; set; }
+
+    private bool ShowInviteDialog = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(Id))
+        {
+            var response = await Http.GetAsync($"api/Jobs/Details/{Id}");
+            if (response.IsSuccessStatusCode)
+            {
+                job = await response.Content.ReadFromJsonAsync<JobDetailsModel>();
+            }
+        }
+    }
+
+    private IEnumerable<Stage> GetStages()
+    {
+        var stages = job?.Stages?.OrderBy(x => x.Id);
+        return stages.EmptyIfNull();
+    }
+
+    private IEnumerable<Applicant> GetApplicants(Stage stage)
+    {
+        var applicants = job?.Applicants?
+            .Where(a => a.Stage?.Id == stage.Id)
+            .ToList();
+
+        return applicants.EmptyIfNull();
+    }
+
+    private int GetApplicantsCount(Stage stage)
+    {
+        var totalApplicants = job?.Applicants?.Where(a => a.Stage?.Id == stage.Id).Count();
+        return totalApplicants ?? 0;
+    }
+
+    private void HandleStageUpdate(Applicant applicant)
+    {
+        var applicantToUpdate = job?.Applicants.FirstOrDefault(a => a.Id == applicant.Id);
+        if (applicantToUpdate != null)
+        {
+            applicantToUpdate.Stage = applicant.Stage;
+        }
+    }
+
+    private void OpenInviteDialog()
+    {
+        CurrentApplicantId = null;
+        ShowInviteDialog = true;
+        StateHasChanged();
+    }
+
+    private void OnInviteDialogClose(bool confirmed)
+    {
+        ShowInviteDialog = false;
+        StateHasChanged();
+    }
+
+    public void ShowDetails(Applicant applicant)
+    {
+        CurrentApplicantId = applicant.Id;
+    }
+
+    public void HideDetails()
+    {
+        CurrentApplicantId = null;
+        StateHasChanged();
+    }
+
+}

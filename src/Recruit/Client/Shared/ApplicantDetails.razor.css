@@ -1,0 +1,156 @@
+﻿.applicant-details {
+    background: white;
+    width: 38%;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    right: -2000px;
+    z-index: 999;
+    /*display: none;*/
+    opacity: 0;
+    border-left: 1px solid #eee;
+    padding: 2rem 2.5rem;
+    color: rgba(0,0,0,0.75);
+    transition: all .15s ease-in-out;
+}
+
+.show {
+    /*display: block;*/
+    opacity: 1;
+    right: 0;
+}
+
+.close-button {
+    position: absolute;
+    top: 16px;
+    left: -16px;
+    background: #f2f4f8;
+    border-radius: 50%;
+    display: flex;
+    width: 32px;
+    height: 32px;
+    padding: 2px;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    color: #555;
+    border: 1px solid #eee;
+}
+
+.close-button:hover {
+    background: #e5e8ea;
+}
+
+.actions svg {
+    color: #84849F;
+}
+
+.sections {
+    height: 100%;
+    overflow-y: auto;
+}
+
+.section:not(.section-main) {
+    /*background: red;*/
+    margin-top: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.section .header {
+    border-bottom: 1px solid #eee;
+    margin-bottom: 0.25rem;
+    /*font-size: 0.875rem;*/
+    color: #333;
+}
+
+.section strong {
+    font-weight: 500;
+    color: #333;
+}
+
+
+.profile-picture {
+    width: 96px !important;
+    height: 96px !important;
+    object-fit: cover !important;
+    font-size: 24px;
+    border-radius: .25rem;
+}
+
+.applicant-details span.skill {
+    font-weight: 500 !important;
+    font-size: 0.75rem !important;
+    margin-bottom: 2px;
+    border: 1px solid #84849F;
+    color: #84849F;
+}
+
+.skill-indicator {
+    color: white;
+    display: block;
+    width: 15px;
+    height: 8px;
+    margin-right: 7px;
+}
+
+.skill-indicator-description {
+    font-size: .75rem;
+    color: #555;
+}
+
+.actions svg:hover {
+    color: #3845bf;
+}
+
+.actions select {
+    color: #555;
+}
+
+.actions .dropdown .btn-sm {
+    padding-top: .15rem;
+    padding-bottom: .15rem;
+}
+
+.form-select-sm {
+    padding-top: .15rem;
+    padding-bottom: .15rem;
+}
+
+.skill.match {
+    background: #198754;
+    color: white !important;
+    border-color: transparent !important;
+}
+
+.section-contact-details table td {
+    padding: 0 !important;
+    font-size: 1rem;
+}
+
+.section-contact-details table tbody tr:hover {
+    background: none !important;
+}
+
+
+@media (max-width: 640.98px) {
+    .applicant-details {
+        width: 100%;
+        padding: 1rem 1.25rem;
+    }
+
+    .close-button {
+        top: 5px !important;
+        left: 5px;
+    }
+
+    .section-main > div:first-child {
+        flex-direction: column;
+        margin-bottom: 1rem;
+    }
+}
+
+@media (min-width: 641px) {
+    .applicant-details {
+        min-width: 550px;
+    }
+}

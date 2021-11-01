@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.0-rc.2.21480.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Recruit\Shared\Recruit.Shared.csproj" />
+  </ItemGroup>
+
+</Project>

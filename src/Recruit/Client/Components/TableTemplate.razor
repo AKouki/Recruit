@@ -1,0 +1,44 @@
+﻿@typeparam TItem
+
+<div class="table-responsive @ShowTableBorderCss">
+    <table class="table @IsSmallCss">
+        <thead>
+            <tr>@TableHeader</tr>
+        </thead>
+        <tbody>
+            @if (Items?.Count == 0)
+            {
+                <tr>@NoDataTemplate</tr>
+            }
+
+            @foreach (var item in Items ?? Enumerable.Empty<TItem>())
+            {
+                <tr>@RowTemplate!(item)</tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment? TableHeader { get; set; }
+
+    [Parameter]
+    public RenderFragment<TItem>? RowTemplate { get; set; }
+
+    [Parameter]
+    public RenderFragment? NoDataTemplate { get; set; }
+
+    [Parameter]
+    public List<TItem> Items { get; set; } = new();
+
+    [Parameter]
+    public bool IsSmall { get; set; }
+    
+    [Parameter]
+    public bool ShowTableBorder { get; set; }
+
+    private string? IsSmallCss => IsSmall ? "table-sm" : "";
+
+    private string? ShowTableBorderCss => ShowTableBorder ? "table-wrapper" : "";
+}

@@ -1,0 +1,271 @@
+﻿@using System.Net
+@inject HttpClient Http
+
+<div class="@ShowDetailsPageCss">
+    @if (Applicant != null)
+    {
+        <span class="close-button" @onclick="HideDetails" @onclick:stopPropagation="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </span>
+        <div class="sections">
+            <div class="section section-main">
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="d-flex">
+                        @if (!string.IsNullOrEmpty(Applicant.ProfilePhoto))
+                        {
+                            <img src="@Applicant.ProfilePhoto" class="profile-picture me-2" />
+                        }
+                        <div class="d-flex flex-column">
+                            <h4>@Applicant.FirstName @Applicant.LastName</h4>
+                            @if (!string.IsNullOrEmpty(Applicant.Headline))
+                            {
+                                <h6>@Applicant.Headline</h6>
+                            }
+                            <span class="text-success fw-400 fs-14">
+                                Applied for:
+                                <NavLink href="@($"Jobs/{Applicant.Job?.Id}")">
+                                    @Applicant.Job?.Title
+                                </NavLink>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-start actions mt-1">
+                        <div class="d-flex align-items-center">
+                            <select class="form-select form-select-sm me-1" disabled="@(ShowLoading)" value="@Applicant.Stage?.Id" @onchange="MoveToStage" @onchange:stopPropagation="true">
+                                @foreach (var item in Stages ?? Enumerable.Empty<Stage>())
+                                {
+                                    <option value="@item.Id">@item.Name</option>
+                                }
+                            </select>
+                            <div class="dropdown me-1">
+                                <a class="btn btn-light btn-sm dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-secondary feather feather-more-horizontal"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a href="mailto:@Applicant.Email?.ToLower()" class="dropdown-item">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-mail"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                                            Mail
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item text-danger cursor-pointer">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user-x"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="18" y1="8" x2="23" y2="13"></line><line x1="23" y1="8" x2="18" y2="13"></line></svg>
+                                            Delete
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section section-summary">
+                <h6 class="header">Summary</h6>
+                @if (string.IsNullOrEmpty(Applicant.Summary))
+                {
+                    <span class="fs-14 text-secondary">Not Provided</span>
+                }
+                else
+                {
+                    <p>@Applicant.Summary</p>
+                }
+            </div>
+
+            <div class="section section-contact-details">
+                <h6 class="header">Contact Details</h6>
+                <div>
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td width="150">Address:</td>
+                                <td>
+                                    @if (string.IsNullOrEmpty(Applicant.Address))
+                                    {
+                                        <span class="fs-14 text-secondary">Not Provided</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@Applicant.Address</span>
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Email:</td>
+                                <td>
+                                    <a href="@($"mailto:{Applicant.Email?.ToLower()}")">
+                                        @Applicant.Email?.ToLower()
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Phone:</td>
+                                <td>@Applicant.Phone</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="section section-education">
+                <h6 class="header">Education</h6>
+                @if (Applicant?.Education == null || Applicant.Education.Count == 0)
+                {
+                    <span class="fs-14 text-secondary">Not Provided</span>
+                }
+                else
+                {
+                    @foreach (var item in Applicant?.Education ?? Enumerable.Empty<Education>())
+                    {
+                        <div class="mb-1">
+                            @item.StartDate.Year - @item.EndDate.Year
+                            <span class="ms-2">
+                                @if (!string.IsNullOrEmpty(item.Degree))
+                                {
+                                    <span>@item.Degree</span>
+                                }
+                                at <strong>@item.School</strong>
+                            </span>
+                        </div>
+                    }
+                }
+            </div>
+
+            <div class="section section-experience">
+                <h6 class="header">Experience</h6>
+                @if (Applicant?.Experience == null || Applicant.Experience.Count == 0)
+                {
+                    <span class="fs-14 text-secondary">Not Provided</span>
+                }
+                else
+                {
+                    @foreach (var item in Applicant?.Experience ?? Enumerable.Empty<Experience>())
+                    {
+                        <div class="mb-1">
+                            @item.StartDate.Year - @item.EndDate.Year
+                            <span class="ms-2">
+                                @item.Title
+                                @if (!string.IsNullOrEmpty(item.Company))
+                                {
+                                    <span> at <strong>Microsoft</strong></span>
+                                }
+                            </span>
+                        </div>
+                    }
+                }
+            </div>
+
+            <div class="section section-skills">
+                <h6 class="header">Skills</h6>
+                <div>
+                    @if (string.IsNullOrEmpty(Applicant?.Skills))
+                    {
+                        <span class="fs-14 text-secondary">Not Provided</span>
+                    }
+                    else
+                    {
+                        string[] skills = Applicant.Skills.Split(",");
+                        List<string> matchedSkills = new List<string>();
+
+                        if (!string.IsNullOrEmpty(Applicant.Job?.RequiredSkills))
+                        {
+                            matchedSkills = Applicant.Job.RequiredSkills.Split(",").ToList();
+                        }
+
+                        foreach (var skill in skills)
+                        {
+                            if (matchedSkills != null && matchedSkills.Any(s => s.Trim().ToLower().Contains(skill.Trim().ToLower())))
+                            {
+                                <span class="badge rounded-pill skill me-1 match">@skill</span>
+                            }
+                            else
+                            {
+                                <span class="badge rounded-pill skill me-1">@skill</span>
+                            }
+                        }
+
+                        <div class="d-flex align-items-center mt-2 ms-1">
+                            <span class="bg-success rounded-pill skill-indicator"></span>
+                            <span class="skill-indicator-description">Match with job required skills</span>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="section section-resume">
+                <h6 class="header">Resume</h6>
+                @if (Applicant?.Resume == null)
+                {
+                    <span class="fs-14 text-secondary">Not Provided</span>
+                }
+                else
+                {
+                    <a href="#" target="_blank">@Applicant?.Resume?.FileName</a>
+                    @*<PdfViewer RemotePath="@($"api/Attachments/Resume/{Applicant?.Resume?.FilePath}")" />*@
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int? ApplicantId { get; set; }
+
+    public Applicant? Applicant;
+
+    public List<Stage>? Stages { get; set; }
+
+    [Parameter]
+    public EventCallback<Applicant> OnStageUpdate { get; set; }
+
+    [Parameter]
+    public EventCallback<Applicant> OnClose { get; set; }
+
+    private bool showDetailsPage => Applicant == null ? false : true;
+    private string? ShowDetailsPageCss => showDetailsPage ? "applicant-details show" : "applicant-details";
+    private bool ShowLoading = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (ApplicantId != null)
+        {
+            Applicant = await Http.GetFromJsonAsync<Applicant>($"api/Applicants/{ApplicantId}");
+            Stages = Applicant?.Job?.Stages?.ToList();
+        }
+        else
+        {
+            Applicant = null;
+        }
+    }
+
+    public async Task HideDetails()
+    {
+        Applicant = null;
+        ApplicantId = null;
+        await OnClose.InvokeAsync();
+    }
+
+
+    private async Task MoveToStage(ChangeEventArgs args)
+    {
+        if (Applicant != null &&
+            int.TryParse(args.Value?.ToString(), out int result))
+        {
+            ShowLoading = true;
+            var response = await Http.PostAsJsonAsync<UpdateStatusModel>("api/Applicants/UpdateStatus", new UpdateStatusModel
+                {
+                    ApplicantId = Applicant.Id,
+                    StageId = result
+                });
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                Applicant.Stage = Stages?.FirstOrDefault(s => s.Id == result);
+                await OnStageUpdate.InvokeAsync(Applicant);
+            }
+            ShowLoading = false;
+        }
+    }
+}

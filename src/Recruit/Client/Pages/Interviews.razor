@@ -1,0 +1,116 @@
+﻿@page "/Interviews"
+@inject HttpClient Http
+@attribute [Authorize]
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>Interviews</h3>
+    <NavLink class="btn btn-primary btn-sm d-flex align-items-center" href="Interviews/Schedule">
+        Schedule
+    </NavLink>
+</div>
+
+@if (interviews == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <TableTemplate Items="interviews" Context="interview" IsSmall="true" ShowTableBorder="true">
+        <TableHeader>
+            <th scope="col">Applicant</th>
+            <th scope="col">Position</th>
+            <th scope="col">Date</th>
+            <th scope="col">Duration</th>
+            <th scope="col">Interviewer</th>
+            <th scope="col">Actions</th>
+        </TableHeader>
+        <RowTemplate>
+            <td>
+                <div class="d-flex align-items-center">
+                    @if (!string.IsNullOrEmpty(interview.Applicant?.ProfilePhoto))
+                    {
+                        <img src="@interview.Applicant.ProfilePhoto" class="avatar me-2" />
+                    }
+                    else
+                    {
+                        <span class="avatar avatar-green me-2">@interview.Applicant?.FirstName?.ToUpper()[0]</span>
+                    }
+                    <div class="d-flex flex-column">
+                        <a @onclick:stopPropagation="true" @onclick="@(() => ShowDetails(interview.Applicant?.Id))" class="name fw-500">
+                            @interview.Applicant?.FirstName @interview.Applicant?.LastName
+                        </a>
+                        <span>@interview.Applicant?.Headline</span>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <NavLink class="fw-500" href="@($"Jobs/{interview.Applicant?.Job?.Id}")">
+                    @interview.Applicant?.Job?.Title
+                </NavLink>
+            </td>
+            <td>@interview.ScheduledAt.ToString("dd/MM/yyyy hh:mm tt")</td>
+            <td>@interview.Duration minutes</td>
+            <td>@interview.Interviewer</td>
+            <td>
+                <NavLink href="@($"Interviews/Schedule/{interview.Id}")" class="btn btn-outline-primary btn-sm">
+                    Reschedule
+                </NavLink>
+                <a class="btn btn-outline-danger btn-sm" @onclick="@(() => OpenDeleteDialog(interview))">Cancel</a>
+            </td>
+        </RowTemplate>
+    </TableTemplate>
+}
+
+<ApplicantDetails ApplicantId="CurrentApplicantId"
+                  OnClose="HideDetails" />
+
+<ConfirmDialog Title="Cancel Interview"
+               Text="Are you sure you want to cancel this interview?"
+               OnClose="OnDeleteDialogClose"
+               @bind-IsVisible="ShowDeleteDialog" />
+
+@code {
+    private List<Interview>? interviews;
+    private Interview? SelectedInterview { get; set; }
+
+    private int? CurrentApplicantId { get; set; }
+
+    private bool ShowDeleteDialog = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        interviews = await Http.GetFromJsonAsync<List<Interview>>("api/Interviews");
+    }
+
+    public void ShowDetails(int? id)
+    {
+        CurrentApplicantId = id;
+    }
+
+    public void HideDetails()
+    {
+        CurrentApplicantId = null;
+    }
+
+    private void OpenDeleteDialog(Interview interview)
+    {
+        ShowDeleteDialog = true;
+        SelectedInterview = interview;
+        StateHasChanged();
+    }
+
+    private async Task OnDeleteDialogClose(bool confirmed)
+    {
+        if (confirmed && SelectedInterview != null)
+        {
+            var response = await Http.DeleteAsync($"api/Interviews/{SelectedInterview.Id}");
+            if (response.IsSuccessStatusCode)
+            {
+                interviews?.Remove(SelectedInterview);
+            }
+        }
+
+        ShowDeleteDialog = false;
+        StateHasChanged();
+    }
+}
