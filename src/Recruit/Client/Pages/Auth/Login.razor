@@ -13,11 +13,11 @@
     </div>
 }
 
-<div class="row justify-content-center">
-    <div class="col-12 col-md-6 col-lg-4 col-xl-4 bg-white box-shadow p-25">
+<div class="row justify-content-center auth-wrapper">
+    <div class="col-12 col-md-5 col-lg-4 bg-white box-shadow p-25">
         <div class="text-center">
-            <h1 class="fw-400">Log in</h1>
-            <p class="mt-2 text-muted">Login to your account to continue.</p>
+            <h1 class="fw-400">Sign in</h1>
+            <p class="text-muted mb-0">Sign in to your account to continue.</p>
         </div>
         <EditForm Model="loginModel" OnValidSubmit="HandleLogin" class="row g-3">
             <DataAnnotationsValidator />
@@ -32,19 +32,24 @@
                 <label for="password" class="form-label d-block">Password</label>
                 <InputText id="password" type="password" @bind-Value="loginModel.Password" class="form-control" />
             </div>
+            <div class="col-12 mt-0">
+                <NavLink href="ForgotPassword" class="text-muted fs-14">
+                    Forgot password?
+                </NavLink>
+            </div>
             <div class="col-12">
-                <button type="submit" class="btn btn-primary w-100" disabled="@IsDisabled">
+                <button type="submit" class="btn btn-primary fs-14 fw-500 py-2 w-100" disabled="@IsDisabled">
                     @if (IsDisabled)
                     {
                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                     }
-                    Log in
+                    Sign in
                 </button>
             </div>
             <div class="col-12">
-                <p class="text-muted">
+                <p class="text-muted fs-14 mb-2">
                     Don't have an account?
-                    <NavLink href="Register" class="text-primary">
+                    <NavLink href="Register" class="text-primary fw-500">
                         Sign Up
                     </NavLink>
                 </p>

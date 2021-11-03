@@ -13,37 +13,35 @@
     </div>
 }
 
-<div class="row justify-content-center">
-    <div class="col-12 col-md-6 col-lg-4 col-xl-4 bg-white box-shadow p-25">
+<div class="row justify-content-center auth-wrapper">
+    <div class="col-12 col-md-5 col-lg-4 bg-white box-shadow p-25">
         <div class="text-center">
-            <h1 class="fw-400">Register</h1>
-            <p class="mt-2 text-muted">Please enter your details.</p>
+            <h1 class="fw-400">Sign up</h1>
+            <p class="text-muted mb-0">Create an account to start using Recruit.</p>
         </div>
         <EditForm Model="RegisterModel" OnValidSubmit="HandleRegistration" class="row g-2">
             <DataAnnotationsValidator />
-            <ValidationSummary />
+            <div class="col-12">
+                <ValidationSummary />
+            </div>
             <div class="col-12">
                 <label for="email" class="form-label">Email</label>
                 <InputText id="email" @bind-Value="RegisterModel.Email" class="form-control" />
-                <ValidationMessage For="@(() => RegisterModel.Email)" />
             </div>
             <div class="col-12">
                 <label for="fullName" class="form-label">Full Name</label>
                 <InputText id="fullName" @bind-Value="RegisterModel.FullName" class="form-control" />
-                <ValidationMessage For="@(() => RegisterModel.FullName)" />
             </div>
             <div class="col-12">
                 <label for="password" class="form-label">Password</label>
                 <InputText id="password" type="password" @bind-Value="RegisterModel.Password" class="form-control" />
-                <ValidationMessage For="@(() => RegisterModel.Password)" />
             </div>
             <div class="col-12">
                 <label for="password" class="form-label">Confirm Password</label>
                 <InputText id="password" type="password" @bind-Value="RegisterModel.Password" class="form-control" />
-                <ValidationMessage For="@(() => RegisterModel.Password)" />
             </div>
             <div class="col-12 mt-3">
-                <button type="submit" class="btn btn-primary w-100" disabled="@IsDisabled">
+                <button type="submit" class="btn btn-primary fs-14 fw-500 py-2 w-100" disabled="@IsDisabled">
                     @if (IsDisabled)
                     {
                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -51,11 +49,11 @@
                     Sign up
                 </button>
             </div>
-            <div class="col-12">
-                <p class="text-muted">
+            <div class="col-12 mt-3">
+                <p class="text-muted fs-14 mb-2">
                     Already have an account?
-                    <NavLink href="Login" class="text-primary">
-                        Log in
+                    <NavLink href="Login" class="text-primary fw-500">
+                        Sign in
                     </NavLink>
                 </p>
             </div>
