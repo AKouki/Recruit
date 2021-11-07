@@ -71,7 +71,7 @@ a {
     padding: 0 2px;
 }
 
-a:hover {
+::deep a:hover {
     background: #f4f6f8;
     border-radius: 0.25rem;
 
@@ -86,10 +86,6 @@ a span:not(.avatar) {
     color: #2d384a;
     font-weight: 400;
 }
-
-    a span:hover {
-        color: #000;
-    }
 
 .search-result-content h6 {
     font-size: 0.875rem;

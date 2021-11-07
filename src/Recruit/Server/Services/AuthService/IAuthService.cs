@@ -6,5 +6,6 @@ namespace Recruit.Server.Services.AuthService
     {
         Task<AuthResult> LoginAsync(string? email, string? password);
         Task<AuthResult> RegisterAsync(string? email, string? password, string? fullName);
+        Task<AuthResult> ChangePasswordAsync(string? email, string? oldPassword, string? newPassword);
     }
 }

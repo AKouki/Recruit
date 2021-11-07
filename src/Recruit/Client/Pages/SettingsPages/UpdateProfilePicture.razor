@@ -1,0 +1,108 @@
+﻿@using System.Net.Http.Headers
+@using Blazored.LocalStorage
+@inject HttpClient Http
+@inject ILocalStorageService LocalStorage
+@inject AppState AppState
+@implements IDisposable
+@attribute [Authorize]
+
+<div class="d-flex align-items-center my-3">
+    <div class="me-4 position-relative">
+        @if (IsDisabled)
+        {
+            <div class="spinner-wrapper">
+                <div class="spinner-border text-light" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(Avatar))
+        {
+            <img class="avatar avatar-rounded profile-picture" src="@Avatar" />
+        }
+        else
+        {
+            <span class="avatar avatar-rounded profile-picture bg-success">@FullName?.ToUpper()[0]</span>
+        }
+    </div>
+    <div class="d-flex flex-column justify-content-center">
+        <div>
+            <label for="avatarFile">
+                <span class="btn btn-secondary fs-14 fw-500 btn-sm btn-custom-upload @IsDisabledCss" disabled="@IsDisabled">Change</span>
+                <InputFile id="avatarFile" OnChange="HandleFileChange" accept=".jpg,.jpeg" class="d-none" disabled="@IsDisabled" />
+            </label>
+            <button class="btn btn-danger btn-sm  fs-14 fw-500" @onclick="Delete" disabled="@(IsDisabled || string.IsNullOrEmpty(Avatar))">Delete</button>
+        </div>
+        <span class="text-secondary fs-14 mt-1">Allowed file types: JPG, JPEG. Maximum file size: 1MB.</span>
+    </div>
+</div>
+
+@code {
+    public string? Avatar { get; set; }
+    public string? FullName { get; set; }
+
+    public bool IsDisabled { get; set; }
+    public string? IsDisabledCss => IsDisabled ? "disabled" : "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        AppState.OnChange += StateHasChanged;
+
+        // Show the stored one while fetching the new avatar
+        Avatar = await LocalStorage.GetItemAsync<string>("avatar");
+        StateHasChanged();
+
+        // Fetch the new avatar
+        var result = await Http.GetAsync("api/Profile/MyProfile");
+        if (result.IsSuccessStatusCode)
+        {
+            var profile = await result.Content.ReadFromJsonAsync<ProfileViewModel>();
+            Avatar = profile?.Avatar;
+            FullName = profile?.FullName;
+            AppState.UserAvatar = Avatar;
+        }
+    }
+
+    private async Task HandleFileChange(InputFileChangeEventArgs e)
+    {
+        IsDisabled = true;
+        try
+        {
+            var fileContent = new StreamContent(e.File.OpenReadStream(1024000));
+            var content = new MultipartFormDataContent();
+            content.Add(fileContent, "file", Path.GetFileName(e.File.Name));
+
+            var result = await Http.PostAsync("api/Profile/UpdateAvatar", content);
+            if (result.IsSuccessStatusCode)
+            {
+                Avatar = await result.Content.ReadAsStringAsync();
+                AppState.UserAvatar = Avatar;
+                await LocalStorage.SetItemAsync("avatar", Avatar);
+            }
+        }
+        catch (Exception)
+        {
+        }
+        IsDisabled = false;
+    }
+
+    private async Task Delete()
+    {
+        IsDisabled = true;
+        var result = await Http.GetAsync("api/Profile/RemoveAvatar");
+        if (result.IsSuccessStatusCode)
+        {
+            Avatar = null;
+            AppState.UserAvatar = null;
+            await LocalStorage.RemoveItemAsync("avatar");
+        }
+        IsDisabled = false;
+    }
+
+    public void Dispose()
+    {
+        AppState.OnChange -= StateHasChanged;
+    }
+
+}

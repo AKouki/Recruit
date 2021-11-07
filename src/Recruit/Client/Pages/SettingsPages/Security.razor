@@ -1,0 +1,86 @@
+﻿@page "/Settings/Security"
+@inject HttpClient Http
+@inject IAuthService AuthService
+@inject NavigationManager NavigationManager
+@attribute [Authorize]
+
+<h3>Settings</h3>
+
+<SettingsNavMenu />
+
+<div class="max-width-960">
+    <div class="sub-header">
+        <h5>Change Password</h5>
+    </div>
+    @if (ShowSuccess)
+    {
+        <div class="alert alert-success fs-14 alert-dismissible fade show" role="alert">
+            <p class="fs-14 mb-0">Your password has been changed successfully.</p>
+            <button type="button" class="btn-close" @onclick="@(() => ShowSuccess = false)" aria-label="Close"></button>
+        </div>
+    }
+    @if (ShowErrors)
+    {
+        <div class="alert alert-danger fs-14 alert-dismissible fade show" role="alert">
+            @foreach (var error in Errors ?? Enumerable.Empty<string>())
+            {
+                <p class="fs-14 mb-0">@error</p>
+            }
+            <button type="button" class="btn-close" @onclick="@(() => ShowErrors = false)" aria-label="Close"></button>
+        </div>
+    }
+    <EditForm Model="model" OnValidSubmit="HandleSubmit" class="row g-3">
+        <DataAnnotationsValidator />
+        <div class="col-12 mt-0">
+            <ValidationSummary />
+        </div>
+        <div class="col-12">
+            <label for="oldPassword" class="form-label d-block">Old password</label>
+            <InputText type="password" id="oldPassword" @bind-Value="model.OldPassword" class="form-control" />
+            <ValidationMessage For="() => model.OldPassword" />
+        </div>
+        <div class="col-12">
+            <label for="newPassword" class="form-label d-block">New password</label>
+            <InputText type="password" id="newPassword" @bind-Value="model.NewPassword" class="form-control" />
+            <ValidationMessage For="() => model.NewPassword" />
+        </div>
+        <div class="col-12">
+            <label for="newPasswordConfirm" class="form-label d-block">Confirm new password</label>
+            <InputText type="password" id="newPasswordConfirm" @bind-Value="model.NewPasswordConfirm" class="form-control" />
+            <ValidationMessage For="() => model.NewPasswordConfirm" />
+        </div>
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary btn-sm" disabled="@IsDisabled">Update password</button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    private ChangePasswordViewModel model = new();
+
+    private bool ShowSuccess;
+    private bool ShowErrors;
+    private bool IsDisabled { get; set; }
+
+    private IEnumerable<string>? Errors;
+
+    private async Task HandleSubmit()
+    {
+        ShowSuccess = false;
+        ShowErrors = false;
+
+        IsDisabled = true;
+        var result = await AuthService.ChangePassword(model);
+        if (result.Succeeded)
+        {
+            ShowSuccess = true;
+            model = new();
+        }
+        else
+        {
+            Errors = result?.Errors;
+            ShowErrors = true;
+        }
+        IsDisabled = false;
+    }
+}

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Recruit.Server.Services.AuthService;
 using Recruit.Shared.ViewModels;
@@ -35,5 +34,17 @@ namespace Recruit.Server.Controllers
 
             return BadRequest(result);
         }
+
+        [HttpPut("ChangePassword")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordViewModel viewModel)
+        {
+            var result = await _authService.ChangePasswordAsync(User.Identity?.Name, viewModel.OldPassword, viewModel.NewPassword);
+            if (result.Succeeded)
+                return Ok(result);
+
+            return BadRequest(result);
+        }
+
     }
 }

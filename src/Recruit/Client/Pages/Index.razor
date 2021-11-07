@@ -5,7 +5,7 @@
 <PageTitle>Home</PageTitle>
 
 <AuthorizeView>
-    <h3>Hello, @context.User?.FindFirst("name")?.Value.Split(" ")[0]!</h3>
+    <h3>Hello, @context.User?.FindFirst("full_name")?.Value.Split(" ")[0]!</h3>
     <div class="dashboard mt-3">
         <UpcomingInterviews OnSelectApplicant="ShowDetails" />
         <RecentApplicants OnSelectApplicant="ShowDetails" />

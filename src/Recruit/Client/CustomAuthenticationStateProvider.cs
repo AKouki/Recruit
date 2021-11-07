@@ -11,7 +11,9 @@ namespace Recruit.Client
         private readonly HttpClient _httpClient;
         private readonly ILocalStorageService _localStorage;
 
-        public CustomAuthenticationStateProvider(HttpClient httpClient, ILocalStorageService localStorage)
+        public CustomAuthenticationStateProvider(
+            HttpClient httpClient, 
+            ILocalStorageService localStorage)
         {
             _httpClient = httpClient;
             _localStorage = localStorage;
@@ -36,13 +38,18 @@ namespace Recruit.Client
             return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(claims, "Server Authentication")));
         }
 
+        public async Task UpdateState()
+        {
+            await GetAuthenticationStateAsync();
+        }
+
         public void MarkUserAsAuthenticated(string? email, string? fullName)
         {
             var authenticatedUser = new ClaimsPrincipal(
                 new ClaimsIdentity(new[]    
                     { 
                         new Claim("email", email ?? string.Empty),
-                        new Claim("name", fullName ?? string.Empty)
+                        new Claim("full_name", fullName ?? string.Empty)
                     }, "Server Authentication"));
 
 

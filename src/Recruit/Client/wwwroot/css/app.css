@@ -1,6 +1,6 @@
 ﻿html, body {
     font-family: -apple-system, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    color: #343E4A;
+    color: #333;
 }
 
 .container {
@@ -67,6 +67,7 @@ a:hover {
     min-height: 32px;
     border-radius: 50%;
     object-fit: cover;
+    color: white;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -74,11 +75,16 @@ a:hover {
 
 .avatar-rounded {
     border-radius: 4px;
-    background: #b1b195 !important;
 }
 
 .avatar-green {
     background: #26b050;
+    color: white;
+    transition: all .15s ease;
+}
+
+.avatar-project {
+    background: #b1b195;
     color: white;
     transition: all .15s ease;
 }
@@ -240,7 +246,7 @@ td a:hover {
 }
 
 .dropdown-divider {
-    background: #f2f4f8;
+    border-top: 1px solid #e5e8ea;
 }
 
 /*===============================================*/
@@ -280,4 +286,43 @@ form label {
 
 .p-25 {
     padding: 25px;
+}
+
+
+/*===============================================*/
+
+.nav-tabs {
+    border-bottom: 1px solid #eee;
+
+}
+
+.nav-tabs .nav-item {
+    margin-right: 24px;
+}
+
+.nav-tabs .nav-item:last-child {
+    margin-right: 0;
+}
+
+.nav-tabs .nav-link {
+    padding-left: 0;
+    padding-right: 0;
+    font-size: 14px;
+    color: #333;
+    border: none;
+    margin-bottom: -1px;
+}
+
+.nav-tabs .nav-link.active,
+.nav-tabs .nav-link:hover {
+    color: #3845bf;
+    border-bottom: 1px solid #3845bf;
+}
+
+/*===============================================*/
+
+.sub-header {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 0.35rem;
+    margin-bottom: 1rem;
 }

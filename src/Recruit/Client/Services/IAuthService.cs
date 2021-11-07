@@ -7,6 +7,7 @@ namespace Recruit.Client.Services
     {
         Task<AuthResult> Login(UserViewModel user);
         Task<AuthResult> Register(UserViewModel user);
+        Task<AuthResult> ChangePassword(ChangePasswordViewModel model);
         Task Logout();
     }
 }

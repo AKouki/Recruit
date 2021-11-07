@@ -37,6 +37,8 @@ namespace Recruit.Client.Services
             }
 
             await _localStorageService.SetItemAsync("authToken", loginResult?.Token);
+            await _localStorageService.SetItemAsync("fullName", loginResult?.FullName ?? string.Empty);
+            await _localStorageService.SetItemAsync("avatar", loginResult?.Avatar ?? string.Empty);
             ((CustomAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(user.Email, loginResult?.FullName!);
 
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", loginResult?.Token);
@@ -51,12 +53,27 @@ namespace Recruit.Client.Services
             return authResult ?? new AuthResult();
         }
 
-
         public async Task Logout()
         {
             await _localStorageService.RemoveItemAsync("authToken");
+            await _localStorageService.RemoveItemAsync("fullName");
+            await _localStorageService.RemoveItemAsync("avatar");
             ((CustomAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsLoggedOut();
             _httpClient.DefaultRequestHeaders.Authorization = null;
+        }
+
+        public async Task<AuthResult> ChangePassword(ChangePasswordViewModel model)
+        {
+            var response = await _httpClient.PutAsJsonAsync("api/Accounts/ChangePassword", model);
+            var authResult = await response.Content.ReadFromJsonAsync<AuthResult>();
+
+            if (authResult?.Succeeded == true)
+            {
+                await _localStorageService.SetItemAsync("authToken", authResult?.Token);
+                await ((CustomAuthenticationStateProvider)_authenticationStateProvider).UpdateState();
+            }
+
+            return authResult ?? new AuthResult();
         }
     }
 }

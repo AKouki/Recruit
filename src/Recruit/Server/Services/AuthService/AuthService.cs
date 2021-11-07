@@ -33,7 +33,8 @@ namespace Recruit.Server.Services.AuthService
                 {
                     Succeeded = true,
                     Token = _tokenService.GenerateToken(email, user.FullName),
-                    FullName = user.FullName
+                    FullName = user.FullName,
+                    Avatar = user.Avatar
                 };
             }
 
@@ -53,7 +54,8 @@ namespace Recruit.Server.Services.AuthService
                 {
                     Succeeded = true,
                     Token = _tokenService.GenerateToken(email, fullName),
-                    FullName = user.FullName
+                    FullName = user.FullName,
+                    Avatar = user.Avatar
                 };
             }
 
@@ -62,5 +64,39 @@ namespace Recruit.Server.Services.AuthService
                 Errors = result.Errors.Select(x => x.Description)
             };
         }
+
+        public async Task<AuthResult> ChangePasswordAsync(string? email, string? oldPassword, string? newPassword)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+                return new AuthResult("Invalid password");
+
+            // Validate password format
+            var passwordValidator = new PasswordValidator<ApplicationUser>();
+            var result = await passwordValidator.ValidateAsync(_userManager, user, newPassword);
+            if (!result.Succeeded)
+            {
+                return new AuthResult()
+                {
+                    Errors = result.Errors.Select(e => e.Description).ToList()
+                };
+            }
+
+            // Validate password and change it
+            var identityResult = await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
+            if (identityResult.Succeeded)
+            {
+                return new AuthResult()
+                {
+                    Succeeded = true,
+                    Token = _tokenService.GenerateToken(email, user.FullName),
+                    FullName = user.FullName,
+                    Avatar = user.Avatar
+                };
+            }
+
+            return new AuthResult("Invalid password");
+        }
+
     }
 }

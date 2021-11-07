@@ -1,0 +1,72 @@
+﻿@page "/Settings"
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@attribute [Authorize]
+
+<h3>Settings</h3>
+
+<SettingsNavMenu />
+
+<div class="max-width-960">
+    <div class="sub-header">
+        <h5>Profile Settings</h5>
+    </div>
+    
+    <UpdateProfilePicture/>
+
+    @if (model == null)
+    {
+        <p>Loading...</p>
+    }
+    else
+    {
+        <EditForm Model="@model" OnValidSubmit="HandleSubmit" class="row g-3">
+            <DataAnnotationsValidator />
+            <div class="col-12">
+                <label for="fullName" class="form-label d-block">Full name</label>
+                <InputText id="fullName" @bind-Value="model.FullName" class="form-control" />
+                <ValidationMessage For="() => model.FullName" />
+            </div>
+            <div class="col-12">
+                <label for="email" class="form-label d-block">Email</label>
+                <InputText id="email" @bind-Value="model.Email" class="form-control" disabled/>
+            </div>
+            <div class="col-12">
+                <label for="headline" class="form-label d-block">Headline</label>
+                <InputText id="headline" @bind-Value="model.Headline" class="form-control" placeholder="e.g. Web Developer" />
+                <ValidationMessage For="() => model.Headline" />
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary btn-sm" disabled="@IsDisabled">Update profile</button>
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+    private UpdateProfileViewModel model = new();
+    private bool IsDisabled { get; set; } = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var profile = await Http.GetFromJsonAsync<ProfileViewModel>("api/Profile/MyProfile");
+        if (profile != null)
+        {
+            model.FullName = profile.FullName;
+            model.Email = profile.Email;
+            model.Headline = profile.Headline;
+        }
+        IsDisabled = false;
+    }
+
+    private async Task HandleSubmit()
+    {
+        IsDisabled = true;
+        var response = await Http.PutAsJsonAsync<UpdateProfileViewModel>("api/Profile/UpdateProfile", model);
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/Logout");
+        }
+        IsDisabled = false;
+    }
+}

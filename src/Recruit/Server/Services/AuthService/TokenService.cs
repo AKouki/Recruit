@@ -21,8 +21,9 @@ namespace Recruit.Server.Services.AuthService
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(JwtRegisteredClaimNames.Sub, email!),
-                    new Claim(JwtRegisteredClaimNames.Name, fullName!),
+                    new Claim(JwtRegisteredClaimNames.Name, email!),
                     new Claim(JwtRegisteredClaimNames.Email, email!),
+                    new Claim("full_name", fullName!),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     new Claim(JwtRegisteredClaimNames.Iss, _configuration["Jwt:Issuer"]),
                     new Claim(JwtRegisteredClaimNames.Aud, _configuration["Jwt:Audience"])

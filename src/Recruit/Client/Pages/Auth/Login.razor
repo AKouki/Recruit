@@ -32,7 +32,7 @@
                 <label for="password" class="form-label d-block">Password</label>
                 <InputText id="password" type="password" @bind-Value="loginModel.Password" class="form-control" />
             </div>
-            <div class="col-12 mt-0">
+            <div class="col-12 mt-1">
                 <NavLink href="ForgotPassword" class="text-muted fs-14">
                     Forgot password?
                 </NavLink>
@@ -81,7 +81,6 @@
             Errors = result?.Errors;
             ShowErrors = true;
         }
-        await Task.Delay(2000);
         IsDisabled = false;
     }
 
