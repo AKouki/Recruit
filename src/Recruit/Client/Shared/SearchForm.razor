@@ -1,7 +1,9 @@
 ﻿@inject HttpClient Http
+@implements IDisposable
+@using System.Timers
 
 <div class="search-result-container">
-    <input type="text" class="search-input" placeholder="Search..." @oninput="Search" @onfocusin="ShowResults" />
+    <input type="text" class="search-input" placeholder="Search..." @bind-value="SearchTerm" @bind-value:event="oninput" @onfocusin="ShowResults" />
     <div class="svg-container">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
     </div>
@@ -70,9 +72,45 @@
 }
 
 @code {
+    private SearchResult? result;
     private bool showSearchResult = false;
-
     private string? SearchResultCssClass => showSearchResult ? "search-result show" : "search-result";
+
+    private Timer? debounceTimer;
+    private double debounceInterval = 300;
+    private string? _searchTerm;
+    private string? SearchTerm
+    {
+        get => _searchTerm;
+        set
+        {
+            _searchTerm = value;
+            if (value?.Length == 0)
+                debounceTimer?.Stop();
+            else
+            {
+                debounceTimer?.Stop();
+                debounceTimer?.Start();
+            }
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        debounceTimer = new Timer(debounceInterval);
+        debounceTimer.Elapsed += Search;
+        debounceTimer.AutoReset = false;
+    }
+
+    public async void Search(object? sender, ElapsedEventArgs args)
+    {
+        result = null;
+
+        if (!string.IsNullOrEmpty(SearchTerm))
+            result = await Http.GetFromJsonAsync<SearchResult?>($"api/Search?searchTerm={SearchTerm}");
+
+        StateHasChanged();
+    }
 
     private void ShowResults()
     {
@@ -86,12 +124,8 @@
         StateHasChanged();
     }
 
-    private SearchResult? result;
-
-    public async Task Search(ChangeEventArgs args)
+    public void Dispose()
     {
-        result = null;
-        if (!string.IsNullOrEmpty(args.Value?.ToString()))
-            result = await Http.GetFromJsonAsync<SearchResult?>($"api/Search?searchTerm={args.Value.ToString()}");
+        debounceTimer?.Dispose();
     }
 }
