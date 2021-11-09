@@ -43,16 +43,12 @@ input[type="text"]:focus {
 .search-result {
     position: absolute;
     background: white;
+    border-radius: 0.25rem;
     border: 1px solid #eee;
-    border-color: transparent;
-    border-radius: 0.375rem;
-    box-shadow: 0 3px 10px #0000000b;
     width: 450px;
     z-index: 20;
-    opacity: 0;
     margin-top: 0.25rem;
     display: none;
-    transition: all .2s ease;
 }
 
 .search-result-content {
@@ -62,9 +58,6 @@ input[type="text"]:focus {
 
 .search-result.show {
     display: block;
-    opacity: 1;
-    transition: visibility 0s linear 0s,opacity .2s 0s;
-    visibility: visible;
 }
 
 a {
