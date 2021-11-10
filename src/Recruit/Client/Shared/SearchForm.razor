@@ -18,7 +18,7 @@
                         @foreach (var applicant in result.Applicants)
                         {
                             <li class="mt-2">
-                                <a href="#" class="d-flex align-items-center">
+                                <a class="d-flex align-items-center cursor-pointer" @onclick="@(() => ShowDetails(applicant.Id))">
                                     @if (!string.IsNullOrEmpty(applicant.ProfilePhoto))
                                     {
                                         <img src="@applicant.ProfilePhoto" class="avatar me-2" />
@@ -44,7 +44,7 @@
                         @foreach (var job in result.Jobs)
                         {
                             <li class="mt-2">
-                                <NavLink href="@($"Jobs/{job.Id}")" class="d-flex align-items-center">
+                                <NavLink href="@($"Jobs/{job.Id}")" class="d-flex align-items-center" @onclick="HideResults">
                                     <span class="avatar avatar-rounded avatar-project me-2">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-briefcase"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
                                     </span>
@@ -66,6 +66,8 @@
     <div class="outside-clickable-container" @onclick="HideResults">
     </div>
 }
+
+<ApplicantDetails ApplicantId="CurrentApplicantId" OnClose="HideDetails" />
 
 @code {
     private SearchResult? result;
@@ -95,6 +97,8 @@
         }
     }
 
+    private int? CurrentApplicantId { get; set; }
+
     protected override void OnInitialized()
     {
         debounceTimer = new Timer(debounceInterval);
@@ -122,6 +126,17 @@
     {
         showSearchResult = false;
         StateHasChanged();
+    }
+
+    public void ShowDetails(int? id)
+    {
+        CurrentApplicantId = id;
+        HideResults();
+    }
+
+    public void HideDetails()
+    {
+        CurrentApplicantId = null;
     }
 
     public void Dispose()
