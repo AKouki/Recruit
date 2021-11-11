@@ -6,8 +6,7 @@ namespace Recruit.Shared.ViewModels
     {
         [Required]
         public int JobId { get; set; }
-        [Required]
-        [EmailAddress]
-        public string? ApplicantEmail { get; set; }
+
+        public List<string>? Emails { get; set; }
     }
 }

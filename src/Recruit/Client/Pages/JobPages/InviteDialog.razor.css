@@ -1,0 +1,25 @@
+﻿.emails-list {
+    margin-bottom: 0;
+    min-height: 20px;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.emails-list li {
+    margin-bottom: 8px;
+    margin-right: 3px;
+}
+
+.emails-list li:last-child {
+    margin-bottom: 0;
+}
+
+.btn-remove {
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+.invalid-email {
+    margin-left: 2px;
+}

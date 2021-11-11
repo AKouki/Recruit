@@ -1,46 +1,67 @@
-﻿@inject HttpClient Http
+﻿@using System.ComponentModel.DataAnnotations
+@inject HttpClient Http
 
 @if (IsVisible)
 {
     <div class="modal fade show d-block" id="myModal" style="background-color:rgba(0,0,0,.5)" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <EditForm Model="@inviteModel" OnValidSubmit="@HandleSubmit">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Invite an Applicant</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="Cancel"></button>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Invite Candidates</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="Cancel"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="col-12">
+                        <p class="text-muted">Invite candidates to <span class="text-dark">@JobTitle</span></p>
                     </div>
-                    <div class="modal-body">
-                        <div class="col-12">
-                            <span>Position: <span class="fw-500">@JobTitle</span></span>
-                        </div>
-                        <div class="col-12">
-                            <DataAnnotationsValidator />
-                            <ValidationSummary />
-                        </div>
-                        <div class="col-12 mt-2">
-                            <label for="email" class="form-label d-block">Email</label>
-                            <InputText id="email" @bind-Value="inviteModel.ApplicantEmail" class="form-control" />
-                        </div>
+                    <div class="col-12 mt-2">
+                        <input type="text" id="email" @bind="Email" @bind:event="oninput" class="form-control" placeholder="Type email and press Enter..." @onkeydown="HandleEnter" />
+                        @if (ShowInvalidEmail)
+                        {
+                            <span class="fs-14 text-danger invalid-email">Invalid Email</span>
+                        }
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal" @onclick="Cancel">Cancel</button>
-                        <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+                    <div class="col-12 mt-2 fw-500">
+                        <span class="fs-14 d-block py-2">Candidates</span>
+                        <ul class="list-unstyled emails-list">
+                            @foreach (var item in Emails ?? Enumerable.Empty<string>())
+                            {
+                                <li>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="d-flex align-items-center">
+                                            <span class="avatar avatar-green fw-400 me-2">@item.ToUpper()[0]</span>
+                                            <span class="fs-14 fw-500">@item</span>
+                                        </div>
+                                        <button class="text-muted btn-remove" @onclick="@(() => Emails?.Remove(item))">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                        </button>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
                     </div>
-                </EditForm>
+                </div>
+                <div class="modal-footer mb-1">
+                    <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal" @onclick="Cancel">Cancel</button>
+                    <button type="button" class="btn btn-primary btn-sm" @onclick="HandleSubmit" disabled="@IsDisabled">Invite @Emails?.Count Candidates</button>
+                </div>
             </div>
         </div>
     </div>
 }
 
 @code {
+    public string Email = "";
+    public List<string> Emails = new();
+
+    private bool IsDisabled => Emails?.Count == 0;
+    private bool ShowInvalidEmail { get; set; }
+
     [Parameter]
     public int JobId { get; set; }
 
     [Parameter]
     public string? JobTitle { get; set; }
-
-    private InviteModel inviteModel = new InviteModel();
 
     [Parameter]
     public EventCallback<bool> OnClose { get; set; }
@@ -53,26 +74,70 @@
 
     private async Task Cancel()
     {
+        Reset();
         await OnClose.InvokeAsync(false);
     }
 
     private async Task Ok()
     {
+        Reset();
         await OnClose.InvokeAsync(true);
     }
 
     private async Task HandleSubmit()
     {
-        var newModel = new InviteModel()
-            {
-                JobId = JobId,
-                ApplicantEmail = inviteModel.ApplicantEmail
-            };
+        if (Emails?.Count > 0)
+        {
+            var newModel = new InviteModel()
+                {
+                    JobId = JobId,
+                    Emails = Emails
+                };
 
-        var response = await Http.PostAsJsonAsync<InviteModel>($"api/Jobs/Invite", newModel);
-        inviteModel.ApplicantEmail = "";
+            var response = await Http.PostAsJsonAsync<InviteModel>($"api/Jobs/{JobId}/Invite", newModel);
 
-        //IsVisible = false;
-        await OnClose.InvokeAsync(true);
+            //IsVisible = false;
+            Reset();
+            await OnClose.InvokeAsync(true);
+        }
+    }
+
+    private void HandleEnter(KeyboardEventArgs args)
+    {
+        ShowInvalidEmail = false;
+        if (args.Code == "Enter" || args.Code == "NumpadEnter")
+        {
+            AddToList();
+        }
+    }
+
+    private void AddToList()
+    {
+        if (IsValidEmail())
+        {
+            if (!Emails.Contains(Email.ToLower()))
+                Emails?.Add(Email.ToLower());
+        }
+        else
+        {
+            ShowInvalidEmail = true;
+        }
+
+        Email = "";
+    }
+
+    private void Reset()
+    {
+        Emails = new List<string>();
+        Email = "";
+    }
+
+    private bool IsValidEmail()
+    {
+        if (string.IsNullOrEmpty(Email))
+            return false;
+
+        EmailAddressAttribute emailAddressAttribute = new EmailAddressAttribute();
+        return emailAddressAttribute.IsValid(Email);
     }
 }
