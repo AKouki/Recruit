@@ -9,52 +9,58 @@
         </div>
     </div>
 
-    @if (FilteredInterviews == null)
+    @if (!HasLoaded)
     {
-        <span>Loading...</span>
+        <div class="spinner-border text-secondary custom-spinner" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
     }
     else
     {
-        <TableTemplate Items="FilteredInterviews" Context="item" IsSmall="true">
-            <TableHeader>
-                <th scope="col">Applicant</th>
-                <th scope="col">Position</th>
-                <th scope="col">Date</th>
-                <th scope="col">Interviewer</th>
-            </TableHeader>
-            <NoDataTemplate>
-                <td colspan="4">There are no interviews.</td>
-            </NoDataTemplate>
-            <RowTemplate>
-                <td>
-                    <div class="d-flex align-items-center">
-                        @if (!string.IsNullOrEmpty(item.Applicant?.ProfilePhoto))
-                        {
-                            <img src="@item.Applicant?.ProfilePhoto" class="avatar me-2" />
-                        }
-                        else
-                        {
-                            <span class="avatar avatar-green me-2">@item.Applicant?.FirstName?.ToUpper()[0]</span>
-                        }
-                        <a @onclick:stopPropagation="true" @onclick="@(() => ShowDetails(item.Applicant!.Id))" class="name fw-500">
-                            @item.Applicant?.FirstName @item.Applicant?.LastName
-                        </a>
-                    </div>
-                </td>
-                <td>
-                    <NavLink href="@($"Jobs/{item.Applicant?.Job?.Id}")">
-                        @item.Applicant?.Job?.Title
-                    </NavLink>
-                </td>
-                <td>@item.ScheduledAt.ToString("dd/MM/yyyy")</td>
-                <td>@item.Interviewer</td>
-            </RowTemplate>
-        </TableTemplate>
+        if (FilteredInterviews != null)
+        {
+            <TableTemplate Items="FilteredInterviews" Context="item" IsSmall="true">
+                <TableHeader>
+                    <th scope="col">Applicant</th>
+                    <th scope="col">Position</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Interviewer</th>
+                </TableHeader>
+                <NoDataTemplate>
+                    <td colspan="4">There are no interviews.</td>
+                </NoDataTemplate>
+                <RowTemplate>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            @if (!string.IsNullOrEmpty(item.Applicant?.ProfilePhoto))
+                            {
+                                <img src="@item.Applicant?.ProfilePhoto" class="avatar me-2" />
+                            }
+                            else
+                            {
+                                <span class="avatar avatar-green me-2">@item.Applicant?.FirstName?.ToUpper()[0]</span>
+                            }
+                            <a @onclick:stopPropagation="true" @onclick="@(() => ShowDetails(item.Applicant!.Id))" class="name fw-500">
+                                @item.Applicant?.FirstName @item.Applicant?.LastName
+                            </a>
+                        </div>
+                    </td>
+                    <td>
+                        <NavLink href="@($"Jobs/{item.Applicant?.Job?.Id}")">
+                            @item.Applicant?.Job?.Title
+                        </NavLink>
+                    </td>
+                    <td>@item.ScheduledAt.ToString("dd/MM/yyyy")</td>
+                    <td>@item.Interviewer</td>
+                </RowTemplate>
+            </TableTemplate>
+        }
     }
 </div>
 
 @code {
     public bool ShowTodayOnly = true;
+    public bool HasLoaded;
 
     public string? TodayCssClass => ShowTodayOnly == true ? "btn btn-primary btn-sm me-1" : "btn btn-light btn-sm me-1";
     public string? UpcomingCssClass => ShowTodayOnly == false ? "btn btn-primary btn-sm" : "btn btn-light btn-sm";
@@ -69,6 +75,7 @@
     protected override async Task OnInitializedAsync()
     {
         Interviews = await Http.GetFromJsonAsync<List<Interview>>("api/Interviews");
+        HasLoaded = true;
     }
 
     private async Task ShowDetails(int? id)

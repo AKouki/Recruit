@@ -11,39 +11,49 @@
             }
         </select>
     </div>
-    <ul class="list-unstyled mt-3">
-        @if (FilteredApplicants == null || FilteredApplicants.Count == 0)
-        {
-            <li class="fs-14 text-secondary">No Applicants</li>
-        }
-        else
-        {
-            @foreach (var item in FilteredApplicants ?? Enumerable.Empty<Applicant>())
+    @if (!HasLoaded)
+    {
+        <div class="spinner-border text-secondary custom-spinner" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    }
+    else
+    {
+        <ul class="list-unstyled mt-3">
+            @if (FilteredApplicants == null || FilteredApplicants.Count == 0)
             {
-                <li class="pb-3">
-                    <div class="d-flex align-items-center">
-                        @if (!string.IsNullOrEmpty(item.ProfilePhoto))
-                        {
-                            <img src="@item.ProfilePhoto" class="avatar me-2" />
-                        }
-                        else
-                        {
-                            <span class="avatar avatar-green me-2">@item.FirstName?.ToUpper()[0]</span>
-                        }
-                        <div class="d-flex flex-column">
-                            <a @onclick:stopPropagation="true" @onclick="@(() => ShowDetails(item.Id))" class="cursor-pointer fs-14 fw-500">
-                                @item.FirstName @item.LastName
-                            </a>
-                            <span class="fs-14 text-secondary">applied for <span class="fw-400 text-secondary">@item.Job?.Title</span></span>
-                        </div>
-                    </div>
-                </li>
+                <li class="fs-14 text-secondary">No Applicants</li>
             }
-        }
-    </ul>
+            else
+            {
+                @foreach (var item in FilteredApplicants ?? Enumerable.Empty<Applicant>())
+                {
+                    <li class="pb-3">
+                        <div class="d-flex align-items-center">
+                            @if (!string.IsNullOrEmpty(item.ProfilePhoto))
+                            {
+                                <img src="@item.ProfilePhoto" class="avatar me-2" />
+                            }
+                            else
+                            {
+                                <span class="avatar avatar-green me-2">@item.FirstName?.ToUpper()[0]</span>
+                            }
+                            <div class="d-flex flex-column">
+                                <a @onclick:stopPropagation="true" @onclick="@(() => ShowDetails(item.Id))" class="cursor-pointer fs-14 fw-500">
+                                    @item.FirstName @item.LastName
+                                </a>
+                                <span class="fs-14 text-secondary">applied for <span class="fw-400 text-secondary">@item.Job?.Title</span></span>
+                            </div>
+                        </div>
+                    </li>
+                }
+            }
+        </ul>
+    }
 </div>
 
 @code {
+    public bool HasLoaded;
 
     public List<Applicant>? Applicants { get; set; }
     public List<Applicant>? FilteredApplicants { get; set; }
@@ -59,6 +69,7 @@
         Applicants = await Http.GetFromJsonAsync<List<Applicant>>("api/Applicants");
         FilteredApplicants = Applicants?.OrderByDescending(a => a.ApplyDate).Take(10).ToList();
         Jobs = Applicants?.Select(s => s.Job!).GroupBy(s => s.Id).Select(s => s.First()).ToList();
+        HasLoaded = true;
     }
 
     private void UpdateList(ChangeEventArgs args)
