@@ -6,13 +6,14 @@
 }
 
 ::deep .dashboard-item {
-    min-width: 250px;
+    min-width: 285px;
     /*background: #f2f4f8;*/
     border: 1px solid #ddd;
     height: 500px;
     border-radius: 0.25rem;
     padding: 1rem 1.25rem;
     margin-bottom: 20px;
+    margin-right: 1px;
     overflow: hidden;
 }
 
@@ -33,7 +34,7 @@
     height: calc(100% - 55px);
 }
 
-@media (max-width: 640.98px) {
+@media (max-width: 960.98px) {
     .dashboard {
         flex-direction: column;
     }
@@ -41,9 +42,46 @@
     ::deep .dashboard-item {
         width: 100% !important;
         height: auto;
+        margin-right: 5px !important;
+    }
+
+    ::deep .upcoming-interviews {
+        width: 100%;
+    }
+
+    ::deep .due-positions,
+    ::deep .recent-applicants {
+        width: 100%;
     }
 }
 
-@media (min-width: 641px) {
+@media (min-width: 961px) and (max-width: 1400.98px){
+    ::deep .upcoming-interviews {
+        width: 49%;
+    }
 
+    ::deep .due-positions,
+    ::deep .recent-applicants {
+        width: 49%;
+    }
 }
+
+@media (min-width: 1401px) {
+    ::deep .upcoming-interviews {
+        width: 45%;
+    }
+
+    ::deep .due-positions,
+    ::deep .recent-applicants {
+        width: 27%;
+    }
+}
+
+
+
+
+
+
+
+
+

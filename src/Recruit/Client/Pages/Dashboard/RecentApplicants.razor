@@ -1,6 +1,6 @@
 ﻿@inject HttpClient Http
 
-<div class="dashboard-item recent-applicants" style="width: 27%" @onclick="@(() => ShowDetails(null))">
+<div class="dashboard-item recent-applicants" @onclick="@(() => ShowDetails(null))">
     <div class="d-flex justify-content-between align-items-center">
         <h6>Recent Applicants</h6>
         <select id="jobType" class="form-select form-select-sm" value="@SelectedJobId" @onchange="UpdateList" style="width:150px">
