@@ -2,11 +2,26 @@
 @inject HttpClient Http
 @attribute [Authorize]
 
-<div class="d-flex justify-content-between align-items-center mb-3">
+<div class="d-flex justify-content-between align-items-center mb-1">
     <h3>Interviews</h3>
     <NavLink class="btn btn-primary btn-sm d-flex align-items-center" href="Interviews/Schedule">
         Schedule
     </NavLink>
+</div>
+
+<div class="d-flex filters mb-3">
+    <select class="form-select form-select-sm" value="@filterDateValue" @onchange="FilterByDate" @onchange:stopPropagation="true">
+        <option value="0" selected>Date</option>
+        <option value="1">Today</option>
+        <option value="2">Upcoming</option>
+    </select>
+    <select class="form-select form-select-sm" value="@filterJobIdValue" @onchange="FitlerByPosition" @onchange:stopPropagation="true">
+        <option value="0" selected>Position</option>
+        @foreach (var item in Positions)
+        {
+            <option value="@item?.Id">@item?.Title</option>
+        }
+    </select>
 </div>
 
 @if (interviews == null)
@@ -15,7 +30,7 @@
 }
 else
 {
-    <TableTemplate Items="interviews" Context="interview" IsSmall="true" ShowTableBorder="true">
+    <TableTemplate Items="filteredInterviews" Context="interview" IsSmall="true" ShowTableBorder="true">
         <TableHeader>
             <th scope="col">Applicant</th>
             <th scope="col">Position</th>
@@ -71,7 +86,13 @@ else
 
 @code {
     private List<Interview>? interviews;
+    private List<Interview>? filteredInterviews;
+    private int filterDateValue = 0;
+    private int filterJobIdValue = 0;
+
     private Interview? SelectedInterview { get; set; }
+
+    public List<Job?> Positions { get; set; } = new();
 
     private int? CurrentApplicantId { get; set; }
 
@@ -80,6 +101,10 @@ else
     protected override async Task OnInitializedAsync()
     {
         interviews = await Http.GetFromJsonAsync<List<Interview>>("api/Interviews");
+        if (interviews?.Count > 0)
+            Positions = interviews.Select(i => i.Applicant?.Job).DistinctBy(j => j?.Id).ToList();
+
+        filteredInterviews = interviews;
     }
 
     public void ShowDetails(int? id)
@@ -112,5 +137,32 @@ else
 
         ShowDeleteDialog = false;
         StateHasChanged();
+    }
+
+    private void FilterByDate(ChangeEventArgs args)
+    {
+        if (int.TryParse(args.Value?.ToString(), out int dateValue))
+        {
+            filterDateValue = dateValue;
+            ApplyFilter();
+        }
+    }
+
+    private void FitlerByPosition(ChangeEventArgs args)
+    {
+        if (int.TryParse(args.Value?.ToString(), out int jobId))
+        {
+            filterJobIdValue = jobId;
+            ApplyFilter();
+        }
+    }
+
+    private void ApplyFilter()
+    {
+        filteredInterviews = filterDateValue == 1 ? 
+            interviews?.Where(i => i.ScheduledAt.Date == DateTime.Now.Date).ToList() : interviews;
+
+        filteredInterviews = filterJobIdValue > 0 ? 
+            filteredInterviews?.Where(i => i.Applicant?.Job?.Id == filterJobIdValue).ToList() : filteredInterviews;        
     }
 }

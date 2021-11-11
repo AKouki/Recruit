@@ -2,8 +2,18 @@
 @inject HttpClient Http
 @attribute [Authorize]
 
-<div class="d-flex justify-content-between align-items-center mb-3">
+<div class="d-flex justify-content-between align-items-center mb-1">
     <h3>Applicants</h3>
+</div>
+
+<div class="d-flex filters mb-3">
+    <select class="form-select form-select-sm" @onchange="FitlerByPosition" @onchange:stopPropagation="true">
+        <option value="0">Position</option>
+        @foreach (var item in Positions)
+        {
+            <option value="@item?.Id">@item?.Title</option>
+        }
+    </select>
 </div>
 
 @if (applicants == null)
@@ -12,7 +22,7 @@
 }
 else
 {
-    <TableTemplate Items="applicants" Context="applicant" ShowTableBorder="true">
+    <TableTemplate Items="filteredApplicants" Context="applicant" ShowTableBorder="true">
         <TableHeader>
             <th scope="col">Name</th>
             <th scope="col">Applied for</th>
@@ -91,14 +101,21 @@ else
 
 @code {
     private List<Applicant>? applicants;
+    private List<Applicant>? filteredApplicants;
     private int? CurrentApplicantId { get; set; }
     private Applicant? applicantToDelete { get; set; }
+
+    public List<Job?> Positions { get; set; } = new();
 
     private bool ShowDeleteDialog = false;
 
     protected override async Task OnInitializedAsync()
     {
         applicants = await Http.GetFromJsonAsync<List<Applicant>>("api/Applicants");
+        if (applicants?.Count > 0)
+            Positions = applicants.Select(a => a.Job).DistinctBy(j => j?.Id).ToList();
+
+        filteredApplicants = applicants;
     }
 
     public void ShowDetails(int? id)
@@ -140,6 +157,15 @@ else
         {
             applicantToUpdate.Stage = applicant.Stage;
             StateHasChanged();
+        }
+    }
+
+    private void FitlerByPosition(ChangeEventArgs args)
+    {
+        if (int.TryParse(args.Value?.ToString(), out int jobId))
+        {
+            filteredApplicants = jobId > 0 ?
+                applicants?.Where(a => a.Job?.Id == jobId).ToList() : applicants;
         }
     }
 }
