@@ -9,7 +9,7 @@
         </span>
         <div class="sections">
             <div class="section section-main">
-                <div class="d-flex justify-content-between mb-3">
+                <div class="d-flex justify-content-between mb-2">
                     <div class="d-flex">
                         @if (!string.IsNullOrEmpty(Applicant.ProfilePhoto))
                         {
@@ -60,144 +60,156 @@
                     </div>
                 </div>
             </div>
-
-            <div class="section section-summary">
-                <h6 class="header">Summary</h6>
-                @if (string.IsNullOrEmpty(Applicant.Summary))
-                {
-                    <span class="fs-14 text-secondary">Not Provided</span>
-                }
-                else
-                {
-                    <p>@Applicant.Summary</p>
-                }
-            </div>
-
-            <div class="section section-contact-details">
-                <h6 class="header">Contact Details</h6>
-                <div class="d-flex mb-1">
-                    <span class="left-side">Address:</span>
-                    @if (string.IsNullOrEmpty(Applicant.Address))
-                    {
-                        <span class="right-side text-secondary">Not Provided</span>
-                    }
-                    else
-                    {
-                        <span class="right-side">@Applicant.Address</span>
-                    }
-                </div>
-                <div class="d-flex mb-1">
-                    <span class="left-side">Email:</span>
-                    <a class="right-side" href="@($"mailto:{Applicant.Email?.ToLower()}")">
-                        @Applicant.Email?.ToLower()
-                    </a>
-                </div>
-                <div class="d-flex mb-1">
-                    <span class="left-side">Phone:</span>
-                    <span class="right-side">@Applicant.Phone</span>
-                </div>
-            </div>
-
-            <div class="section section-education">
-                <h6 class="header">Education</h6>
-                @if (Applicant?.Education == null || Applicant.Education.Count == 0)
-                {
-                    <span class="fs-14 text-secondary">Not Provided</span>
-                }
-                else
-                {
-                    @foreach (var item in GetEducationInOrder(Applicant?.Education.ToList()))
-                    {
-                        <div class="d-flex mb-1">
-                            <span class="left-side">
-                                @item.StartDate.Year - @item.EndDate.Year
-                            </span>
-                            <span class="right-side">
-                                @if (!string.IsNullOrEmpty(item.Degree))
-                                {
-                                    <span>@item.Degree</span>
-                                }
-                                at <strong>@item.School</strong>
-                            </span>
-                        </div>
-                    }
-                }
-            </div>
-
-            <div class="section section-experience">
-                <h6 class="header">Experience</h6>
-                @if (Applicant?.Experience == null || Applicant.Experience.Count == 0)
-                {
-                    <span class="fs-14 text-secondary">Not Provided</span>
-                }
-                else
-                {
-                    @foreach (var item in GetExperienceInOrder(Applicant?.Experience.ToList()))
-                    {
-                        <div class="d-flex mb-1">
-                            <span class="left-side">
-                                @item.StartDate.Year - @(item.CurrentlyWorkingHere ? "Now" : item.EndDate.Year)
-                            </span>
-                            <span class="right-side">
-                                @item.Title
-                                @if (!string.IsNullOrEmpty(item.Company))
-                                {
-                                    <span> at <strong>@item.Company</strong></span>
-                                }
-                            </span>
-                        </div>
-                    }
-                }
-            </div>
-
-            <div class="section section-skills">
-                <h6 class="header">Skills</h6>
-                <div>
-                    @if (string.IsNullOrEmpty(Applicant?.Skills))
-                    {
-                        <span class="fs-14 text-secondary">Not Provided</span>
-                    }
-                    else
-                    {
-                        string[] skills = Applicant.Skills.Split(",");
-                        List<string> matchedSkills = new List<string>();
-
-                        if (!string.IsNullOrEmpty(Applicant.Job?.RequiredSkills))
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <button class="nav-link @(ActiveTabIndex == 1 ? "active" : "")" @onclick="@(() => ActiveTabIndex = 1)">Details</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link @(ActiveTabIndex == 2 ? "active" : "")" @onclick="@(() => ActiveTabIndex = 2)">Resume</button>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane fade @(ActiveTabIndex == 1 ? "show active": "")">
+                    <div class="section section-summary">
+                        <h6 class="header">Summary</h6>
+                        @if (string.IsNullOrEmpty(Applicant.Summary))
                         {
-                            matchedSkills = Applicant.Job.RequiredSkills.Split(",").ToList();
+                            <span class="fs-14 text-secondary">Not Provided</span>
                         }
-
-                        foreach (var skill in skills)
+                        else
                         {
-                            if (matchedSkills != null && matchedSkills.Any(s => s.Trim().ToLower().Contains(skill.Trim().ToLower())))
+                            <p>@Applicant.Summary</p>
+                        }
+                    </div>
+                    <div class="section section-contact-details">
+                        <h6 class="header">Contact Details</h6>
+                        <div class="d-flex mb-1">
+                            <span class="left-side">Address:</span>
+                            @if (string.IsNullOrEmpty(Applicant.Address))
                             {
-                                <span class="badge rounded-pill skill me-1 match">@skill</span>
+                                <span class="right-side text-secondary">Not Provided</span>
                             }
                             else
                             {
-                                <span class="badge rounded-pill skill me-1">@skill</span>
+                                <span class="right-side">@Applicant.Address</span>
+                            }
+                        </div>
+                        <div class="d-flex mb-1">
+                            <span class="left-side">Email:</span>
+                            <a class="right-side" href="@($"mailto:{Applicant.Email?.ToLower()}")">
+                                @Applicant.Email?.ToLower()
+                            </a>
+                        </div>
+                        <div class="d-flex mb-1">
+                            <span class="left-side">Phone:</span>
+                            <span class="right-side">@Applicant.Phone</span>
+                        </div>
+                    </div>
+
+                    <div class="section section-education">
+                        <h6 class="header">Education</h6>
+                        @if (Applicant?.Education == null || Applicant.Education.Count == 0)
+                        {
+                            <span class="fs-14 text-secondary">Not Provided</span>
+                        }
+                        else
+                        {
+                            @foreach (var item in GetEducationInOrder(Applicant?.Education.ToList()))
+                            {
+                                <div class="d-flex mb-1">
+                                    <span class="left-side">
+                                        @item.StartDate.Year - @item.EndDate.Year
+                                    </span>
+                                    <span class="right-side">
+                                        @if (!string.IsNullOrEmpty(item.Degree))
+                                        {
+                                            <span>@item.Degree</span>
+                                        }
+                                        at <strong>@item.School</strong>
+                                    </span>
+                                </div>
                             }
                         }
+                    </div>
 
-                        <div class="d-flex align-items-center mt-2 ms-1">
-                            <span class="bg-success rounded-pill skill-indicator"></span>
-                            <span class="skill-indicator-description">Match with job required skills</span>
+                    <div class="section section-experience">
+                        <h6 class="header">Experience</h6>
+                        @if (Applicant?.Experience == null || Applicant.Experience.Count == 0)
+                        {
+                            <span class="fs-14 text-secondary">Not Provided</span>
+                        }
+                        else
+                        {
+                            @foreach (var item in GetExperienceInOrder(Applicant?.Experience.ToList()))
+                            {
+                                <div class="d-flex mb-1">
+                                    <span class="left-side">
+                                        @item.StartDate.Year - @(item.CurrentlyWorkingHere ? "Now" : item.EndDate.Year)
+                                    </span>
+                                    <span class="right-side">
+                                        @item.Title
+                                        @if (!string.IsNullOrEmpty(item.Company))
+                                        {
+                                            <span> at <strong>@item.Company</strong></span>
+                                        }
+                                    </span>
+                                </div>
+                            }
+                        }
+                    </div>
+
+                    <div class="section section-skills">
+                        <h6 class="header">Skills</h6>
+                        <div>
+                            @if (string.IsNullOrEmpty(Applicant?.Skills))
+                            {
+                                <span class="fs-14 text-secondary">Not Provided</span>
+                            }
+                            else
+                            {
+                                string[] skills = Applicant.Skills.Split(",");
+                                List<string> matchedSkills = new List<string>();
+
+                                if (!string.IsNullOrEmpty(Applicant.Job?.RequiredSkills))
+                                {
+                                    matchedSkills = Applicant.Job.RequiredSkills.Split(",").ToList();
+                                }
+
+                                foreach (var skill in skills)
+                                {
+                                    if (matchedSkills != null && matchedSkills.Any(s => s.Trim().ToLower().Contains(skill.Trim().ToLower())))
+                                    {
+                                        <span class="badge rounded-pill skill me-1 match">@skill</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge rounded-pill skill me-1">@skill</span>
+                                    }
+                                }
+
+                                <div class="d-flex align-items-center mt-2 ms-1">
+                                    <span class="bg-success rounded-pill skill-indicator"></span>
+                                    <span class="skill-indicator-description">Match with job required skills</span>
+                                </div>
+                            }
                         </div>
-                    }
+                    </div>
                 </div>
-            </div>
-
-            <div class="section section-resume">
-                <h6 class="header">Resume</h6>
-                @if (Applicant?.Resume == null)
-                {
-                    <span class="fs-14 text-secondary">Not Provided</span>
-                }
-                else
-                {
-                    <a href="#" target="_blank">@Applicant?.Resume?.FileName</a>
-                    @*<PdfViewer RemotePath="@($"api/Attachments/Resume/{Applicant?.Resume?.FilePath}")" />*@
-                }
+                <div class="tab-pane fade @(ActiveTabIndex == 2 ? "show active": "")">
+                    <div class="section section-resume mt-2">
+                        @if (string.IsNullOrEmpty(Applicant?.Resume?.FilePath))
+                        {
+                            <span class="fs-14 text-secondary">Not Provided</span>
+                        }
+                        else
+                        {
+                            if (ActiveTabIndex == 2)
+                            {
+                                <PdfViewer RemotePath="@($"api/Attachments/Resume/{Applicant?.Resume?.FilePath}")" />
+                            }
+                        }
+                    </div>
+                </div>
             </div>
         </div>
     }
@@ -221,8 +233,12 @@
     private string? ShowDetailsPageCss => showDetailsPage ? "applicant-details show" : "applicant-details";
     private bool ShowLoading = false;
 
+    public int ActiveTabIndex { get; set; } = 1;
+
     protected override async Task OnParametersSetAsync()
     {
+        ActiveTabIndex = 1;
+
         if (ApplicantId != null)
         {
             Applicant = await Http.GetFromJsonAsync<Applicant>($"api/Applicants/{ApplicantId}");
