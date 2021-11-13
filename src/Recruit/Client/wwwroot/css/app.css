@@ -11,10 +11,14 @@ h1:focus {
     outline: none;
 }
 
-a,
-a:hover {
+a {
     text-decoration: none;
     color: inherit;
+}
+
+a:hover {
+    text-decoration: none;
+    color: #3845bf;
 }
 
 .auth-wrapper h1 {

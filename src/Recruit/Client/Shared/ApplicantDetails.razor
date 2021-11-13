@@ -75,36 +75,26 @@
 
             <div class="section section-contact-details">
                 <h6 class="header">Contact Details</h6>
-                <div>
-                    <table class="table">
-                        <tbody>
-                            <tr>
-                                <td width="150">Address:</td>
-                                <td>
-                                    @if (string.IsNullOrEmpty(Applicant.Address))
-                                    {
-                                        <span class="fs-14 text-secondary">Not Provided</span>
-                                    }
-                                    else
-                                    {
-                                        <span>@Applicant.Address</span>
-                                    }
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Email:</td>
-                                <td>
-                                    <a href="@($"mailto:{Applicant.Email?.ToLower()}")">
-                                        @Applicant.Email?.ToLower()
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Phone:</td>
-                                <td>@Applicant.Phone</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="d-flex mb-1">
+                    <span class="left-side">Address:</span>
+                    @if (string.IsNullOrEmpty(Applicant.Address))
+                    {
+                        <span class="right-side text-secondary">Not Provided</span>
+                    }
+                    else
+                    {
+                        <span class="right-side">@Applicant.Address</span>
+                    }
+                </div>
+                <div class="d-flex mb-1">
+                    <span class="left-side">Email:</span>
+                    <a class="right-side" href="@($"mailto:{Applicant.Email?.ToLower()}")">
+                        @Applicant.Email?.ToLower()
+                    </a>
+                </div>
+                <div class="d-flex mb-1">
+                    <span class="left-side">Phone:</span>
+                    <span class="right-side">@Applicant.Phone</span>
                 </div>
             </div>
 
@@ -116,11 +106,13 @@
                 }
                 else
                 {
-                    @foreach (var item in Applicant?.Education ?? Enumerable.Empty<Education>())
+                    @foreach (var item in GetEducationInOrder(Applicant?.Education.ToList()))
                     {
-                        <div class="mb-1">
-                            @item.StartDate.Year - @item.EndDate.Year
-                            <span class="ms-2">
+                        <div class="d-flex mb-1">
+                            <span class="left-side">
+                                @item.StartDate.Year - @item.EndDate.Year
+                            </span>
+                            <span class="right-side">
                                 @if (!string.IsNullOrEmpty(item.Degree))
                                 {
                                     <span>@item.Degree</span>
@@ -140,15 +132,17 @@
                 }
                 else
                 {
-                    @foreach (var item in Applicant?.Experience ?? Enumerable.Empty<Experience>())
+                    @foreach (var item in GetExperienceInOrder(Applicant?.Experience.ToList()))
                     {
-                        <div class="mb-1">
-                            @item.StartDate.Year - @item.EndDate.Year
-                            <span class="ms-2">
+                        <div class="d-flex mb-1">
+                            <span class="left-side">
+                                @item.StartDate.Year - @(item.CurrentlyWorkingHere ? "Now" : item.EndDate.Year)
+                            </span>
+                            <span class="right-side">
                                 @item.Title
                                 @if (!string.IsNullOrEmpty(item.Company))
                                 {
-                                    <span> at <strong>Microsoft</strong></span>
+                                    <span> at <strong>@item.Company</strong></span>
                                 }
                             </span>
                         </div>
@@ -240,13 +234,30 @@
         }
     }
 
+    private IEnumerable<Education> GetEducationInOrder(List<Education>? educations)
+    {
+        var result = educations?.OrderByDescending(e => e.EndDate)
+            .ThenByDescending(e => e.StartDate)
+            .ToList();
+
+        return result ?? Enumerable.Empty<Education>();
+    }
+
+    private IEnumerable<Experience> GetExperienceInOrder(List<Experience>? experiences)
+    {
+        var result = experiences?.OrderByDescending(e => e.EndDate)
+            .ThenByDescending(e => e.StartDate)
+            .ToList();
+
+        return result ?? Enumerable.Empty<Experience>();
+    }
+
     public async Task HideDetails()
     {
         Applicant = null;
         ApplicantId = null;
         await OnClose.InvokeAsync();
     }
-
 
     private async Task MoveToStage(ChangeEventArgs args)
     {
