@@ -118,7 +118,6 @@ else
     protected override async Task OnInitializedAsync()
     {
         Applicants = await Http.GetFromJsonAsync<List<Applicant>>("api/Applicants");
-        Applicants = Applicants?.Where(a => a.Interview == null).ToList();
 
         if (int.TryParse(Id, out int result))
         {
@@ -126,6 +125,8 @@ else
         }
         else
         {
+            // Show only unscheduled applicants
+            Applicants = Applicants?.Where(a => a.Interview == null).ToList();
             CurrentApplicant = Applicants?.FirstOrDefault();
         }
 
