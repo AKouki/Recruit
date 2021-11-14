@@ -25,8 +25,8 @@ else
                 <span class="validation-message">@StatusMessage</span>
             </div>
             <div class="col-12">
-                <div class="dropdown disabled">
-                    <a class=" dropdown-toggle form-control" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                <div class="dropdown">
+                    <a class=" dropdown-toggle form-control @(IsDisabledCss)" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
                         <div class="d-flex align-items-center">
                             @if (!string.IsNullOrEmpty(CurrentApplicant?.ProfilePhoto))
                             {
@@ -86,7 +86,7 @@ else
                 <InputSelect class="form-select" @bind-Value="model.Duration">
                     <option value="15">15 minutes</option>
                     <option value="20">20 minutes</option>
-                    <option value="30" selected>30 minutes</option>
+                    <option value="30">30 minutes</option>
                     <option value="45">45 minutes</option>
                     <option value="60">60 minutes</option>
                 </InputSelect>
@@ -104,15 +104,16 @@ else
     [Parameter]
     public string? Id { get; set; }
 
-    private Applicant? CurrentApplicant { get; set; }
-
     private ScheduleInterviewModel model = new ScheduleInterviewModel();
 
     private List<Applicant>? Applicants { get; set; }
 
+    private Applicant? CurrentApplicant { get; set; }
+
     private bool IsLoading = true;
 
     private string? StatusMessage { get; set; }
+    private string? IsDisabledCss => string.IsNullOrEmpty(Id) ? "": "disabled";
 
     protected override async Task OnInitializedAsync()
     {
@@ -128,7 +129,17 @@ else
         }
 
         model.Date = CurrentApplicant?.Interview?.ScheduledAt ?? DateTime.Now;
-        model.Time = GetTimeSlots().FirstOrDefault();
+
+        if (string.IsNullOrEmpty(Id))
+        {
+            // Find the closest time slot for today
+            model.Time = GetTimeSlots().FirstOrDefault(t => t > DateTime.Now);
+        }
+        else
+        {
+            model.Time = DateTime.Today.Add(model.Date.TimeOfDay);
+            model.Duration = CurrentApplicant?.Interview?.Duration ?? 30;
+        }
 
         IsLoading = false;
     }
@@ -161,8 +172,9 @@ else
 
     private List<DateTime> GetTimeSlots()
     {
-        DateTime start = new DateTime(0001, 01, 01, 9, 0, 0);
-        DateTime end = new DateTime(0001, 01, 01, 18, 0, 0);
+        DateTime today = DateTime.Today;
+        DateTime start = new DateTime(today.Year, today.Month, today.Day, 9, 0, 0);
+        DateTime end = new DateTime(today.Year, today.Month, today.Day, 18, 0, 0);
 
         var result = new List<DateTime>();
 
