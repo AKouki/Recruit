@@ -135,7 +135,7 @@ else
         if (string.IsNullOrEmpty(Id))
         {
             // Find the closest time slot for today
-            model.Time = GetTimeSlots().FirstOrDefault(t => t > DateTime.Now);
+            model.Time = GetClosestTimeSlot();
         }
         else
         {
@@ -170,6 +170,13 @@ else
     private void BackToList()
     {
         NavigationManager.NavigateTo("/Interviews");
+    }
+
+    private DateTime GetClosestTimeSlot()
+    {
+        var timeSlots = GetTimeSlots();
+        var closestTimeSlot = timeSlots.FirstOrDefault(t => t > DateTime.Now, timeSlots[0]);
+        return closestTimeSlot;
     }
 
     private List<DateTime> GetTimeSlots()
