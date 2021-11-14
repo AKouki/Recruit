@@ -14,7 +14,7 @@ else
 {
     @if (Applicants == null || Applicants.Count == 0)
     {
-        <span class="d-block max-width-960 mx-auto">There are no applicants</span>
+        <span class="d-block max-width-960 mx-auto">There are no applicants or there is already an interview for them.</span>
     }
     else
     {
@@ -118,6 +118,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         Applicants = await Http.GetFromJsonAsync<List<Applicant>>("api/Applicants");
+        Applicants = Applicants?.Where(a => a.Interview == null).ToList();
 
         if (int.TryParse(Id, out int result))
         {
