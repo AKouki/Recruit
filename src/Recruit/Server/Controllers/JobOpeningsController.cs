@@ -43,7 +43,7 @@ namespace Recruit.Server.Controllers
         public async Task<IActionResult> Get(int id)
         {
             var job = await _db.Jobs
-                .FirstOrDefaultAsync(j => j.Published == true && j.Id == id);
+                .FirstOrDefaultAsync(j => j.Id == id && j.Published == true);
 
             if (job == null)
                 return NotFound();
@@ -55,8 +55,9 @@ namespace Recruit.Server.Controllers
         public async Task<IActionResult> Apply([FromForm] ApplicationModel model)
         {
             var job = await _db.Jobs
+                .Where(j => j.Id == model.JobId && j.Published == true)
                 .Include(j => j.Stages)
-                .FirstOrDefaultAsync(j => j.Id == model.JobId);
+                .FirstOrDefaultAsync();
 
             if (job == null)
                 return BadRequest();
