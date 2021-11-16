@@ -16,16 +16,19 @@ namespace Recruit.Server.Controllers
         private readonly IFileValidator _fileValidator;
         private readonly IWebHostEnvironment _env;
         private readonly IBlobService _blobService;
+        private readonly IConfiguration _configuration;
 
         public JobOpeningsController(ApplicationDbContext db,
             IFileValidator fileValidator,
             IWebHostEnvironment env,
-            IBlobService blobService)
+            IBlobService blobService, 
+            IConfiguration configuration)
         {
             _db = db;
             _fileValidator = fileValidator;
             _blobService = blobService;
             _env = env;
+            _configuration = configuration;
         }
 
         [HttpGet]
@@ -99,9 +102,10 @@ namespace Recruit.Server.Controllers
                 var uploaded = await _blobService.UploadPhotoAsync(model.Photo, blobName);
                 if (uploaded)
                 {
+                    string storageAccountName = _configuration["AzureBlobStorageSettings:StorageAccountName"];
                     newApplicant.ProfilePhoto = _env.IsDevelopment() ?
                         $"http://127.0.0.1:10000/devstoreaccount1/photos/{blobName}" :
-                        $"https://<storage_account_name>.blob.core.windows.net/photos/{blobName}";
+                        $"https://{storageAccountName}.blob.core.windows.net/photos/{blobName}";
                 }
             }
 

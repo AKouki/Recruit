@@ -17,16 +17,20 @@ namespace Recruit.Server.Controllers
         private readonly IFileValidator _fileValidator;
         private readonly IBlobService _blobService;
         private readonly IWebHostEnvironment _env;
+        private readonly IConfiguration _configuration;
+
         public ProfileController(
             UserManager<ApplicationUser> userManager,
             IFileValidator fileValidator,
-            IBlobService blobService, 
-            IWebHostEnvironment env)
+            IBlobService blobService,
+            IWebHostEnvironment env, 
+            IConfiguration configuration)
         {
             _userManager = userManager;
             _fileValidator = fileValidator;
             _blobService = blobService;
             _env = env;
+            _configuration = configuration;
         }
 
         [HttpGet("MyProfile")]
@@ -82,9 +86,10 @@ namespace Recruit.Server.Controllers
                     await _blobService.DeletePhotoAsync(oldBlobName);
 
                 // Update database
+                string storageAccountName = _configuration["AzureBlobStorageSettings:StorageAccountName"];
                 user.Avatar = _env.IsDevelopment() ?
                     $"http://127.0.0.1:10000/devstoreaccount1/photos/{blobName}" :
-                    $"https://<storage_account_name>.blob.core.windows.net/photos/{blobName}";
+                    $"https://{storageAccountName}.blob.core.windows.net/photos/{blobName}";
                 await _userManager.UpdateAsync(user);
             }
 
