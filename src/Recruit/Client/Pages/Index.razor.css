@@ -35,13 +35,6 @@
     height: calc(100% - 55px);
 }
 
-::deep .custom-spinner {
-    border-width: 2px;
-    position: absolute;
-    top: 48%;
-    left: 48%;
-}
-
 @media (max-width: 960.98px) {
     .dashboard {
         flex-direction: column;

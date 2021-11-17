@@ -1,0 +1,25 @@
+﻿<div class="@GenerateCssClasses() @ColorClass custom-spinner" role="status">
+    <span class="visually-hidden">Loading...</span>
+</div>
+
+@code {
+    [Parameter]
+    public bool IsCenter { get; set; }
+
+    [Parameter]
+    public string? ColorClass { get; set; } = "text-secondary";
+
+    [Parameter]
+    public bool IsSmall { get; set; }
+
+    private string GenerateCssClasses()
+    {
+        string classes = "spinner-border ";
+        if (IsCenter)
+            classes += "absolute-center ";
+        if (IsSmall)
+            classes += "spinner-border-sm ";
+
+        return classes;
+    }
+}

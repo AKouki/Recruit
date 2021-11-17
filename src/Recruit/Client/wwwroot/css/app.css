@@ -212,6 +212,22 @@ td a:hover {
 
 /*===============================================*/
 
+
+/* ============== Custom Spinner ============== */
+
+.custom-spinner {
+    border-width: 2px;
+}
+
+.absolute-center {
+    position: absolute;
+    top: 48%;
+    left: 48%;
+}
+
+/*===============================================*/
+
+
 .btn-rounded {
     border-radius: 25px;
 }
