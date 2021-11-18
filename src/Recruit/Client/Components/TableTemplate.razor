@@ -1,6 +1,6 @@
 ﻿@typeparam TItem
 
-<div class="table-responsive @ShowTableBorderCss">
+<div class="@ResponsiveCss @ShowTableBorderCss">
     <table class="table @IsSmallCss">
         <thead>
             <tr>@TableHeader</tr>
@@ -11,9 +11,18 @@
                 <tr>@NoDataTemplate</tr>
             }
 
-            @foreach (var item in Items ?? Enumerable.Empty<TItem>())
+            @if (Virtualize)
             {
-                <tr>@RowTemplate!(item)</tr>
+                <Virtualize Items="Items" Context="item">
+                    <tr>@RowTemplate!(item)</tr>
+                </Virtualize>
+            }
+            else
+            {
+                foreach (var item in Items ?? Enumerable.Empty<TItem>())
+                {
+                    <tr>@RowTemplate!(item)</tr>
+                }
             }
         </tbody>
     </table>
@@ -33,12 +42,30 @@
     public List<TItem> Items { get; set; } = new();
 
     [Parameter]
+    public bool Virtualize { get; set; }
+
+    [Parameter]
     public bool IsSmall { get; set; }
-    
+
     [Parameter]
     public bool ShowTableBorder { get; set; }
 
     private string? IsSmallCss => IsSmall ? "table-sm" : "";
 
     private string? ShowTableBorderCss => ShowTableBorder ? "table-wrapper" : "";
+
+    private string? ResponsiveCss = "";
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            Task.Run(async () =>
+            {
+                await Task.Delay(50);
+                ResponsiveCss = "table-responsive";
+                StateHasChanged();
+            });
+        }
+    }
 }
