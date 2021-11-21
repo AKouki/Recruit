@@ -204,11 +204,12 @@ namespace Recruit.Server.Controllers
                 JobType = job.JobType,
                 JobExperience = job.JobExperience,
                 RequiredSkills = job.RequiredSkills,
-                PostDate = job.PostDate,
+                PostDate = DateTime.Now,
                 Expires = job.Expires,
                 SalaryFrom = job.SalaryFrom,
                 SalaryTo = job.SalaryTo,
                 Published = false,
+                Applicants = new List<Applicant>(),
                 Stages = new List<Stage>()
             };
 
