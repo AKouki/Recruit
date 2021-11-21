@@ -180,6 +180,49 @@ namespace Recruit.Server.Controllers
             return Ok();
         }
 
+        [HttpGet("{id}/Clone")]
+        public async Task<IActionResult> Clone(int id)
+        {
+            var job = await _db.Jobs
+                .Where(j => j.Id == id)
+                .Include(j => j.Stages)
+                .FirstOrDefaultAsync();
+
+            if (job == null)
+                return NotFound();
+
+            var newJob = new Job()
+            {
+                Title = $"Copy of {job.Title}",
+                Description = job.Description,
+                Department = job.Department,
+                Country = job.Country,
+                City = job.City,
+                ContactPhone = job.ContactPhone,
+                ContactEmail = job.ContactEmail,
+                Manager = job.Manager,
+                JobType = job.JobType,
+                JobExperience = job.JobExperience,
+                RequiredSkills = job.RequiredSkills,
+                PostDate = job.PostDate,
+                Expires = job.Expires,
+                SalaryFrom = job.SalaryFrom,
+                SalaryTo = job.SalaryTo,
+                Published = false,
+                Stages = new List<Stage>()
+            };
+
+            foreach (var stage in job.Stages ?? Enumerable.Empty<Stage>())
+            {
+                newJob?.Stages?.Add(new Stage() { Name = stage.Name });
+            }
+
+            _db.Jobs.Add(newJob);
+            await _db.SaveChangesAsync();
+
+            return Ok(newJob);
+        }
+
         [HttpPost("{id}/Invite")]
         public IActionResult Invite(int id, InviteModel model)
         {
