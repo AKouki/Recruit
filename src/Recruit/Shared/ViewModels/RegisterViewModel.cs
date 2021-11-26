@@ -2,7 +2,7 @@
 
 namespace Recruit.Shared.ViewModels
 {
-    public class UserViewModel
+    public class RegisterViewModel
     {
         [Required]
         [EmailAddress]

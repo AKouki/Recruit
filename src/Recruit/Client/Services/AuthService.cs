@@ -24,7 +24,7 @@ namespace Recruit.Client.Services
             _localStorageService = localStorageService;
         }
 
-        public async Task<AuthResult> Login(UserViewModel user)
+        public async Task<AuthResult> Login(LoginViewModel user)
         {
             var dataJson = JsonSerializer.Serialize(user);
             var response = await _httpClient.PostAsync("api/Accounts/Login", new StringContent(dataJson, Encoding.UTF8, "application/json"));
@@ -46,7 +46,7 @@ namespace Recruit.Client.Services
             return loginResult ?? new AuthResult();
         }
 
-        public async Task<AuthResult> Register(UserViewModel user)
+        public async Task<AuthResult> Register(RegisterViewModel user)
         {
             var response = await _httpClient.PostAsJsonAsync("api/Accounts/Register", user);
             var authResult = await response.Content.ReadFromJsonAsync<AuthResult>();

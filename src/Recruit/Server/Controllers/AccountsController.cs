@@ -16,7 +16,7 @@ namespace Recruit.Server.Controllers
         }
 
         [HttpPost("Login")]
-        public async Task<IActionResult> Login([FromBody] UserViewModel model)
+        public async Task<IActionResult> Login([FromBody] LoginViewModel model)
         {
             var result = await _authService.LoginAsync(model.Email, model.Password);
             if (result.Succeeded)
@@ -26,7 +26,7 @@ namespace Recruit.Server.Controllers
         }
 
         [HttpPost("Register")]
-        public async Task<IActionResult> Register([FromBody] UserViewModel model)
+        public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
         {
             var result = await _authService.RegisterAsync(model.Email, model.Password, model.FullName);
             if (result.Succeeded)
