@@ -43,7 +43,7 @@ else
             <td>
                 <span class="fw-500 text-primary">@(job.Applicants?.Count())</span>
             </td>
-            <td>@job.Department</td>
+            <td>@job.Department?.Name</td>
             <td>@job.Manager</td>
             <td>@job.JobType.ToString()</td>
             <td>@job.JobExperience.ToString()</td>

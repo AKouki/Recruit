@@ -66,8 +66,6 @@ namespace Recruit.Server.Controllers
             var interviews = _db.Interviews.ToList();
             var interview = _db.Interviews.FirstOrDefault(x => x.Id == id);
 
-            Console.WriteLine("Interview id: " + id);
-
             if (interview == null)
             {
                 return NotFound();

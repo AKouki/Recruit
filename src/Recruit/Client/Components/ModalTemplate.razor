@@ -1,0 +1,54 @@
+﻿@if (IsVisible)
+{
+    <div class="modal fade @ShowCss @DisplayCss" style="background-color:rgba(0,0,0,.5);" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@Title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="Close"></button>
+                </div>
+                <div class="modal-body">
+                    @Body
+                </div>
+                <div class="modal-footer">
+                    @Footer
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public RenderFragment? Title { get; set; }
+
+    [Parameter]
+    public RenderFragment? Body { get; set; }
+
+    [Parameter]
+    public RenderFragment? Footer { get; set; }
+
+    public bool IsVisible { get; set; }
+
+    private string? ShowCss = "";
+    private string? DisplayCss = "";
+
+    public async Task Show()
+    {
+        IsVisible = true;
+        DisplayCss = "d-block";
+        await Task.Delay(50); // Let bootstrap apply the fade animation
+        ShowCss = "show";
+        StateHasChanged();
+    }
+
+    public async Task Close()
+    {
+        ShowCss = "";
+        await Task.Delay(150); // Let bootstrap apply the fade animation
+        DisplayCss = "d-none";
+        IsVisible = false;
+        StateHasChanged();
+    }
+
+}

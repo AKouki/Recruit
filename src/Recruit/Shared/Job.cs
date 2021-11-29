@@ -11,7 +11,8 @@ namespace Recruit.Shared
         [Required]
         [MinLength(50)]
         public string? Description { get; set; }
-        public string? Department { get; set; }
+        public int? DepartmentId { get; set; }
+        public Department? Department { get; set; }
 
         // Job Location
         [Required]

@@ -17,7 +17,7 @@ namespace Recruit.Server.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.0-rc.2.21480.5")
+                .HasAnnotation("ProductVersion", "6.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
@@ -182,6 +182,7 @@ namespace Recruit.Server.Data.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("FullName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Headline")
@@ -320,6 +321,27 @@ namespace Recruit.Server.Data.Migrations
                     b.ToTable("Attachment");
                 });
 
+            modelBuilder.Entity("Recruit.Shared.Department", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Departments", (string)null);
+                });
+
             modelBuilder.Entity("Recruit.Shared.Education", b =>
                 {
                     b.Property<int>("Id")
@@ -440,8 +462,8 @@ namespace Recruit.Server.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Department")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("DepartmentId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -479,6 +501,8 @@ namespace Recruit.Server.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DepartmentId");
 
                     b.ToTable("Jobs", (string)null);
                 });
@@ -612,6 +636,16 @@ namespace Recruit.Server.Data.Migrations
                     b.Navigation("Applicant");
                 });
 
+            modelBuilder.Entity("Recruit.Shared.Job", b =>
+                {
+                    b.HasOne("Recruit.Shared.Department", "Department")
+                        .WithMany("Jobs")
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Department");
+                });
+
             modelBuilder.Entity("Recruit.Shared.Stage", b =>
                 {
                     b.HasOne("Recruit.Shared.Job", "Job")
@@ -632,6 +666,11 @@ namespace Recruit.Server.Data.Migrations
                     b.Navigation("Interview");
 
                     b.Navigation("Resume");
+                });
+
+            modelBuilder.Entity("Recruit.Shared.Department", b =>
+                {
+                    b.Navigation("Jobs");
                 });
 
             modelBuilder.Entity("Recruit.Shared.Job", b =>

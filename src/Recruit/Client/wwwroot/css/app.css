@@ -115,6 +115,10 @@ a:hover {
     margin-bottom: 0;
 }
 
+.modal .validation-errors {
+    margin-top: 0;
+}
+
 #blazor-error-ui {
     background: lightyellow;
     bottom: 0;
@@ -149,6 +153,7 @@ a:hover {
 .table-wrapper {
     border: 1px solid #f2f4f8;
     border-radius: 0.25rem;
+    min-height: 185px;
 }
 
 .table {

@@ -23,6 +23,7 @@ namespace Recruit.Server.Controllers
         {
             var jobs = await _db.Jobs
                 .Include(j => j.Applicants)
+                .Include(j => j.Department)
                 .OrderByDescending(j => j.PostDate)
                 .ToListAsync();
 
@@ -57,6 +58,7 @@ namespace Recruit.Server.Controllers
                 .Where(j => j.Id == id)
                 .Include(j => j.Applicants)
                 .Include(j => j.Stages)
+                .Include(j => j.Department)
                 .FirstOrDefaultAsync();
 
             if (job == null)
@@ -67,7 +69,7 @@ namespace Recruit.Server.Controllers
                 JobId = job.Id,
                 JobTitle = job.Title,
                 Location = $"{job.City}, {job.Country}",
-                Department = job.Department,
+                Department = job.Department?.Name,
                 JobType = job.JobType.ToString(),
                 Applicants = job.Applicants?.ToList() ?? new List<Applicant>(),
                 Stages = job.Stages?.ToList() ?? new List<Stage>()
@@ -79,16 +81,13 @@ namespace Recruit.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] Job job)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
+            var department = _db.Departments.Find(job.DepartmentId);
 
             var newJob = new Job()
             {
                 Title = job.Title,
                 Description = job.Description,
-                Department = job.Department,
+                Department = department,
                 Country = job.Country,
                 City = job.City,
                 ContactPhone = job.ContactPhone,
@@ -127,9 +126,11 @@ namespace Recruit.Server.Controllers
             if (jobToEdit == null)
                 return NotFound();
 
+            var department = _db.Departments.Find(job.DepartmentId);
+
             jobToEdit.Title = job.Title;
             jobToEdit.Description = job.Description;
-            jobToEdit.Department = job.Department;
+            jobToEdit.DepartmentId = department?.Id;
             jobToEdit.Country = job.Country;
             jobToEdit.City = job.City;
             jobToEdit.ContactPhone = job.ContactPhone;
@@ -186,6 +187,7 @@ namespace Recruit.Server.Controllers
             var job = await _db.Jobs
                 .Where(j => j.Id == id)
                 .Include(j => j.Stages)
+                .Include(j => j.Department)
                 .FirstOrDefaultAsync();
 
             if (job == null)

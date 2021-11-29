@@ -17,6 +17,7 @@ namespace Recruit.Server.Data
         public DbSet<Applicant> Applicants => Set<Applicant>();
         public DbSet<Stage> Stages => Set<Stage>();
         public DbSet<Interview> Interviews => Set<Interview>();
+        public DbSet<Department> Departments => Set<Department>();
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

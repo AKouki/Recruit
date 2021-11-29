@@ -1,0 +1,178 @@
+﻿@page "/Admin"
+@page "/Admin/Members"
+@inject HttpClient Http
+@inject IAuthService AuthService
+@attribute [Authorize]
+
+<h3>Admin</h3>
+
+<AdminNavMenu />
+
+<div class="max-width-960">
+    @if (users == null || users.Count == 0)
+    {
+        <p>Loading...</p>
+    }
+    else
+    {
+        <a class="btn btn-primary btn-sm mb-3" @onclick="OpenRegisterModal">Add Member</a>
+
+        <TableTemplate Items="users" Context="user" ShowTableBorder="true" IsSmall="true">
+            <TableHeader>
+                <th scope="col">Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Actions</th>
+            </TableHeader>
+            <RowTemplate>
+                <td>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            @if (!string.IsNullOrEmpty(user.Avatar))
+                            {
+                                <img src="@user.Avatar" class="avatar me-2" />
+                            }
+                            else
+                            {
+                                <span class="avatar avatar-green me-2">@user.FullName?.ToUpper()[0]</span>
+                            }
+                            <span class="fw-500">@user.FullName</span>
+                        </div>
+                    </div>
+                </td>
+                <td>@user.Email</td>
+                <td>
+                    <div class="dropdown">
+                        <a class="btn dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-secondary feather feather-more-horizontal"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" @onclick="() => OpenDeleteDialog(user)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user-x"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="18" y1="8" x2="23" y2="13"></line><line x1="23" y1="8" x2="18" y2="13"></line></svg>
+                                    Remove
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </td>
+            </RowTemplate>
+        </TableTemplate>
+    }
+</div>
+
+<ModalTemplate @ref="createModal">
+    <Title>Add Member</Title>
+    <Body>
+        <EditForm id="newMemberForm" Model="registerModel" OnValidSubmit="HandleAccountCreation">
+            <DataAnnotationsValidator />
+            @if (ShowErrors)
+            {
+                <div class="alert alert-danger mt-2" role="alert">
+                    @foreach (var error in Errors ?? Enumerable.Empty<string>())
+                    {
+                        <p class="mb-0">@error</p>
+                    }
+                </div>
+            }
+            <div class="col-12 mb-2">
+                <label for="email" class="form-label">Email</label>
+                <InputText id="email" @bind-Value="registerModel.Email" class="form-control" />
+                <ValidationMessage For="() => registerModel.Email" />
+            </div>
+            <div class="col-12 mb-2">
+                <label for="fullName" class="form-label">Full Name</label>
+                <InputText id="fullName" @bind-Value="registerModel.FullName" class="form-control" />
+                <ValidationMessage For="() => registerModel.FullName" />
+            </div>
+            <div class="col-12 mb-2">
+                <label for="password" class="form-label">Password</label>
+                <InputText id="password" type="password" @bind-Value="registerModel.Password" class="form-control" />
+                <ValidationMessage For="() => registerModel.Password" />
+            </div>
+        </EditForm>
+    </Body>
+    <Footer>
+        <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal" @onclick="() => createModal?.Close()!">Cancel</button>
+        <button type="submit" form="newMemberForm" class="btn btn-primary btn-sm" disabled="@IsDisabled">Create</button>
+    </Footer>
+</ModalTemplate>
+
+<ConfirmDialog Title="Delete"
+               Text="Are you sure you want to delete this user?"
+               OnClose="OnDeleteDialogClose"
+               @bind-IsVisible="ShowDeleteDialog" />
+
+@code {
+    private List<UserViewModel>? users;
+    private UserViewModel? selectedUser;
+    private RegisterViewModel registerModel = new();
+
+    private ModalTemplate? createModal;
+
+    private bool ShowDeleteDialog = false;
+    private bool ShowErrors = false;
+    private IEnumerable<string>? Errors;
+    private bool IsDisabled = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = await Http.GetFromJsonAsync<List<UserViewModel>>("api/Members");
+    }
+
+    private void OpenDeleteDialog(UserViewModel user)
+    {
+        ShowDeleteDialog = true;
+        selectedUser = user;
+        StateHasChanged();
+    }
+
+    private async Task OnDeleteDialogClose(bool confirmed)
+    {
+        if (confirmed && selectedUser != null)
+        {
+            var response = await Http.DeleteAsync($"api/Members/{selectedUser.Username}");
+            if (response.IsSuccessStatusCode)
+            {
+                users?.Remove(selectedUser);
+            }
+        }
+
+        ShowDeleteDialog = false;
+        StateHasChanged();
+    }
+
+    private async Task OpenRegisterModal()
+    {
+        ShowErrors = false;
+        registerModel = new();
+        if (createModal != null)
+            await createModal.Show();
+    }
+
+    private async Task HandleAccountCreation()
+    {
+        ShowErrors = false;
+        IsDisabled = true;
+
+        var result = await AuthService.Register(registerModel);
+        if (result.Succeeded)
+        {
+            users?.Add(new UserViewModel()
+                {
+                    FullName = registerModel.FullName,
+                    Email = registerModel.Email,
+                    Username = registerModel.Email
+                });
+
+            createModal?.Close();
+        }
+        else
+        {
+            Errors = result?.Errors;
+            ShowErrors = true;
+        }
+
+        IsDisabled = false;
+    }
+
+}

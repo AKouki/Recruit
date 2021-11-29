@@ -1,0 +1,42 @@
+﻿.departments-list {
+
+}
+
+.department {
+    background: white;
+    padding: 10px 5px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.05s ease-in-out;
+}
+
+.department:hover {
+    background: #fafbfc;
+    cursor: pointer;
+}
+
+.department:last-child {
+    border-bottom: none;
+}
+
+.actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.actions button {
+    background: none;
+    border: none;
+    color: #777;
+    padding: 3px 5px;
+}
+
+.actions button:hover {
+    color: #333;
+}
+
+.actions svg {
+    width: 18px;
+    height: 18px;
+}
