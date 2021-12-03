@@ -26,6 +26,11 @@ a:hover {
     font-weight: 400;
 }
 
+.auth-wrapper .spinner-border-sm {
+    width: 0.875rem;
+    height: 0.875rem;
+}
+
 .cursor-pointer {
     cursor: pointer;
 }
