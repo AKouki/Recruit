@@ -38,10 +38,10 @@
             </div>
             <div class="col-12">
                 <label for="password" class="form-label">Confirm Password</label>
-                <InputText id="password" type="password" @bind-Value="RegisterModel.Password" class="form-control" />
+                <InputText id="password" type="password" @bind-Value="RegisterModel.ConfirmPassword" class="form-control" />
             </div>
-            <div class="col-12 mt-3">
-                <button type="submit" class="btn btn-primary fs-14 fw-500 py-2 w-100" disabled="@IsDisabled">
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary fs-14 fw-500 py-2 w-100 mt-1" disabled="@IsDisabled">
                     @if (IsDisabled)
                     {
                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
