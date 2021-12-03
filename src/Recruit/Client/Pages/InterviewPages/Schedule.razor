@@ -182,8 +182,8 @@ else
     private List<DateTime> GetTimeSlots()
     {
         DateTime today = DateTime.Today;
-        DateTime start = new DateTime(today.Year, today.Month, today.Day, 9, 0, 0);
-        DateTime end = new DateTime(today.Year, today.Month, today.Day, 18, 0, 0);
+        DateTime start = new DateTime(today.Year, today.Month, today.Day, 0, 0, 0);
+        DateTime end = new DateTime(today.Year, today.Month, today.Day, 23, 30, 0);
 
         var result = new List<DateTime>();
 
