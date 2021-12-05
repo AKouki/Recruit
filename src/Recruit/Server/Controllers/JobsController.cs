@@ -64,7 +64,7 @@ namespace Recruit.Server.Controllers
             if (job == null)
                 return NotFound();
 
-            var model = new JobDetailsModel
+            var model = new JobDetailsViewModel
             {
                 JobId = job.Id,
                 JobTitle = job.Title,
@@ -227,7 +227,7 @@ namespace Recruit.Server.Controllers
         }
 
         [HttpPost("{id}/Invite")]
-        public IActionResult Invite(int id, InviteModel model)
+        public IActionResult Invite(int id, InviteViewModel model)
         {
             Console.WriteLine("TODO: Send invitation email");
 

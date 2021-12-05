@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Recruit.Shared
+namespace Recruit.Shared.ViewModels
 {
-    public class UpdateStatusModel
+    public class UpdateStatusViewModel
     {
         [Required]
         public int ApplicantId { get; set; }

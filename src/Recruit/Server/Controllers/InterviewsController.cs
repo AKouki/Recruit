@@ -32,7 +32,7 @@ namespace Recruit.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] ScheduleInterviewModel model)
+        public async Task<IActionResult> Create([FromBody] ScheduleInterviewViewModel model)
         {
             var applicant = _db.Applicants.Find(model.ApplicantId);
             if (applicant == null)
@@ -61,7 +61,7 @@ namespace Recruit.Server.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Edit(int id, [FromBody] ScheduleInterviewModel model)
+        public async Task<IActionResult> Edit(int id, [FromBody] ScheduleInterviewViewModel model)
         {
             var interviews = _db.Interviews.ToList();
             var interview = _db.Interviews.FirstOrDefault(x => x.Id == id);

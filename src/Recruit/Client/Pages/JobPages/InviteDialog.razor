@@ -88,13 +88,13 @@
     {
         if (Emails?.Count > 0)
         {
-            var newModel = new InviteModel()
+            var newModel = new InviteViewModel()
                 {
                     JobId = JobId,
                     Emails = Emails
                 };
 
-            var response = await Http.PostAsJsonAsync<InviteModel>($"api/Jobs/{JobId}/Invite", newModel);
+            var response = await Http.PostAsJsonAsync<InviteViewModel>($"api/Jobs/{JobId}/Invite", newModel);
 
             //IsVisible = false;
             Reset();

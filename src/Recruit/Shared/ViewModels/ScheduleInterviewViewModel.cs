@@ -2,7 +2,7 @@
 
 namespace Recruit.Shared.ViewModels
 {
-    public class ScheduleInterviewModel
+    public class ScheduleInterviewViewModel
     {
         [Required]
         public int ApplicantId { get; set; }

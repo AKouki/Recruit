@@ -2,7 +2,7 @@
 
 namespace Recruit.Shared.ViewModels
 {
-    public class InviteModel
+    public class InviteViewModel
     {
         [Required]
         public int JobId { get; set; }

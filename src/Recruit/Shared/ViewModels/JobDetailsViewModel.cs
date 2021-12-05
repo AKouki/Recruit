@@ -1,6 +1,6 @@
 ﻿namespace Recruit.Shared.ViewModels
 {
-    public class JobDetailsModel
+    public class JobDetailsViewModel
     {
         public int JobId { get; set; }
         public string? JobTitle { get; set; }
@@ -10,7 +10,7 @@
         public List<Stage> Stages { get; set; }
         public List<Applicant> Applicants { get; set; }
 
-        public JobDetailsModel()
+        public JobDetailsViewModel()
         {
             Stages = new List<Stage>();
             Applicants = new List<Applicant>();

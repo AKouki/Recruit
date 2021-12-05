@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Recruit.Server.Data;
 using Recruit.Server.Services.BlobService;
 using Recruit.Shared;
+using Recruit.Shared.ViewModels;
 
 namespace Recruit.Server.Controllers
 {
@@ -54,7 +55,7 @@ namespace Recruit.Server.Controllers
         }
 
         [HttpPost("UpdateStatus")]
-        public async Task<IActionResult> UpdateStatus([FromBody] UpdateStatusModel model)
+        public async Task<IActionResult> UpdateStatus([FromBody] UpdateStatusViewModel model)
         {
             var applicant = await _db.Applicants.FirstOrDefaultAsync(a => a.Id == model.ApplicantId);
             var newStage = await _db.Stages.FirstOrDefaultAsync(s => s.Id == model.StageId);

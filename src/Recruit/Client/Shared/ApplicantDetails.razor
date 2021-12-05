@@ -281,7 +281,7 @@
             int.TryParse(args.Value?.ToString(), out int result))
         {
             ShowLoading = true;
-            var response = await Http.PostAsJsonAsync<UpdateStatusModel>("api/Applicants/UpdateStatus", new UpdateStatusModel
+            var response = await Http.PostAsJsonAsync<UpdateStatusViewModel>("api/Applicants/UpdateStatus", new UpdateStatusViewModel
                 {
                     ApplicantId = Applicant.Id,
                     StageId = result

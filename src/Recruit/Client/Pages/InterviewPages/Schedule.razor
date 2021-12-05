@@ -104,7 +104,7 @@ else
     [Parameter]
     public string? Id { get; set; }
 
-    private ScheduleInterviewModel model = new ScheduleInterviewModel();
+    private ScheduleInterviewViewModel model = new ScheduleInterviewViewModel();
 
     private List<Applicant>? Applicants { get; set; }
 
@@ -153,8 +153,8 @@ else
             model.ApplicantId = CurrentApplicant.Id;
 
             var response = string.IsNullOrEmpty(Id) ?
-                    await Http.PostAsJsonAsync<ScheduleInterviewModel>("api/Interviews", model) :
-                    await Http.PutAsJsonAsync<ScheduleInterviewModel>($"api/Interviews/{Id}", model);
+                    await Http.PostAsJsonAsync<ScheduleInterviewViewModel>("api/Interviews", model) :
+                    await Http.PutAsJsonAsync<ScheduleInterviewViewModel>($"api/Interviews/{Id}", model);
 
             if (response.IsSuccessStatusCode)
             {
