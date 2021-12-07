@@ -139,7 +139,6 @@ namespace Recruit.Server.Controllers
             jobToEdit.JobType = job.JobType;
             jobToEdit.JobExperience = job.JobExperience;
             jobToEdit.RequiredSkills = job.RequiredSkills;
-            jobToEdit.PostDate = jobToEdit.PostDate;
             jobToEdit.Expires = job.Expires;
             jobToEdit.SalaryFrom = job.SalaryFrom;
             jobToEdit.SalaryTo = job.SalaryTo;

@@ -1,4 +1,5 @@
 ﻿@page "/Applicants"
+@using Recruit.Client.Pages.ApplicantPages
 @inject HttpClient Http
 @attribute [Authorize]
 
@@ -37,11 +38,11 @@ else
                 <div class="d-flex align-items-center">
                     @if (!string.IsNullOrEmpty(applicant.ProfilePhoto))
                     {
-                        <img src="@applicant.ProfilePhoto" class="avatar me-2" />
+                    <img src="@applicant.ProfilePhoto" class="avatar me-2" />
                     }
                     else
                     {
-                        <span class="avatar avatar-green me-2">@applicant.FirstName?.ToUpper()[0]</span>
+                    <span class="avatar avatar-green me-2">@applicant.FirstName?.ToUpper()[0]</span>
                     }
                     <div class="d-flex flex-column">
                         <a @onclick="@(() => ShowDetails(applicant.Id))" @onclick:stopPropagation="true" class="name fw-500">
@@ -73,7 +74,19 @@ else
                         <li>
                             <a class="dropdown-item" href="Interviews/Schedule">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                                Schedule Interview
+                                Schedule an interview
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" @onclick="() => OpenCopyDialog(applicant)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                Copy
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" @onclick="() => OpenMoveDialog(applicant)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                                Move
                             </a>
                         </li>
                         <li><hr class="dropdown-divider"></li>
@@ -99,15 +112,22 @@ else
                OnClose="OnDeleteDialogClose"
                @bind-IsVisible="ShowDeleteDialog" />
 
+<MoveApplicantDialog @ref="moveDialog"
+                     Applicant="selectedApplicant"
+                     OnCopy="HandleCopy"
+                     OnMove="HandleMove" />
+
 @code {
     private List<Applicant>? applicants;
     private List<Applicant>? filteredApplicants;
     private int? CurrentApplicantId { get; set; }
-    private Applicant? applicantToDelete { get; set; }
+    private Applicant? selectedApplicant { get; set; }
 
     public List<Job?> Positions { get; set; } = new();
 
     private bool ShowDeleteDialog = false;
+
+    private MoveApplicantDialog? moveDialog;
 
     protected override async Task OnInitializedAsync()
     {
@@ -131,18 +151,32 @@ else
     private void OpenDeleteDialog(Applicant applicant)
     {
         ShowDeleteDialog = true;
-        applicantToDelete = applicant;
+        selectedApplicant = applicant;
+        StateHasChanged();
+    }
+
+    private void OpenCopyDialog(Applicant applicant)
+    {
+        selectedApplicant = applicant;
+        moveDialog?.ShowCopy();
+        StateHasChanged();
+    }
+
+    private void OpenMoveDialog(Applicant applicant)
+    {
+        selectedApplicant = applicant;
+        moveDialog?.ShowMove();
         StateHasChanged();
     }
 
     private async Task OnDeleteDialogClose(bool confirmed)
     {
-        if (confirmed && applicantToDelete != null)
+        if (confirmed && selectedApplicant != null)
         {
-            var response = await Http.DeleteAsync($"api/Applicants/{applicantToDelete.Id}");
+            var response = await Http.DeleteAsync($"api/Applicants/{selectedApplicant.Id}");
             if (response.IsSuccessStatusCode)
             {
-                applicants?.Remove(applicantToDelete);
+                applicants?.Remove(selectedApplicant);
             }
         }
 
@@ -158,6 +192,21 @@ else
             applicantToUpdate.Stage = applicant.Stage;
             StateHasChanged();
         }
+    }
+
+    private void HandleCopy(Applicant applicant)
+    {
+        int index = applicants?.FindIndex(a => a.Id == selectedApplicant?.Id) ?? 0;
+        applicants?.Insert(index + 1, applicant);
+        StateHasChanged();
+    }
+
+    private void HandleMove(Applicant applicant)
+    {   
+        int index = applicants?.FindIndex(a => a.Id == applicant.Id) ?? 0;
+        applicants?.Remove(selectedApplicant!);
+        applicants?.Insert(index, applicant);
+        StateHasChanged();
     }
 
     private void FitlerByPosition(ChangeEventArgs args)

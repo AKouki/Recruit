@@ -1,6 +1,7 @@
 ﻿using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Azure.Storage.Blobs.Specialized;
 
 namespace Recruit.Server.Services.BlobService
 {
@@ -81,6 +82,41 @@ namespace Recruit.Server.Services.BlobService
         public Task<bool> UploadPhotoAsync(IFormFile file, string blobName)
         {
             return UploadAsync(file, PhotosContainerName, blobName, "image/jpeg");
+        }
+
+        public async Task<string> CopyBlobAsync(string blobName)
+        {
+            try
+            {
+                BlobContainerClient blobContainerClient = _blobServiceClient
+                    .GetBlobContainerClient(ResumesContainerName);
+
+                BlobClient sourceBlob = blobContainerClient.GetBlobClient(blobName);
+
+                if (await sourceBlob.ExistsAsync())
+                {
+                    // Acquire an infinite lease
+                    BlobLeaseClient lease = sourceBlob.GetBlobLeaseClient();
+                    await lease.AcquireAsync(TimeSpan.FromSeconds(-1));
+
+                    var newBlobName = Guid.NewGuid().ToString("N") + Path.GetExtension(sourceBlob.Name);
+                    BlobClient destBlob = blobContainerClient.GetBlobClient(newBlobName);
+
+                    // Start copy
+                    await destBlob.StartCopyFromUriAsync(sourceBlob.Uri);
+
+                    // Break the lease on source blob
+                    await lease.BreakAsync();
+
+                    return newBlobName;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error copying blob: {blobName}.", ex.Message);
+            }
+
+            return string.Empty;
         }
 
         public async Task DeleteAsync(string containerName, string blobName)

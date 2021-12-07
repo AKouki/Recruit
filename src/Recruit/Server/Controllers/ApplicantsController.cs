@@ -71,6 +71,117 @@ namespace Recruit.Server.Controllers
             return Ok(applicant);
         }
 
+        [HttpPost("Copy")]
+        public async Task<IActionResult> Copy([FromBody] MoveApplicantViewModel model)
+        {
+            var applicant = await _db.Applicants
+                .Where(a => a.Id == model.ApplicantId)
+                .Include(a => a.Resume)
+                .Include(a => a.Education)
+                .Include(a => a.Experience)
+                .FirstOrDefaultAsync();
+
+            var job = await _db.Jobs
+                .Where(j => j.Id == model.JobId)
+                .Include(j => j.Stages)
+                .FirstOrDefaultAsync();
+
+            var stage = job?.Stages?.FirstOrDefault(s => s.Id == model.StageId);
+
+            if (applicant == null || job == null || stage == null)
+                return NotFound();
+
+            // Check if applicant already exists in target job
+            var exists = await _db.Applicants.AnyAsync(a => a.Email == applicant.Email && a.JobId == job.Id);
+            if (exists)
+                return BadRequest();
+
+            // Copy record
+            var newApplicant = new Applicant()
+            {
+                FirstName = applicant.FirstName,
+                LastName = applicant.LastName,
+                Headline = applicant.Headline,
+                Summary = applicant.Summary,
+                ProfilePhoto = applicant.ProfilePhoto,
+                Email = applicant.Email,
+                Phone = applicant.Phone,
+                Address = applicant.Address,
+                Skills = applicant.Skills,
+                ApplyDate = applicant.ApplyDate,
+                JobId = job.Id,
+                Stage = stage,
+                Education = new List<Education>(),
+                Experience = new List<Experience>()
+            };
+
+            // Copy education
+            foreach (var education in applicant.Education ?? Enumerable.Empty<Education>())
+            {
+                newApplicant.Education?.Add(new Education()
+                {
+                    School = education.School,
+                    Degree = education.Degree,
+                    StartDate = education.StartDate,
+                    EndDate = education.EndDate
+                });
+            }
+
+            // Copy experience
+            foreach (var experience in applicant.Experience ?? Enumerable.Empty<Experience>())
+            {
+                newApplicant.Experience?.Add(new Experience()
+                {
+                    Title = experience.Title,
+                    Company = experience.Company,
+                    Summary = experience.Summary,
+                    StartDate = experience.StartDate,
+                    EndDate = experience.EndDate,
+                    CurrentlyWorkingHere = experience.CurrentlyWorkingHere
+                });
+            }
+
+            // Copy resume
+            if (!string.IsNullOrEmpty(applicant.Resume?.FilePath))
+            {
+                var newBlobName = await _blobService.CopyBlobAsync(applicant.Resume.FilePath);
+                newApplicant.Resume = new Attachment()
+                {
+                    FileName = applicant.Resume.FileName,
+                    FilePath = newBlobName
+                };
+            }
+
+            _db.Applicants.Add(newApplicant);
+            await _db.SaveChangesAsync();
+
+            return Ok(newApplicant);
+        }
+
+        [HttpPost("Move")]
+        public async Task<IActionResult> Move([FromBody] MoveApplicantViewModel model)
+        {
+            var applicant = await _db.Applicants.FindAsync(model.ApplicantId);
+
+            var job = await _db.Jobs
+                .Where(j => j.Id == model.JobId)
+                .Include(j => j.Stages)
+                .FirstOrDefaultAsync();
+
+            var stage = job?.Stages?.FirstOrDefault(s => s.Id == model.StageId);
+
+            if (applicant == null || job == null || stage == null)
+                return NotFound();
+
+            applicant.JobId = job.Id;
+            applicant.Stage = stage;
+
+            _db.Update(applicant);
+            await _db.SaveChangesAsync();
+
+            return Ok(applicant);
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
