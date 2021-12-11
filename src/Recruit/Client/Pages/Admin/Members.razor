@@ -63,31 +63,36 @@
 <ModalTemplate @ref="createModal">
     <Title>Add Member</Title>
     <Body>
-        <EditForm id="newMemberForm" Model="registerModel" OnValidSubmit="HandleAccountCreation">
+        <EditForm id="newMemberForm" Model="registerModel" class="row g-2" OnValidSubmit="HandleAccountCreation">
             <DataAnnotationsValidator />
             @if (ShowErrors)
             {
-                <div class="alert alert-danger mt-2" role="alert">
+                <div class="alert alert-danger mt-2 mb-0 fs-14" role="alert">
                     @foreach (var error in Errors ?? Enumerable.Empty<string>())
                     {
                         <p class="mb-0">@error</p>
                     }
                 </div>
             }
-            <div class="col-12 mb-2">
+            <div class="col-12">
                 <label for="email" class="form-label">Email</label>
                 <InputText id="email" @bind-Value="registerModel.Email" class="form-control" />
                 <ValidationMessage For="() => registerModel.Email" />
             </div>
-            <div class="col-12 mb-2">
+            <div class="col-12">
                 <label for="fullName" class="form-label">Full Name</label>
                 <InputText id="fullName" @bind-Value="registerModel.FullName" class="form-control" />
                 <ValidationMessage For="() => registerModel.FullName" />
             </div>
-            <div class="col-12 mb-2">
+            <div class="col-12">
                 <label for="password" class="form-label">Password</label>
                 <InputText id="password" type="password" @bind-Value="registerModel.Password" class="form-control" />
                 <ValidationMessage For="() => registerModel.Password" />
+            </div>
+            <div class="col-12">
+                <label for="confirm_password" class="form-label">Confirm Password</label>
+                <InputText id="confirm_password" type="password" @bind-Value="registerModel.ConfirmPassword" class="form-control" />
+                <ValidationMessage For="() => registerModel.ConfirmPassword" />
             </div>
         </EditForm>
     </Body>
