@@ -65,6 +65,21 @@ namespace Recruit.Server.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "EmailTemplates",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Subject = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Body = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EmailTemplates", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -466,6 +481,9 @@ namespace Recruit.Server.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Education");
+
+            migrationBuilder.DropTable(
+                name: "EmailTemplates");
 
             migrationBuilder.DropTable(
                 name: "Experience");

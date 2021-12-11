@@ -12,7 +12,7 @@ using Recruit.Server.Data;
 namespace Recruit.Server.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20211129181339_Initial")]
+    [Migration("20211210103636_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -373,6 +373,31 @@ namespace Recruit.Server.Data.Migrations
                     b.HasIndex("ApplicantId");
 
                     b.ToTable("Education");
+                });
+
+            modelBuilder.Entity("Recruit.Shared.EmailTemplate", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EmailTemplates");
                 });
 
             modelBuilder.Entity("Recruit.Shared.Experience", b =>
