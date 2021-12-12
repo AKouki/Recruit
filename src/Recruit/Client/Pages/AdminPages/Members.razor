@@ -15,7 +15,7 @@
     }
     else
     {
-        <a class="btn btn-primary btn-sm mb-3" @onclick="OpenRegisterModal">Add Member</a>
+        <a class="btn btn-primary btn-sm mb-3" @onclick="OpenAddMemberDialog">Add Member</a>
 
         <TableTemplate Items="users" Context="user" ShowTableBorder="true" IsSmall="true">
             <TableHeader>
@@ -29,77 +29,75 @@
                         <div class="d-flex align-items-center">
                             @if (!string.IsNullOrEmpty(user.Avatar))
                             {
-                                <img src="@user.Avatar" class="avatar me-2" />
+                            <img src="@user.Avatar" class="avatar me-2" />
                             }
                             else
                             {
-                                <span class="avatar avatar-green me-2">@user.FullName?.ToUpper()[0]</span>
+                            <span class="avatar avatar-green me-2">@user.FullName?.ToUpper()[0]</span>
                             }
-                            <span class="fw-500">@user.FullName</span>
-                        </div>
+                        <span class="fw-500">@user.FullName</span>
                     </div>
-                </td>
-                <td>@user.Email</td>
-                <td>
-                    <div class="dropdown">
-                        <a class="btn dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-secondary feather feather-more-horizontal"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <a class="dropdown-item" @onclick="() => OpenDeleteDialog(user)">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user-x"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="18" y1="8" x2="23" y2="13"></line><line x1="23" y1="8" x2="18" y2="13"></line></svg>
-                                    Remove
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </td>
-            </RowTemplate>
-        </TableTemplate>
+                </div>
+            </td>
+            <td>@user.Email</td>
+            <td>
+                <div class="dropdown">
+                    <a class="btn dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-secondary feather feather-more-horizontal"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item" @onclick="() => OpenDeleteDialog(user)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user-x"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="18" y1="8" x2="23" y2="13"></line><line x1="23" y1="8" x2="18" y2="13"></line></svg>
+                                Remove
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </td>
+        </RowTemplate>
+    </TableTemplate>
     }
 </div>
 
-<ModalTemplate @ref="createModal">
-    <Title>Add Member</Title>
-    <Body>
-        <EditForm id="newMemberForm" Model="registerModel" class="row g-2" OnValidSubmit="HandleAccountCreation">
-            <DataAnnotationsValidator />
-            @if (ShowErrors)
-            {
-                <div class="alert alert-danger mt-2 mb-0 fs-14" role="alert">
-                    @foreach (var error in Errors ?? Enumerable.Empty<string>())
-                    {
-                        <p class="mb-0">@error</p>
-                    }
-                </div>
-            }
-            <div class="col-12">
-                <label for="email" class="form-label">Email</label>
-                <InputText id="email" @bind-Value="registerModel.Email" class="form-control" />
-                <ValidationMessage For="() => registerModel.Email" />
+<ModalTemplate @bind-IsVisible="ShowAddMemberDialog" Title="Add Member">
+    <EditForm Model="registerModel" class="row g-2" OnValidSubmit="HandleAccountCreation">
+        <DataAnnotationsValidator />
+        @if (ShowErrors)
+        {
+            <div class="alert alert-danger mt-2 mb-0 fs-14" role="alert">
+                @foreach (var error in Errors ?? Enumerable.Empty<string>())
+                {
+                    <p class="mb-0">@error</p>
+                }
             </div>
-            <div class="col-12">
-                <label for="fullName" class="form-label">Full Name</label>
-                <InputText id="fullName" @bind-Value="registerModel.FullName" class="form-control" />
-                <ValidationMessage For="() => registerModel.FullName" />
-            </div>
-            <div class="col-12">
-                <label for="password" class="form-label">Password</label>
-                <InputText id="password" type="password" @bind-Value="registerModel.Password" class="form-control" />
-                <ValidationMessage For="() => registerModel.Password" />
-            </div>
-            <div class="col-12">
-                <label for="confirm_password" class="form-label">Confirm Password</label>
-                <InputText id="confirm_password" type="password" @bind-Value="registerModel.ConfirmPassword" class="form-control" />
-                <ValidationMessage For="() => registerModel.ConfirmPassword" />
-            </div>
-        </EditForm>
-    </Body>
-    <Footer>
-        <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal" @onclick="() => createModal?.Close()!">Cancel</button>
-        <button type="submit" form="newMemberForm" class="btn btn-primary btn-sm" disabled="@IsDisabled">Create</button>
-    </Footer>
+        }
+        <div class="col-12">
+            <label for="email" class="form-label">Email</label>
+            <InputText id="email" @bind-Value="registerModel.Email" class="form-control" />
+            <ValidationMessage For="() => registerModel.Email" />
+        </div>
+        <div class="col-12">
+            <label for="fullName" class="form-label">Full Name</label>
+            <InputText id="fullName" @bind-Value="registerModel.FullName" class="form-control" />
+            <ValidationMessage For="() => registerModel.FullName" />
+        </div>
+        <div class="col-12">
+            <label for="password" class="form-label">Password</label>
+            <InputText id="password" type="password" @bind-Value="registerModel.Password" class="form-control" />
+            <ValidationMessage For="() => registerModel.Password" />
+        </div>
+        <div class="col-12">
+            <label for="confirm_password" class="form-label">Confirm Password</label>
+            <InputText id="confirm_password" type="password" @bind-Value="registerModel.ConfirmPassword" class="form-control" />
+            <ValidationMessage For="() => registerModel.ConfirmPassword" />
+        </div>
+        <div class="col-12 d-flex justify-content-end align-items-center mb-2">
+            <button type="button" class="btn btn-light btn-sm me-2" data-bs-dismiss="modal" @onclick="() => ShowAddMemberDialog=false">Cancel</button>
+            <button type="submit" class="btn btn-primary btn-sm" disabled="@IsDisabled">Create</button>
+        </div>
+    </EditForm>
+
 </ModalTemplate>
 
 <ConfirmDialog Title="Delete"
@@ -112,9 +110,8 @@
     private UserViewModel? selectedUser;
     private RegisterViewModel registerModel = new();
 
-    private ModalTemplate? createModal;
-
     private bool ShowDeleteDialog = false;
+    private bool ShowAddMemberDialog = false;
     private bool ShowErrors = false;
     private IEnumerable<string>? Errors;
     private bool IsDisabled = false;
@@ -146,12 +143,12 @@
         StateHasChanged();
     }
 
-    private async Task OpenRegisterModal()
+    private void OpenAddMemberDialog()
     {
+        ShowAddMemberDialog = true;
         ShowErrors = false;
         registerModel = new();
-        if (createModal != null)
-            await createModal.Show();
+        StateHasChanged();
     }
 
     private async Task HandleAccountCreation()
@@ -169,7 +166,7 @@
                     Username = registerModel.Email
                 });
 
-            createModal?.Close();
+            ShowAddMemberDialog = false;
         }
         else
         {

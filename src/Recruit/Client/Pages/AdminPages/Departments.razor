@@ -13,18 +13,18 @@
     }
     else
     {
-        <a class="btn btn-primary btn-sm" @onclick="() => OpenEditModal(null)">Create</a>
+        <a class="btn btn-primary btn-sm" @onclick="() => OpenEditDialog(null)">Create</a>
 
         <ul class="list-unstyled departments-list mt-2">
             @foreach (var department in departments ?? Enumerable.Empty<Department>())
             {
-                <li class="department" @onclick="(() => OpenEditModal(department))" @onclick:stopPropagation>
+                <li class="department" @onclick="(() => OpenEditDialog(department))" @onclick:stopPropagation>
                     <div class="d-flex justify-content-between align-items-center">
                         <span>
                             @department.Name
                         </span>
                         <div class="actions">
-                            <button class="me-2" @onclick="(() => OpenEditModal(department))" @onclick:stopPropagation>
+                            <button class="me-2" @onclick="(() => OpenEditDialog(department))" @onclick:stopPropagation>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
                             </button>
                             <button @onclick="(() => OpenDeleteDialog(department))" @onclick:stopPropagation>
@@ -39,22 +39,17 @@
     }
 </div>
 
-<ModalTemplate @ref="editModal">
-    <Title>
-        @(selectedDepartment == null ? "Create" : "Edit")
-    </Title>
-    <Body>
-        <input type="text" id="departmentName" class="form-control"
-               @bind="departmentName"
-               @oninput="() => ShowErrors = false"
-               placeholder="Enter department name" />
-        @if (ShowErrors)
-        {
-            <span class="form-text text-danger">This department already exists.</span>
-        }
-    </Body>
-    <Footer>
-        <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal" @onclick="() => editModal?.Close()!">Cancel</button>
+<ModalTemplate @bind-IsVisible="ShowCreateDialog" Title="@(selectedDepartment == null ? "Create" : "Edit")">
+    <input type="text" id="departmentName" class="form-control"
+           @bind="departmentName"
+           @oninput="() => ShowErrors = false"
+           placeholder="Enter department name" />
+    @if (ShowErrors)
+    {
+        <span class="form-text text-danger">This department already exists.</span>
+    }
+    <div class="d-flex justify-content-end align-items-center my-2">
+        <button type="button" class="btn btn-light btn-sm me-2" data-bs-dismiss="modal" @onclick="() => ShowCreateDialog = false">Cancel</button>
         @if (selectedDepartment == null)
         {
             <button type="button" class="btn btn-primary btn-sm" @onclick="HandleCreate" disabled="@IsDisabled">Create</button>
@@ -63,22 +58,21 @@
         {
             <button type="button" class="btn btn-primary btn-sm" @onclick="HandleUpdate" disabled="@IsDisabled">Update</button>
         }
-    </Footer>
+    </div>
 </ModalTemplate>
 
-<ConfirmDialog Title="Delete"
+<ConfirmDialog @bind-IsVisible="ShowDeleteDialog"
+               Title="Delete"
                Text="Are you sure you want to delete this department?"
-               OnClose="OnDeleteDialogClose"
-               @bind-IsVisible="ShowDeleteDialog" />
+               OnClose="OnDeleteDialogClose" />
 
 @code {
     private List<Department>? departments;
     private Department? selectedDepartment;
     private string? departmentName;
 
-    private ModalTemplate? editModal;
-
     private bool ShowDeleteDialog = false;
+    private bool ShowCreateDialog = false;
     private bool ShowErrors = false;
     private bool IsDisabled = false;
 
@@ -109,13 +103,12 @@
         StateHasChanged();
     }
 
-    private async Task OpenEditModal(Department? department)
+    private void OpenEditDialog(Department? department)
     {
         ShowErrors = false;
         selectedDepartment = department;
         departmentName = selectedDepartment?.Name ?? "";
-        if (editModal != null)
-            await editModal.Show();
+        ShowCreateDialog = true;
     }
 
     private async Task HandleCreate()
@@ -131,7 +124,7 @@
             if (createdItem != null)
                 departments?.Add(createdItem);
 
-            editModal?.Close();
+            ShowCreateDialog = false;
         }
         else
         {
@@ -154,7 +147,7 @@
             if (response.IsSuccessStatusCode)
             {
                 selectedDepartment.Name = departmentName;
-                editModal?.Close();
+                ShowCreateDialog = false;
             }
             else
             {

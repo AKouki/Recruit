@@ -37,11 +37,11 @@ else
                 <div class="d-flex align-items-center">
                     @if (!string.IsNullOrEmpty(applicant.ProfilePhoto))
                     {
-                    <img src="@applicant.ProfilePhoto" class="avatar me-2" />
+                        <img src="@applicant.ProfilePhoto" class="avatar me-2" />
                     }
                     else
                     {
-                    <span class="avatar avatar-green me-2">@applicant.FirstName?.ToUpper()[0]</span>
+                        <span class="avatar avatar-green me-2">@applicant.FirstName?.ToUpper()[0]</span>
                     }
                     <div class="d-flex flex-column">
                         <a @onclick="@(() => ShowDetails(applicant.Id))" @onclick:stopPropagation="true" class="name fw-500">
@@ -106,12 +106,19 @@ else
                   OnStageUpdate="HandleStageUpdate"
                   OnClose="HideDetails" />
 
-<ConfirmDialog Title="Delete"
+<ConfirmDialog @bind-IsVisible="ShowDeleteDialog"
+               Title="Delete"
                Text="Are you sure you want to delete this applicant?"
-               OnClose="OnDeleteDialogClose"
-               @bind-IsVisible="ShowDeleteDialog" />
+               OnClose="OnDeleteDialogClose" />
 
-<MoveApplicantDialog @ref="moveDialog"
-                     Applicant="selectedApplicant"
-                     OnCopy="HandleCopy"
-                     OnMove="HandleMove" />
+<ModalTemplate @bind-IsVisible="ShowCopyDialog" Title="Copy">
+    <CopyApplicantDialog Applicant="selectedApplicant"
+                         OnCancel="HandleCancel"
+                         OnValidSubmit="HandleCopy" />
+</ModalTemplate>
+
+<ModalTemplate @bind-IsVisible="ShowMoveDialog" Title="Move">
+    <MoveApplicantDialog Applicant="selectedApplicant"
+                         OnCancel="HandleCancel"
+                         OnValidSubmit="HandleMove" />
+</ModalTemplate>

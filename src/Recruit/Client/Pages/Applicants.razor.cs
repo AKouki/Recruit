@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Recruit.Client.Extensions;
 using Recruit.Client.Pages.ApplicantPages;
 using Recruit.Shared;
 using System.Net.Http.Json;
@@ -17,8 +18,8 @@ namespace Recruit.Client.Pages
         public List<Job?> Positions { get; set; } = new();
 
         private bool ShowDeleteDialog = false;
-
-        private MoveApplicantDialog? moveDialog;
+        private bool ShowCopyDialog = false;
+        private bool ShowMoveDialog = false;
 
         protected override async Task OnInitializedAsync()
         {
@@ -49,14 +50,14 @@ namespace Recruit.Client.Pages
         private void OpenCopyDialog(Applicant applicant)
         {
             selectedApplicant = applicant;
-            moveDialog?.ShowCopy();
+            ShowCopyDialog = true;
             StateHasChanged();
         }
 
         private void OpenMoveDialog(Applicant applicant)
         {
             selectedApplicant = applicant;
-            moveDialog?.ShowMove();
+            ShowMoveDialog = true;
             StateHasChanged();
         }
 
@@ -85,18 +86,27 @@ namespace Recruit.Client.Pages
             }
         }
 
+
+        private void HandleCancel()
+        {
+            selectedApplicant = null;
+            ShowCopyDialog = false;
+            ShowMoveDialog = false;
+            ShowDeleteDialog = false;
+        }
+
         private void HandleCopy(Applicant applicant)
         {
             int index = applicants?.FindIndex(a => a.Id == selectedApplicant?.Id) ?? 0;
             applicants?.Insert(index + 1, applicant);
+            ShowCopyDialog = false;
             StateHasChanged();
         }
 
         private void HandleMove(Applicant applicant)
         {
-            int index = applicants?.FindIndex(a => a.Id == applicant.Id) ?? 0;
-            applicants?.Remove(selectedApplicant!);
-            applicants?.Insert(index, applicant);
+            applicants?.Replace(selectedApplicant!, applicant);
+            ShowMoveDialog = false;
             StateHasChanged();
         }
 

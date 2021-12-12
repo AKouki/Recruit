@@ -27,7 +27,7 @@
         <ul class="list-unstyled email-templates-list mt-2">
             @foreach (var emailTemplate in filteredEmailTemplates ?? Enumerable.Empty<EmailTemplate>())
             {
-                <li class="email-template">
+                <li class="email-template" @onclick="(() => OpenEditDialog(emailTemplate))" @onclick:stopPropagation>
                     <div class="d-flex justify-content-between align-items-center">
                         <span>
                             @emailTemplate.Name
@@ -47,34 +47,29 @@
     }
 </div>
 
-<ModalTemplate @ref="editModal">
-    <Title>
-        @(selectedEmailTemplate == null ? "Create" : "Edit")
-    </Title>
-    <Body>
-        <EditForm id="newEmailTemplateForm" Model="model" class="row g-2" OnValidSubmit="HandleCreation">
-            <DataAnnotationsValidator />
-            <div class="col-12">
-                <label for="name" class="form-label">Name</label>
-                <InputText id="name" @bind-Value="model.Name" class="form-control" />
-                <ValidationMessage For="() => model.Name" />
-            </div>
-            <div class="col-12">
-                <label for="subject" class="form-label">Subject</label>
-                <InputText id="subject" @bind-Value="model.Subject" class="form-control" />
-                <ValidationMessage For="() => model.Subject" />
-            </div>
-            <div class="col-12">
-                <label for="body" class="form-label">Body</label>
-                <InputTextArea id="body" @bind-Value="model.Body" class="form-control" rows="8" />
-                <ValidationMessage For="() => model.Body" />
-            </div>
-        </EditForm>
-    </Body>
-    <Footer>
-        <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal" @onclick="() => editModal?.Close()!">Cancel</button>
-        <button type="submit" form="newEmailTemplateForm" class="btn btn-primary btn-sm" disabled="@IsDisabled">@(selectedEmailTemplate == null ? "Create" : "Edit")</button>
-    </Footer>
+<ModalTemplate @bind-IsVisible="ShowCreateDialog" Title="@(selectedEmailTemplate == null ? "Create" : "Edit")">
+    <EditForm Model="model" class="row g-2" OnValidSubmit="HandleCreation">
+        <DataAnnotationsValidator />
+        <div class="col-12">
+            <label for="name" class="form-label">Name</label>
+            <InputText id="name" @bind-Value="model.Name" class="form-control" />
+            <ValidationMessage For="() => model.Name" />
+        </div>
+        <div class="col-12">
+            <label for="subject" class="form-label">Subject</label>
+            <InputText id="subject" @bind-Value="model.Subject" class="form-control" />
+            <ValidationMessage For="() => model.Subject" />
+        </div>
+        <div class="col-12">
+            <label for="body" class="form-label">Body</label>
+            <InputTextArea id="body" @bind-Value="model.Body" class="form-control" rows="8" />
+            <ValidationMessage For="() => model.Body" />
+        </div>
+        <div class="col-12 d-flex justify-content-end align-items-center mb-2">
+            <button type="button" class="btn btn-light btn-sm me-2" data-bs-dismiss="modal" @onclick="() => ShowCreateDialog = false">Cancel</button>
+            <button type="submit" class="btn btn-primary btn-sm" disabled="@IsDisabled">@(selectedEmailTemplate == null ? "Create" : "Edit")</button>
+        </div>
+    </EditForm>
 </ModalTemplate>
 
 <ConfirmDialog Title="Delete"
@@ -88,8 +83,8 @@
     private EmailTemplate? selectedEmailTemplate;
 
     private EmailTemplate model = new();
-    private ModalTemplate? editModal;
 
+    private bool ShowCreateDialog = false;
     private bool ShowDeleteDialog = false;
     private bool IsDisabled = false;
 
@@ -105,24 +100,7 @@
         selectedEmailTemplate = emailTemplate;
         StateHasChanged();
     }
-
-    private void OpenCreateDialog()
-    {
-        selectedEmailTemplate = null;
-        model = new();
-        editModal?.Show();
-    }
-
-    private async Task OpenEditDialog(EmailTemplate emailTemplate)
-    {
-        selectedEmailTemplate = emailTemplate;
-        if (emailTemplate != null)
-        {
-            model = await Http.GetFromJsonAsync<EmailTemplate>($"api/EmailTemplates/{emailTemplate.Id}") ?? new();
-            editModal?.Show();
-        }
-    }
-
+    
     private async Task OnDeleteDialogClose(bool confirmed)
     {
         if (confirmed && selectedEmailTemplate != null)
@@ -136,6 +114,23 @@
 
         ShowDeleteDialog = false;
         StateHasChanged();
+    }
+
+    private void OpenCreateDialog()
+    {
+        selectedEmailTemplate = null;
+        model = new();
+        ShowCreateDialog = true;
+    }
+
+    private async Task OpenEditDialog(EmailTemplate emailTemplate)
+    {
+        selectedEmailTemplate = emailTemplate;
+        if (emailTemplate != null)
+        {
+            model = await Http.GetFromJsonAsync<EmailTemplate>($"api/EmailTemplates/{emailTemplate.Id}") ?? new();
+            ShowCreateDialog = true;
+        }
     }
 
     private void OnSearchTextChange(ChangeEventArgs args)
@@ -160,12 +155,12 @@
             if (createdItem != null)
             {
                 if (selectedEmailTemplate == null)
-                    emailTemplates?.Add(createdItem!);
+                    emailTemplates?.Add(createdItem);
                 else
-                    emailTemplates?.Replace(selectedEmailTemplate, createdItem!);
+                    emailTemplates?.Replace(selectedEmailTemplate, createdItem);
             }
 
-            editModal?.Close();
+            ShowCreateDialog = false;
         }
         IsDisabled = false;
     }

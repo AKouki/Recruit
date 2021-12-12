@@ -103,7 +103,7 @@
         {
             model.ApplicantId = Applicant.Id;
 
-            var response = await Http.PostAsJsonAsync<MoveApplicantViewModel>($"api/Applicants/Move", model);
+            var response = await Http.PostAsJsonAsync<MoveApplicantViewModel>($"api/Applicants/Copy", model);
 
             if (response.IsSuccessStatusCode)
             {
