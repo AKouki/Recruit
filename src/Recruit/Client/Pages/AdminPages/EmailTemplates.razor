@@ -50,7 +50,7 @@
 <ModalTemplate @bind-IsVisible="ShowCreateDialog" Title="@(selectedEmailTemplate == null ? "Create" : "Edit")">
     <EditForm Model="model" class="row g-2" OnValidSubmit="HandleCreation">
         <DataAnnotationsValidator />
-        <div class="col-12">
+        <div class="col-12 mt-0">
             <label for="name" class="form-label">Name</label>
             <InputText id="name" @bind-Value="model.Name" class="form-control" />
             <ValidationMessage For="() => model.Name" />
@@ -65,8 +65,8 @@
             <InputTextArea id="body" @bind-Value="model.Body" class="form-control" rows="8" />
             <ValidationMessage For="() => model.Body" />
         </div>
-        <div class="col-12 d-flex justify-content-end align-items-center mb-2">
-            <button type="button" class="btn btn-light btn-sm me-2" data-bs-dismiss="modal" @onclick="() => ShowCreateDialog = false">Cancel</button>
+        <div class="col-12 footer">
+            <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal" @onclick="() => ShowCreateDialog = false">Cancel</button>
             <button type="submit" class="btn btn-primary btn-sm" disabled="@IsDisabled">@(selectedEmailTemplate == null ? "Create" : "Edit")</button>
         </div>
     </EditForm>

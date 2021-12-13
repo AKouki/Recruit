@@ -65,14 +65,16 @@
         <DataAnnotationsValidator />
         @if (ShowErrors)
         {
-            <div class="alert alert-danger mt-2 mb-0 fs-14" role="alert">
+            <div class="col-12 mt-0">
+            <div class="alert alert-danger mt-1 mb-2 fs-14" role="alert">
                 @foreach (var error in Errors ?? Enumerable.Empty<string>())
                 {
                     <p class="mb-0">@error</p>
                 }
             </div>
+            </div>
         }
-        <div class="col-12">
+        <div class="col-12 mt-0">
             <label for="email" class="form-label">Email</label>
             <InputText id="email" @bind-Value="registerModel.Email" class="form-control" />
             <ValidationMessage For="() => registerModel.Email" />
@@ -92,8 +94,8 @@
             <InputText id="confirm_password" type="password" @bind-Value="registerModel.ConfirmPassword" class="form-control" />
             <ValidationMessage For="() => registerModel.ConfirmPassword" />
         </div>
-        <div class="col-12 d-flex justify-content-end align-items-center mb-2">
-            <button type="button" class="btn btn-light btn-sm me-2" data-bs-dismiss="modal" @onclick="() => ShowAddMemberDialog=false">Cancel</button>
+        <div class="col-12 footer">
+            <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal" @onclick="() => ShowAddMemberDialog=false">Cancel</button>
             <button type="submit" class="btn btn-primary btn-sm" disabled="@IsDisabled">Create</button>
         </div>
     </EditForm>

@@ -287,24 +287,41 @@ form label {
     color: #323E4A;
 }
 
-/* ============== Table ============== */
+/* ==================== Modal =================== */
 .modal-header {
     padding: 0.5rem 1rem 0.25rem 1rem;
     border-bottom: none;
 }
 
 .modal-body {
-    padding: 0.5rem 1rem;
-
+    padding: 0.5rem 1rem 0.75rem 1rem;
 }
 
 .modal-footer {
-    padding: 0.35rem 0.5rem 0.75rem 0.75rem;
+    padding-top: 0.25rem;
     border-top: none;
 }
 
 .modal-content .btn-close {
     background-size: .75rem .75rem;
+}
+
+.modal-body .footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.modal-body .footer > * {
+    margin: 0.25rem;
+}
+
+.modal-body .footer > *:first-child {
+    margin-left: 0;
+}
+
+.modal-body .footer > *:last-child {
+    margin-right: 0;
 }
 
 /*===============================================*/
