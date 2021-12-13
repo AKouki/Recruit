@@ -1,7 +1,9 @@
 ﻿@using System.Net
 @inject HttpClient Http
+@implements IAsyncDisposable
+@inject IJSRuntime JS
 
-<div class="@ShowDetailsPageCss">
+<div class="@ShowDetailsPageCss" id="applicant-details">
     @if (Applicant != null)
     {
         <span class="close-button" @onclick="HideDetails" @onclick:stopPropagation="true">
@@ -235,6 +237,8 @@
 
     public int ActiveTabIndex { get; set; } = 1;
 
+    private IJSObjectReference? module;
+
     protected override async Task OnParametersSetAsync()
     {
         ActiveTabIndex = 1;
@@ -247,6 +251,16 @@
         else
         {
             Applicant = null;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/scripts.js");
+            if (module != null) 
+                await module.InvokeVoidAsync("AddOutsideDivClickListener", DotNetObjectReference.Create(this), nameof(HideDetails));
         }
     }
 
@@ -268,6 +282,7 @@
         return result ?? Enumerable.Empty<Experience>();
     }
 
+    [JSInvokable]
     public async Task HideDetails()
     {
         Applicant = null;
@@ -293,6 +308,15 @@
                 await OnStageUpdate.InvokeAsync(Applicant);
             }
             ShowLoading = false;
+        }
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (module != null)
+        {
+            await module.InvokeVoidAsync("RemoveOutsideDivClickListener");
+            await module.DisposeAsync();
         }
     }
 }
