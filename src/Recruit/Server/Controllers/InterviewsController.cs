@@ -34,16 +34,12 @@ namespace Recruit.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ScheduleInterviewViewModel model)
         {
-            var applicant = _db.Applicants.Find(model.ApplicantId);
+            var applicant = await _db.Applicants.FindAsync(model.ApplicantId);
             if (applicant == null)
-            {
                 return NotFound();
-            }
 
             if (Exists(applicant))
-            {
                 return BadRequest("Another interview exists for this Applicant!");
-            }
 
             var manager = _db.Users.FirstOrDefault(u => u.UserName == User.Identity!.Name);
             var interview = new Interview()
@@ -63,13 +59,9 @@ namespace Recruit.Server.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Edit(int id, [FromBody] ScheduleInterviewViewModel model)
         {
-            var interviews = _db.Interviews.ToList();
-            var interview = _db.Interviews.FirstOrDefault(x => x.Id == id);
-
+            var interview = await _db.Interviews.FirstOrDefaultAsync(x => x.Id == id);
             if (interview == null)
-            {
                 return NotFound();
-            }
 
             interview.ScheduledAt = new DateTime(model.Date.Year, model.Date.Month, model.Date.Day, model.Time.Hour, model.Time.Minute, 0);
             interview.Duration = model.Duration;
@@ -83,7 +75,7 @@ namespace Recruit.Server.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var interview = _db.Interviews.Find(id);
+            var interview = await _db.Interviews.FindAsync(id);
             if (interview == null)
                 return NotFound();
 
