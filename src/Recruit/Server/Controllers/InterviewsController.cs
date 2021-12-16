@@ -34,7 +34,10 @@ namespace Recruit.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ScheduleInterviewViewModel model)
         {
-            var applicant = await _db.Applicants.FindAsync(model.ApplicantId);
+            var applicant = await _db.Applicants
+                .Include(a => a.Job)
+                .FirstOrDefaultAsync(a => a.Id == model.ApplicantId);
+
             if (applicant == null)
                 return NotFound();
 
@@ -47,7 +50,7 @@ namespace Recruit.Server.Controllers
                 Applicant = applicant,
                 ScheduledAt = new DateTime(model.Date.Year, model.Date.Month, model.Date.Day, model.Time.Hour, model.Time.Minute, 0),
                 Duration = model.Duration,
-                Interviewer = manager == null ? "Emma Stone" : manager.FullName
+                Interviewer = manager?.FullName
             };
 
             _db.Interviews.Add(interview);
@@ -59,7 +62,11 @@ namespace Recruit.Server.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Edit(int id, [FromBody] ScheduleInterviewViewModel model)
         {
-            var interview = await _db.Interviews.FirstOrDefaultAsync(x => x.Id == id);
+            var interview = await _db.Interviews
+                .Include(i => i.Applicant!)
+                    .ThenInclude(a => a.Job)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
             if (interview == null)
                 return NotFound();
 

@@ -1,146 +1,142 @@
-﻿@page "/Interviews/Schedule"
-@page "/Interviews/Schedule/{id}"
-@inject HttpClient Http
+﻿@inject HttpClient Http
 @inject NavigationManager NavigationManager
 @attribute [Authorize]
 
-<h3 class="max-width-960 mx-auto">Schedule Interview</h3>
-
-@if (IsLoading)
-{
-    <span class="d-block max-width-960 mx-auto">Loading...</span>
-}
-else
-{
-    @if (Applicants == null || Applicants.Count == 0)
-    {
-        <span class="d-block max-width-960 mx-auto">There are no applicants or there is already an interview for them.</span>
-    }
-    else
-    {
-        <EditForm Model="@model" OnValidSubmit="@HandleSubmit" class="row g-3 mb-3 max-width-960 mx-auto">
-            <DataAnnotationsValidator />
-            <div class="col-12">
-                <ValidationSummary />
-                <span class="validation-message">@StatusMessage</span>
+<EditForm Model="@model" OnValidSubmit="@HandleSubmit" class="row g-3">
+    <DataAnnotationsValidator />
+    <div class="col-12">
+        <ValidationSummary />
+        @if (!string.IsNullOrEmpty(StatusMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show fs-14" role="alert">
+                @StatusMessage
+                <button type="button" class="btn-close" @onclick="() => StatusMessage = null"></button>
             </div>
-            <div class="col-12">
-                <div class="dropdown">
-                    <a class=" dropdown-toggle form-control @(IsDisabledCss)" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-                        <div class="d-flex align-items-center">
-                            @if (!string.IsNullOrEmpty(CurrentApplicant?.ProfilePhoto))
-                            {
-                                <img src="@CurrentApplicant?.ProfilePhoto" class="avatar me-2" />
-                            }
-                            else
-                            {
-                                <span class="avatar avatar-green me-2">@CurrentApplicant?.FirstName?.ToUpper()[0]</span>
-                            }
-                            <div class="d-flex flex-column">
-                                <span class="fs-14 fw-500">@CurrentApplicant?.FirstName @CurrentApplicant?.LastName</span>
-                                <span class="fs-14 text-secondary">applied for @CurrentApplicant?.Job?.Title</span>
-                            </div>
-                        </div>
-                    </a>
-
-                    <ul class="dropdown-menu form-control" aria-labelledby="dropdownMenuLink">
-                        @foreach (var item in Applicants ?? Enumerable.Empty<Applicant>())
+        }
+    </div>
+    <div class="col-12 mt-0">
+        <label class="form-label">Applicant</label>
+        <div class="dropdown">
+            <button class="dropdown-toggle form-control text-start @CanSelectApplicantCss" data-bs-toggle="dropdown" aria-expanded="false">
+                @if (IsLoading)
+                {
+                    <span>Loading...</span>
+                }
+                else
+                {
+                    <div class="d-flex align-items-center">
+                        @if (!string.IsNullOrEmpty(SelectedApplicant?.ProfilePhoto))
                         {
-                            <li>
-                                <a class="dropdown-item cursor-pointer" @onclick="@(() => CurrentApplicant = item)">
-                                    <div class="d-flex align-items-center">
-                                        @if (!string.IsNullOrEmpty(item?.ProfilePhoto))
-                                        {
-                                            <img src="@item?.ProfilePhoto" class="avatar me-2" />
-                                        }
-                                        else
-                                        {
-                                            <span class="avatar avatar-green me-2">@item?.FirstName?.ToUpper()[0]</span>
-                                        }
-                                        <div class="d-flex flex-column">
-                                            <span class="fs-14 fw-500">@item?.FirstName @item?.LastName</span>
-                                            <span class="fs-14 text-secondary">applied for @item?.Job?.Title</span>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
+                            <img src="@SelectedApplicant?.ProfilePhoto" class="avatar me-2" />
                         }
-                    </ul>
-                </div>
-            </div>
-            <div class="col-12">
-                <label for="date" class="form-label">Date</label>
-                <InputDate id="date" @bind-Value="model.Date" class="form-control" />
-            </div>
-            <div class="col-6">
-                <label for="date" class="form-label">Time</label>
-                <InputSelect class="form-select" @bind-Value="model.Time">
-                    @foreach (var slot in GetTimeSlots())
-                    {
-                        <option value="@slot">@slot.ToString("hh:mm tt")</option>
-                    }
-                </InputSelect>
-            </div>
-            <div class="col-6">
-                <label for="date" class="form-label">Duration</label>
-                <InputSelect class="form-select" @bind-Value="model.Duration">
-                    <option value="15">15 minutes</option>
-                    <option value="20">20 minutes</option>
-                    <option value="30">30 minutes</option>
-                    <option value="45">45 minutes</option>
-                    <option value="60">60 minutes</option>
-                </InputSelect>
-            </div>
+                        else
+                        {
+                            <span class="avatar avatar-green me-2">@SelectedApplicant?.FirstName?.ToUpper()[0]</span>
+                        }
+                        <div class="d-flex flex-column align-items-start">
+                            <span class="fs-14 fw-500">@SelectedApplicant?.FirstName @SelectedApplicant?.LastName</span>
+                            <span class="fs-14 text-secondary">applied for @SelectedApplicant?.Job?.Title</span>
+                        </div>
+                    </div>
+                }
+            </button>
 
-            <div class="col-12">
-                <button type="button" class="btn btn-light" @onclick="@(() => BackToList())">Cancel</button>
-                <button type="submit" class="btn btn-primary">Submit</button>
-            </div>
-        </EditForm>
-    }
-}
+            <ul class="dropdown-menu form-control">
+                @foreach (var item in Applicants ?? Enumerable.Empty<Applicant>())
+                {
+                    <li>
+                        <a class="dropdown-item cursor-pointer" @onclick="@(() => SelectedApplicant = item)">
+                            <div class="d-flex align-items-center">
+                                @if (!string.IsNullOrEmpty(item?.ProfilePhoto))
+                                {
+                                    <img src="@item?.ProfilePhoto" class="avatar me-2" />
+                                }
+                                else
+                                {
+                                    <span class="avatar avatar-green me-2">@item?.FirstName?.ToUpper()[0]</span>
+                                }
+                                <div class="d-flex flex-column">
+                                    <span class="fs-14 fw-500">@item?.FirstName @item?.LastName</span>
+                                    <span class="fs-14 text-secondary">applied for @item?.Job?.Title</span>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+    <div class="col-12">
+        <label for="date" class="form-label">Date</label>
+        <InputDate id="date" @bind-Value="model.Date" class="form-control" />
+    </div>
+    <div class="col-6">
+        <label for="date" class="form-label">Time</label>
+        <InputSelect class="form-select" @bind-Value="model.Time">
+            @foreach (var slot in GetTimeSlots())
+            {
+                <option value="@slot">@slot.ToString("hh:mm tt")</option>
+            }
+        </InputSelect>
+    </div>
+    <div class="col-6">
+        <label for="date" class="form-label">Duration</label>
+        <InputSelect class="form-select" @bind-Value="model.Duration">
+            <option value="15">15 minutes</option>
+            <option value="20">20 minutes</option>
+            <option value="30">30 minutes</option>
+            <option value="45">45 minutes</option>
+            <option value="60">60 minutes</option>
+        </InputSelect>
+    </div>
+    <div class="col-12 footer mb-1">
+        <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal" @onclick="OnCancel">Cancel</button>
+        <button type="submit" class="btn btn-primary btn-sm" disabled="@IsDisabled">Submit</button>
+    </div>
+</EditForm>
 
 @code {
-    [Parameter]
-    public string? Id { get; set; }
-
-    private ScheduleInterviewViewModel model = new ScheduleInterviewViewModel();
-
+    private ScheduleInterviewViewModel model = new();
     private List<Applicant>? Applicants { get; set; }
+    private Applicant? SelectedApplicant { get; set; }
 
-    private Applicant? CurrentApplicant { get; set; }
+    [Parameter]
+    public Interview? Interview { get; set; }
+
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    [Parameter]
+    public EventCallback<Interview> OnValidSubmit { get; set; }
 
     private bool IsLoading = true;
-
+    private bool IsDisabled = false;
     private string? StatusMessage { get; set; }
-    private string? IsDisabledCss => string.IsNullOrEmpty(Id) ? "": "disabled";
+    private string? CanSelectApplicantCss => Interview == null ? "" : "disabled";
 
     protected override async Task OnInitializedAsync()
     {
-        Applicants = await Http.GetFromJsonAsync<List<Applicant>>("api/Applicants");
-
-        if (int.TryParse(Id, out int result))
+        if (Interview == null)
         {
-            CurrentApplicant = Applicants?.FirstOrDefault(a => a.Interview?.Id == result);
-        }
-        else
-        {
-            // Show only unscheduled applicants
+            Applicants = await Http.GetFromJsonAsync<List<Applicant>>("api/Applicants");
             Applicants = Applicants?.Where(a => a.Interview == null).ToList();
-            CurrentApplicant = Applicants?.FirstOrDefault();
-        }
-
-        model.Date = CurrentApplicant?.Interview?.ScheduledAt ?? DateTime.Now;
-
-        if (string.IsNullOrEmpty(Id))
-        {
-            // Find the closest time slot for today
-            model.Time = GetClosestTimeSlot();
+            SelectedApplicant = Applicants?.FirstOrDefault();
+            model = new()
+                {
+                    Date = DateTime.Now,
+                    Time = GetClosestTimeSlot(),
+                    Duration = 30
+                };
         }
         else
         {
-            model.Time = DateTime.Today.Add(model.Date.TimeOfDay);
-            model.Duration = CurrentApplicant?.Interview?.Duration ?? 30;
+            SelectedApplicant = Interview.Applicant;
+            model = new()
+                {
+                    Date = Interview.ScheduledAt,
+                    Time = DateTime.Today.Add(Interview.ScheduledAt.TimeOfDay),
+                    Duration = Interview.Duration
+                };
         }
 
         IsLoading = false;
@@ -148,28 +144,30 @@ else
 
     private async Task HandleSubmit()
     {
-        if (CurrentApplicant != null)
-        {
-            model.ApplicantId = CurrentApplicant.Id;
+        StatusMessage = null;
+        IsDisabled = true;
 
-            var response = string.IsNullOrEmpty(Id) ?
+        if (SelectedApplicant != null)
+        {
+            model.ApplicantId = SelectedApplicant.Id;
+
+            var response = Interview == null ?
                     await Http.PostAsJsonAsync<ScheduleInterviewViewModel>("api/Interviews", model) :
-                    await Http.PutAsJsonAsync<ScheduleInterviewViewModel>($"api/Interviews/{Id}", model);
+                    await Http.PutAsJsonAsync<ScheduleInterviewViewModel>($"api/Interviews/{Interview.Id}", model);
 
             if (response.IsSuccessStatusCode)
             {
-                BackToList();
+                var result = await response.Content.ReadFromJsonAsync<Interview>();
+                if (result != null)
+                    await OnValidSubmit.InvokeAsync(result);
             }
             else
             {
                 StatusMessage = await response.Content.ReadAsStringAsync();
             }
         }
-    }
 
-    private void BackToList()
-    {
-        NavigationManager.NavigateTo("/Interviews");
+        IsDisabled = false;
     }
 
     private DateTime GetClosestTimeSlot()
