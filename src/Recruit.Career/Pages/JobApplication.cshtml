@@ -63,6 +63,167 @@
         <div class="form-text">File types: .pdf. Maximum File Size: 2MB.</div>
     </div>
     <div class="col-12">
+        <label asp-for="Application.Education" class="form-label"></label>
+        <span class="fs-14 text-secondary"> - You can add up to 5 items.</span>
+        <div>
+            <a href="#" v-bind:class="{ 'disabled': !canAddEducation }" v-on:click.prevent="showCreateEducationForm()">Add</a>
+            <ul class="list-unstyled">
+                <li v-for="(item, index) in educations" class="d-flex justify-content-between align-items-center">
+                    <input type="hidden" v-if="item.school" v-bind:name=`Application.Education[${index}].School` v-bind:value="item.school" />
+                    <input type="hidden" v-if="item.degree" v-bind:name=`Application.Education[${index}].Degree` v-bind:value="item.degree" />
+                    <input type="hidden" v-if="item.startDate" v-bind:name=`Application.Education[${index}].StartDate` v-bind:value="item.startDate" />
+                    <input type="hidden" v-if="item.endDate" v-bind:name=`Application.Education[${index}].EndDate` v-bind:value="item.endDate" />
+                    {{ item.school }}
+                    <div class="actions">
+                        <a class="btn btn-link btn-sm" v-on:click="showEditEducationForm(index)">Edit</a>
+                        <a class="btn btn-link btn-sm" v-on:click="removeEducation(item)">Remove</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-12">
+        <label asp-for="Application.Experience" class="form-label"></label>
+        <span class="fs-14 text-secondary"> - You can add up to 5 items.</span>
+        <div>
+            <a href="#" v-bind:class="{ 'disabled': !canAddExperience }" v-on:click.prevent="showCreateExperienceForm()">Add</a>
+            <ul class="list-unstyled">
+                <li v-for="(item, index) in experiences" class="d-flex justify-content-between align-items-center">
+                    <input type="hidden" v-if="item.title" v-bind:name=`Application.Experience[${index}].Title` v-bind:value="item.title" />
+                    <input type="hidden" v-if="item.company" v-bind:name=`Application.Experience[${index}].Company` v-bind:value="item.company" />
+                    <input type="hidden" v-if="item.summary" v-bind:name=`Application.Experience[${index}].Summary` v-bind:value="item.summary" />
+                    <input type="hidden" v-if="item.startDate" v-bind:name=`Application.Experience[${index}].StartDate` v-bind:value="item.startDate" />
+                    <input type="hidden" v-if="item.endDate" v-bind:name=`Application.Experience[${index}].EndDate` v-bind:value="item.endDate" />
+                    <input type="hidden" v-if="item.currentlyWorkingHere" v-bind:name=`Application.Experience[${index}].CurrentlyWorkingHere` v-bind:value="item.currentlyWorkingHere" />
+                    {{ item.title }}
+                    <div class="actions">
+                        <a class="btn btn-link btn-sm" v-on:click="showEditExperienceForm(index)">Edit</a>
+                        <a class="btn btn-link btn-sm" v-on:click="removeExperience(item)">Remove</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-12">
         <input type="submit" value="Submit application" class="btn btn-primary" />
     </div>
 </form>
+
+<div class="modal fade show" v-bind:class="{'d-block': showEducationForm, 'd-none': !showEducationForm }" v-show="showEducationForm" style="background:rgba(0,0,0,0.5)" id="educationModal" tabindex="-1" aria-labelledby="educationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="educationModalLabel">{{ isEdit ? 'Edit' : 'Create' }}</h5>
+                <button type="button" class="btn-close" v-on:click="showEducationForm = false" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="educationForm" class="row g-3" v-on:submit.prevent="handleEducationSubmit">
+                    <div class="col-12">
+                        <label for="school" class="form-label required">School</label>
+                        <input type="text" class="form-control"
+                               data-val="true"
+                               data-val-required="The School field is required."
+                               name="school"
+                               v-model="selectedEducation.school" />
+                        <span class="text-danger field-validation-valid" data-valmsg-for="school" data-valmsg-replace="true"></span>
+                    </div>
+                    <div class="col-12">
+                        <label for="degree" class="form-label">Degree</label>
+                        <input type="text"
+                               class="form-control"
+                               name="degree"
+                               v-model="selectedEducation.degree" />
+                    </div>
+                    <div class="col-12">
+                        <label for="startDate" class="form-label">Start Date</label>
+                        <input type="date"
+                               class="form-control"
+                               name="startDate"
+                               v-model="selectedEducation.startDate" />
+                    </div>
+                    <div class="col-12">
+                        <label for="endDate" class="form-label">End Date</label>
+                        <input type="date"
+                               class="form-control"
+                               name="endDate"
+                               v-model="selectedEducation.endDate" />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" v-on:click="showEducationForm = false" data-bs-dismiss="modal">Close</button>
+                <button form="educationForm" class="btn btn-primary btn-sm">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade show" v-bind:class="{'d-block': showExperienceForm, 'd-none': !showExperienceForm }" v-show="showExperienceForm" style="background:rgba(0,0,0,0.5)" id="experienceModal" tabindex="-1" aria-labelledby="experienceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="experienceModalLabel">{{ isEdit ? 'Edit' : 'Create' }}</h5>
+                <button type="button" class="btn-close" v-on:click="showExperienceForm = false" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="experienceForm" class="row g-3" v-on:submit.prevent="handleExperienceSubmit">
+                    <div class="col-12">
+                        <label for="title" class="form-label required">Job Title</label>
+                        <input type="text" class="form-control"
+                               data-val="true"
+                               data-val-required="The School field is required."
+                               name="title"
+                               v-model="selectedExperience.title" />
+                        <span class="text-danger field-validation-valid" data-valmsg-for="title" data-valmsg-replace="true"></span>
+                    </div>
+                    <div class="col-12">
+                        <label for="company" class="form-label">Company Name</label>
+                        <input type="text"
+                               class="form-control"
+                               name="company"
+                               v-model="selectedExperience.company" />
+                    </div>
+                    <div class="col-12">
+                        <label for="summary" class="form-label">Job Summary</label>
+                        <textarea class="form-control"
+                                  name="summary"
+                                  v-model="selectedExperience.summary"></textarea>
+
+                    </div>
+                    <div class="col-12">
+                        <label for="startDate" class="form-label">Start Date</label>
+                        <input type="date"
+                               class="form-control"
+                               name="startDate"
+                               v-model="selectedExperience.startDate" />
+                    </div>
+                    <div class="col-12">
+                        <label for="endDate" class="form-label">End Date</label>
+                        <input type="date"
+                               class="form-control"
+                               name="endDate"
+                               v-model="selectedExperience.endDate" />
+                    </div>
+                    <div class="col-12">
+                        <div class="form-check">
+                            <input type="checkbox"
+                                   id="currentlyWorkingHere"
+                                   class="form-check-input"
+                                   name="currentlyWorkingHere"
+                                   v-model="selectedExperience.currentlyWorkingHere" />
+                            <label class="form-check-label" for="currentlyWorkingHere">Currently working here</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" v-on:click="showExperienceForm = false" data-bs-dismiss="modal">Close</button>
+                <button form="experienceForm" class="btn btn-primary btn-sm">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<partial name="_ValidationScriptsPartial" />
+}

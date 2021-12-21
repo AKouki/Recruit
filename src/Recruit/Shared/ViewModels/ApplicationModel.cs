@@ -37,8 +37,10 @@ namespace Recruit.Shared.ViewModels
 
         public IFormFile? Photo { get; set; }
 
-        // Education
-        // Experience
+        //public List<Education>? Education { get; set; }
+        //public List<Experience>? Experience { get; set; }
+        public string? EducationJson { get; set; }
+        public string? ExperienceJson { get; set; }
 
         [Required]
         public IFormFile? Resume { get; set; }

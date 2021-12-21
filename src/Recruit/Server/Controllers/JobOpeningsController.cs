@@ -5,6 +5,7 @@ using Recruit.Server.Services.BlobService;
 using Recruit.Shared;
 using Recruit.Shared.Validators;
 using Recruit.Shared.ViewModels;
+using System.Text.Json;
 
 namespace Recruit.Server.Controllers
 {
@@ -85,6 +86,18 @@ namespace Recruit.Server.Controllers
                 Job = job,
                 Stage = job.Stages?.FirstOrDefault(s => s.Name == "Screen"),
             };
+
+            if (!string.IsNullOrEmpty(model.EducationJson))
+            {
+                var educations = JsonSerializer.Deserialize<List<Education>>(model.EducationJson);
+                newApplicant.Education = educations?.Take(5).ToList();
+            }
+
+            if (!string.IsNullOrEmpty(model.ExperienceJson))
+            {
+                var experiences = JsonSerializer.Deserialize<List<Experience>>(model.ExperienceJson);
+                newApplicant.Experience = experiences?.Take(5).ToList();
+            }
 
             // Upload resume
             if (model.Resume != null)

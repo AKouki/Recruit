@@ -30,7 +30,7 @@
             </div>
         </nav>
     </header>
-    <div class="container">
+    <div class="container" id="app">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
@@ -43,7 +43,8 @@
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/js~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/vue@3.2.26/dist/vue.global.prod.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)

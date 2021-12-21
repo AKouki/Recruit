@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Recruit.Shared;
+using System.ComponentModel.DataAnnotations;
 
 namespace Recruit.Career.Models
 {
@@ -37,10 +38,12 @@ namespace Recruit.Career.Models
 
         public IFormFile? Photo { get; set; }
 
-        // Education
-        // Experience
+        public List<Education> Education { get; set; } = new();
+
+        public List<Experience> Experience { get; set; } = new();
 
         [Required]
         public IFormFile? Resume { get; set; }
+
     }
 }

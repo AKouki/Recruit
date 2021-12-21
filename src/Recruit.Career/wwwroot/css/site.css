@@ -62,6 +62,11 @@ a {
     text-decoration: none;
 }
 
+a.disabled {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
 .fs-14 {
     font-size: 14px;
 }
@@ -91,13 +96,13 @@ a {
     color: #35383a;
 }
 
-    .form-label:not(.required):after {
-        content: '(Optional)';
-        color: grey;
-        margin-left: 5px;
-        font-weight: 400;
-        font-size: small;
-    }
+.form-label:not(.required):after {
+    content: '(Optional)';
+    color: grey;
+    margin-left: 5px;
+    font-weight: 400;
+    font-size: small;
+}
 
 .required:after {
     content: '*';
@@ -110,14 +115,14 @@ a {
     border: 1px solid #ddd;
 }
 
-    .job-item:hover {
-        border: 1px solid #aaa;
-    }
+.job-item:hover {
+    border: 1px solid #aaa;
+}
 
-    .job-item span {
-        color: #777;
-        font-size: 0.875rem;
-    }
+.job-item span {
+    color: #777;
+    font-size: 0.875rem;
+}
 
 .job-details span:not(:first-child):before {
     content: '/';
