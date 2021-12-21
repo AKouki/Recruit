@@ -14,7 +14,10 @@ else
         <h3 class="mb-1">@Model.Job.Title</h3>
         <div class="d-flex job-details mt-1">
             <span class="fs-14 text-secondary">@Model.Job.City, @Model.Job.Country</span>
-            <span class="ms-2 fs-14 text-secondary">@Model.Job.Department</span>
+            @if (Model.Job.Department != null)
+            {
+                <span class="ms-2 fs-14 text-secondary">@Model.Job.Department.Name</span>
+            }
             <span class="ms-2 fs-14 text-secondary">@Model.Job.JobType</span>
         </div>
     </div>

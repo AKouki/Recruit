@@ -1,4 +1,5 @@
-﻿using Recruit.Shared.Enums;
+﻿using Recruit.Shared;
+using Recruit.Shared.Enums;
 
 namespace Recruit.Career.Models
 {
@@ -10,7 +11,7 @@ namespace Recruit.Career.Models
         public JobType JobType { get; set; }
         public string? Country { get; set; }
         public string? City { get; set; }
-        public string? Department { get; set; }
+        public Department? Department { get; set; }
         public DateTime PostDate { get; set; }
     }
 }

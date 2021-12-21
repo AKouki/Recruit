@@ -37,6 +37,7 @@ namespace Recruit.Server.Controllers
         {
             var jobs = await _db.Jobs
                 .Where(j => j.Published == true)
+                .Include(j => j.Department)
                 .OrderByDescending(j => j.PostDate)
                 .ToListAsync();
 
@@ -47,7 +48,9 @@ namespace Recruit.Server.Controllers
         public async Task<IActionResult> Get(int id)
         {
             var job = await _db.Jobs
-                .FirstOrDefaultAsync(j => j.Id == id && j.Published == true);
+                .Where(j => j.Id == id && j.Published == true)
+                .Include(j => j.Department)
+                .FirstOrDefaultAsync();
 
             if (job == null)
                 return NotFound();

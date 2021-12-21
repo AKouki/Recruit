@@ -25,7 +25,10 @@ else
                         </div>
                         <div class="d-flex mt-2 job-details">
                             <span>@item.City, @item.Country</span>
-                            <span class="ms-2">@item.Department</span>
+                            @if (item.Department != null)
+                            {
+                                <span class="ms-2">@item.Department.Name</span>
+                            }
                             <span class="ms-2">@item.JobType</span>
                         </div>
                     </div>
