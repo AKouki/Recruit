@@ -303,8 +303,8 @@ namespace Recruit.Server.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     School = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Degree = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ApplicantId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -326,10 +326,9 @@ namespace Recruit.Server.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Company = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Summary = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CurrentlyWorkingHere = table.Column<bool>(type: "bit", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CurrentlyWorking = table.Column<bool>(type: "bit", nullable: false),
                     ApplicantId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>

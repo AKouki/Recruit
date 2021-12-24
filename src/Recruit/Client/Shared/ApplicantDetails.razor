@@ -120,7 +120,7 @@
                             {
                                 <div class="d-flex mb-1">
                                     <span class="left-side">
-                                        @item.StartDate.Year - @item.EndDate.Year
+                                        @item.StartDate?.Year - @item.EndDate?.Year
                                     </span>
                                     <span class="right-side">
                                         @if (!string.IsNullOrEmpty(item.Degree))
@@ -146,7 +146,7 @@
                             {
                                 <div class="d-flex mb-1">
                                     <span class="left-side">
-                                        @item.StartDate.Year - @(item.CurrentlyWorkingHere ? "Now" : item.EndDate.Year)
+                                        @item.StartDate?.Year - @(item.CurrentlyWorking ? "Now" : item.EndDate?.Year)
                                     </span>
                                     <span class="right-side">
                                         @item.Title

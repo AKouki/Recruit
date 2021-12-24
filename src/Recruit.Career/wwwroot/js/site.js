@@ -7,7 +7,8 @@
             selectedExperience: {},
             showEducationForm: false,
             showExperienceForm: false,
-            selectedIndex: null
+            selectedIndex: null,
+            errors: []
         }
     },
     methods: {
@@ -29,7 +30,7 @@
                     summary: this.selectedExperience.summary,
                     startDate: this.selectedExperience.startDate,
                     endDate: this.selectedExperience.endDate,
-                    currentlyWorkingHere: this.selectedExperience.currentlyWorkingHere
+                    currentlyWorking: this.selectedExperience.currentlyWorking
                 });
             }
         },
@@ -50,7 +51,7 @@
                 item.summary = this.selectedExperience.summary;
                 item.startDate = this.selectedExperience.startDate;
                 item.endDate = this.selectedExperience.endDate;
-                item.currentlyWorkingHere = this.selectedExperience.currentlyWorkingHere;
+                item.currentlyWorking = this.selectedExperience.currentlyWorking;
             }
         },
         removeEducation(education) {
@@ -63,25 +64,28 @@
             this.selectedEducation = {};
             this.selectedIndex = null;
             this.showEducationForm = true;
+            this.errors = [];
         },
         showCreateExperienceForm() {
             this.selectedExperience = {};
             this.selectedIndex = null;
             this.showExperienceForm = true;
+            this.errors = [];
         },
         showEditEducationForm(index) {
             this.selectedEducation = JSON.parse(JSON.stringify(this.educations[index]));
             this.selectedIndex = index;
             this.showEducationForm = true;
+            this.errors = [];
         },
         showEditExperienceForm(index) {
             this.selectedExperience = JSON.parse(JSON.stringify(this.experiences[index]));
             this.selectedIndex = index;
             this.showExperienceForm = true;
+            this.errors = [];
         },
         handleEducationSubmit() {
-            var isValidForm = this.selectedEducation.school?.trim();
-            if (isValidForm) {
+            if (this.checkEducationForm()) {
                 if (this.isEdit) {
                     this.updateEducation();
                 }
@@ -95,8 +99,7 @@
             }
         },
         handleExperienceSubmit() {
-            var isValidForm = this.selectedExperience.title?.trim();
-            if (isValidForm) {
+            if (this.checkExperienceForm()) {
                 if (this.isEdit) {
                     this.updateExperience();
                 }
@@ -108,6 +111,51 @@
                 this.selectedIndex = null;
                 this.selectedExperience = {};
             }
+        },
+        checkEducationForm() {
+            this.errors = [];
+
+            if (!this.selectedEducation.school) {
+                return false;
+            }
+            if (this.selectedEducation.startDate && !this.selectedEducation.endDate ||
+                !this.selectedEducation.startDate && this.selectedEducation.endDate) {
+                this.errors['startDate'] = "You must select both the StartDate and EndDate or neither.";
+                this.errors['endDate'] = "You must select both the StartDate and EndDate or neither.";
+                return false;
+            }
+            if (this.selectedEducation.startDate > this.selectedEducation.endDate) {
+                this.errors['endDate'] = "The EndDate must be later than StartDate.";
+                return false;
+            }
+
+            return true;
+        },
+        checkExperienceForm() {
+            this.errors = [];
+
+            if (!this.selectedExperience.title) {
+                return false;
+            }
+            if (this.selectedExperience.currentlyWorking && !this.selectedExperience.startDate) {
+                this.errors['startDate'] = "The StartDate field is required.";
+                return false;
+            }
+            if (!this.selectedExperience.currentlyWorking) {
+                if (this.selectedExperience.startDate && !this.selectedExperience.endDate ||
+                    !this.selectedExperience.startDate && this.selectedExperience.endDate) {
+                    this.errors['startDate'] = "You must select both the StartDate and EndDate or neither.";
+                    this.errors['endDate'] = "You must select both the StartDate and EndDate or neither.";
+                    return false;
+                }
+                if (this.selectedExperience.startDate > this.selectedExperience.endDate) {
+                    this.errors['endDate'] = "The EndDate must be later than StartDate.";
+                    return false;
+
+                }
+            }
+
+            return true;
         }
     },
     computed: {

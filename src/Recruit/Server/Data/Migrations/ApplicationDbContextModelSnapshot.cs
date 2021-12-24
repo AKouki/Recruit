@@ -356,14 +356,14 @@ namespace Recruit.Server.Data.Migrations
                     b.Property<string>("Degree")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("EndDate")
+                    b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("School")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("StartDate")
+                    b.Property<DateTime?>("StartDate")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
@@ -412,17 +412,14 @@ namespace Recruit.Server.Data.Migrations
                     b.Property<string>("Company")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("CurrentlyWorkingHere")
+                    b.Property<bool>("CurrentlyWorking")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime>("EndDate")
+                    b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("StartDate")
+                    b.Property<DateTime?>("StartDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("Summary")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
                         .IsRequired()

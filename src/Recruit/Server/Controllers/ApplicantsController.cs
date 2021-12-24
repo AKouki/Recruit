@@ -134,10 +134,9 @@ namespace Recruit.Server.Controllers
                 {
                     Title = experience.Title,
                     Company = experience.Company,
-                    Summary = experience.Summary,
                     StartDate = experience.StartDate,
                     EndDate = experience.EndDate,
-                    CurrentlyWorkingHere = experience.CurrentlyWorkingHere
+                    CurrentlyWorking = experience.CurrentlyWorking
                 });
             }
 
