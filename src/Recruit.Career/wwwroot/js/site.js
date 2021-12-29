@@ -114,48 +114,43 @@
         },
         checkEducationForm() {
             this.errors = [];
+            var isValid = true;
 
             if (!this.selectedEducation.school) {
-                return false;
-            }
-            if (this.selectedEducation.startDate && !this.selectedEducation.endDate ||
-                !this.selectedEducation.startDate && this.selectedEducation.endDate) {
-                this.errors['startDate'] = "You must select both the StartDate and EndDate or neither.";
-                this.errors['endDate'] = "You must select both the StartDate and EndDate or neither.";
-                return false;
+                isValid = false;
             }
             if (this.selectedEducation.startDate > this.selectedEducation.endDate) {
                 this.errors['endDate'] = "The EndDate must be later than StartDate.";
-                return false;
+                isValid = false;
             }
 
-            return true;
+            return isValid;
         },
         checkExperienceForm() {
             this.errors = [];
+            var isValid = true;
 
             if (!this.selectedExperience.title) {
-                return false;
+                isValid = false;
             }
             if (this.selectedExperience.currentlyWorking && !this.selectedExperience.startDate) {
                 this.errors['startDate'] = "The StartDate field is required.";
-                return false;
+                isValid = false;
             }
             if (!this.selectedExperience.currentlyWorking) {
                 if (this.selectedExperience.startDate && !this.selectedExperience.endDate ||
                     !this.selectedExperience.startDate && this.selectedExperience.endDate) {
-                    this.errors['startDate'] = "You must select both the StartDate and EndDate or neither.";
                     this.errors['endDate'] = "You must select both the StartDate and EndDate or neither.";
-                    return false;
+                    isValid = false;
                 }
                 if (this.selectedExperience.startDate > this.selectedExperience.endDate) {
                     this.errors['endDate'] = "The EndDate must be later than StartDate.";
-                    return false;
+                    isValid = false;
 
                 }
             }
 
-            return true;
+            return isValid;
         }
     },
     computed: {

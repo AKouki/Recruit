@@ -139,7 +139,7 @@
                                class="form-control"
                                name="startDate"
                                v-model="selectedEducation.startDate"
-                               v-on:change="errors = []" />
+                               v-on:change="checkEducationForm" />
                         <span class="text-danger" v-if="errors['startDate']">{{ errors['startDate'] }}</span>
                     </div>
                     <div class="col-12">
@@ -148,7 +148,7 @@
                                class="form-control"
                                name="endDate"
                                v-model="selectedEducation.endDate"
-                               v-on:change="errors = []" />
+                               v-on:change="checkEducationForm" />
                         <span class="text-danger" v-if="errors['endDate']">{{ errors['endDate'] }}</span>
                     </div>
                 </form>
@@ -174,7 +174,7 @@
                         <label for="title" class="form-label required">Job Title</label>
                         <input type="text" class="form-control"
                                data-val="true"
-                               data-val-required="The School field is required."
+                               data-val-required="The Job Title field is required."
                                name="title"
                                v-model="selectedExperience.title" />
                         <span class="text-danger field-validation-valid" data-valmsg-for="title" data-valmsg-replace="true"></span>
@@ -192,7 +192,7 @@
                                class="form-control"
                                name="startDate"
                                v-model="selectedExperience.startDate"
-                               v-on:change="errors = []" />
+                               v-on:change="checkExperienceForm" />
                         <span class="text-danger" v-if="errors['startDate']">{{ errors['startDate'] }}</span>
                     </div>
                     <div class="col-12">
@@ -202,7 +202,7 @@
                                name="endDate"
                                v-model="selectedExperience.endDate"
                                v-bind:disabled="selectedExperience.currentlyWorking == true"
-                               v-on:change="errors = []" />
+                               v-on:change="checkExperienceForm" />
                         <span class="text-danger" v-if="errors['endDate']">{{ errors['endDate'] }}</span>
                     </div>
                     <div class="col-12">
@@ -212,7 +212,7 @@
                                    class="form-check-input"
                                    name="currentlyWorking"
                                    v-model="selectedExperience.currentlyWorking"
-                                   v-on:change="errors = []" />
+                                   v-on:change="checkExperienceForm" />
                             <label class="form-check-label" for="currentlyWorking">Currently working in this company</label>
                         </div>
                     </div>
