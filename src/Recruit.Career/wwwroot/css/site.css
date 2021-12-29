@@ -128,3 +128,7 @@ a.disabled {
     content: '/';
     margin-right: 5px;
 }
+
+.job-description {
+    overflow-wrap: break-word;
+}
