@@ -3,16 +3,6 @@
 @inject IAuthService AuthService
 @inject NavigationManager NavigationManager
 
-@if (ShowErrors)
-{
-    <div class="alert alert-danger" role="alert">
-        @foreach (var error in Errors ?? Enumerable.Empty<string>())
-        {
-            <p>@error</p>
-        }
-    </div>
-}
-
 <div class="row justify-content-center auth-wrapper">
     <div class="col-12 col-md-5 col-lg-4 bg-white box-shadow p-25">
         <div class="text-center">
@@ -24,6 +14,17 @@
             <div class="col-12">
                 <ValidationSummary />
             </div>
+            @if (ShowErrors)
+            {
+                <div class="col-12">
+                    <div class="alert alert-danger mb-0" role="alert">
+                        @foreach (var error in Errors ?? Enumerable.Empty<string>())
+                        {
+                            <p class="mb-0 fs-14">@error</p>
+                        }
+                    </div>
+                </div>
+            }
             <div class="col-12">
                 <label for="email" class="form-label d-block">Email</label>
                 <InputText id="email" @bind-Value="loginModel.Email" class="form-control" />
