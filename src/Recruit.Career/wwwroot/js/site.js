@@ -27,7 +27,6 @@
                 this.experiences.push({
                     title: this.selectedExperience.title,
                     company: this.selectedExperience.company,
-                    summary: this.selectedExperience.summary,
                     startDate: this.selectedExperience.startDate,
                     endDate: this.selectedExperience.endDate,
                     currentlyWorking: this.selectedExperience.currentlyWorking
@@ -48,7 +47,6 @@
             if (item) {
                 item.title = this.selectedExperience.title;
                 item.company = this.selectedExperience.company;
-                item.summary = this.selectedExperience.summary;
                 item.startDate = this.selectedExperience.startDate;
                 item.endDate = this.selectedExperience.endDate;
                 item.currentlyWorking = this.selectedExperience.currentlyWorking;
