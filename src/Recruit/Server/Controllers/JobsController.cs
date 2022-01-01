@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Recruit.Server.Data;
 using Recruit.Shared;
+using Recruit.Shared.Extensions;
 using Recruit.Shared.ViewModels;
 
 namespace Recruit.Server.Controllers
@@ -70,7 +71,7 @@ namespace Recruit.Server.Controllers
                 JobTitle = job.Title,
                 Location = $"{job.City}, {job.Country}",
                 Department = job.Department?.Name,
-                JobType = job.JobType.ToString(),
+                JobType = job.JobType.GetDisplayName(),
                 Applicants = job.Applicants?.ToList() ?? new List<Applicant>(),
                 Stages = job.Stages?.ToList() ?? new List<Stage>()
             };

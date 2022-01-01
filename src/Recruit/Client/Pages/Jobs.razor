@@ -1,4 +1,5 @@
 ﻿@page "/Jobs"
+@using Recruit.Shared.Extensions
 @inject HttpClient Http
 @attribute [Authorize]
 
@@ -45,8 +46,8 @@ else
             </td>
             <td>@job.Department?.Name</td>
             <td>@job.Manager</td>
-            <td>@job.JobType.ToString()</td>
-            <td>@job.JobExperience.ToString()</td>
+            <td>@job.JobType.GetDisplayName()</td>
+            <td>@job.JobExperience.GetDisplayName()</td>
             <td>
                 <div class="dropdown">
                     <a class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">

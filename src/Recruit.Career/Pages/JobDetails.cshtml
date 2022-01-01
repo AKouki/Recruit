@@ -1,5 +1,6 @@
 ﻿@page "/Jobs/{id}"
 @model JobDetailsModel
+@using Recruit.Shared.Extensions
 @{
     ViewData["Title"] = "Job Details";
 }
@@ -18,7 +19,7 @@ else
             {
                 <span class="ms-2 fs-14 text-secondary">@Model.Job.Department.Name</span>
             }
-            <span class="ms-2 fs-14 text-secondary">@Model.Job.JobType</span>
+            <span class="ms-2 fs-14 text-secondary">@Model.Job.JobType.GetDisplayName()</span>
         </div>
     </div>
 

@@ -32,10 +32,13 @@
     overflow-y: auto;
 }
 
+.stage-item-applicants a:hover {
+    color: inherit;
+}
+
 .stage-item-header {
     margin: 0 2px;
 }
-
 
 .applicant-card {
     padding: 0.5rem;

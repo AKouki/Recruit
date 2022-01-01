@@ -1,4 +1,5 @@
 ﻿@page "/Jobs/Create"
+@using Recruit.Shared.Extensions
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
 @attribute [Authorize]
@@ -58,19 +59,19 @@ else
         <div class="col-md-6">
             <label for="jobType" class="form-label">Job Type</label>
             <InputSelect id="jobType" @bind-Value="model.JobType" class="form-select">
-                @foreach (var item in Enum.GetValues(typeof(JobType)))
+                @foreach (Enum item in Enum.GetValues(typeof(JobType)))
                 {
-                    <option>@item</option>
+                    <option value="@item.ToString()">@item.GetDisplayName()</option>
                 }
             </InputSelect>
         </div>
         <div class="col-md-6">
             <label for="jobExperience" class="form-label">Experience</label>
             <InputSelect id="jobExperience" @bind-Value="model.JobExperience" class="form-select">
-                @foreach (var item in Enum.GetValues(typeof(JobExperience)))
-                    {
-                    <option>@item</option>
-                    }
+                @foreach (Enum item in Enum.GetValues(typeof(JobExperience)))
+                {
+                    <option value="@item.ToString()">@item.GetDisplayName()</option>
+                }
             </InputSelect>
         </div>
         <div class="col-12">

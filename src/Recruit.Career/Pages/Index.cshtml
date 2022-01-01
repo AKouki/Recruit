@@ -1,5 +1,6 @@
 ﻿@page
 @using Recruit.Career.Models
+@using Recruit.Shared.Extensions
 @model IndexModel
 @{
     ViewData["Title"] = "Home page";
@@ -29,7 +30,7 @@ else
                             {
                                 <span class="ms-2">@item.Department.Name</span>
                             }
-                            <span class="ms-2">@item.JobType</span>
+                            <span class="ms-2">@item.JobType.GetDisplayName()</span>
                         </div>
                     </div>
                 </a>
