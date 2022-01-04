@@ -70,7 +70,8 @@
         AppState.OnChange += StateHasChanged;
 
         // Get avatar from local storage
-        AppState.UserAvatar = await LocalStorage.GetItemAsync<string>("avatar");
+        var avatar = await LocalStorage.GetItemAsync<string>("avatar");
+        AppState.SetAvatar(avatar);
     }
 
     private async Task BeginSignOut(MouseEventArgs args)

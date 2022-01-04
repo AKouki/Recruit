@@ -60,7 +60,7 @@
             var profile = await result.Content.ReadFromJsonAsync<ProfileViewModel>();
             Avatar = profile?.Avatar;
             FullName = profile?.FullName;
-            AppState.UserAvatar = Avatar;
+            AppState.SetAvatar(Avatar);
         }
     }
 
@@ -77,7 +77,7 @@
             if (result.IsSuccessStatusCode)
             {
                 Avatar = await result.Content.ReadAsStringAsync();
-                AppState.UserAvatar = Avatar;
+                AppState.SetAvatar(Avatar);
                 await LocalStorage.SetItemAsync("avatar", Avatar);
             }
         }
@@ -94,7 +94,7 @@
         if (result.IsSuccessStatusCode)
         {
             Avatar = null;
-            AppState.UserAvatar = null;
+            AppState.SetAvatar(null);
             await LocalStorage.RemoveItemAsync("avatar");
         }
         IsDisabled = false;

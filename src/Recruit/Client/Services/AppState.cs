@@ -2,16 +2,11 @@
 {
     public class AppState
     {
-        private string? _userAvatar;
-
-        public string? UserAvatar
+        public string? UserAvatar { get; private set; }
+        public void SetAvatar(string? userAvatar)
         {
-            get { return _userAvatar; }
-            set
-            {
-                _userAvatar = value;
-                OnChange?.Invoke();
-            }
+            UserAvatar = userAvatar;
+            OnChange?.Invoke();
         }
 
         public event Action? OnChange;
