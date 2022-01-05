@@ -2,7 +2,7 @@
 @using Blazored.LocalStorage
 @inject HttpClient Http
 @inject ILocalStorageService LocalStorage
-@inject AppState AppState
+@inject ProfileState ProfileState
 @implements IDisposable
 @attribute [Authorize]
 
@@ -11,9 +11,7 @@
         @if (IsDisabled)
         {
             <div class="spinner-wrapper">
-                <div class="spinner-border text-light" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
+                <Spinner ColorClass="text-light" />
             </div>
         }
 
@@ -39,18 +37,19 @@
 </div>
 
 @code {
-    public string? Avatar { get; set; }
-    public string? FullName { get; set; }
+    public string? Avatar => ProfileState.UserAvatar;
+    public string? FullName => ProfileState.FullName;
 
     public bool IsDisabled { get; set; }
     public string? IsDisabledCss => IsDisabled ? "disabled" : "";
 
     protected override async Task OnInitializedAsync()
     {
-        AppState.OnChange += StateHasChanged;
+        ProfileState.OnChange += StateHasChanged;
 
         // Show the stored one while fetching the new avatar
-        Avatar = await LocalStorage.GetItemAsync<string>("avatar");
+        var localAvatar = await LocalStorage.GetItemAsync<string>("avatar");
+        ProfileState.SetAvatar(localAvatar);
         StateHasChanged();
 
         // Fetch the new avatar
@@ -58,9 +57,8 @@
         if (result.IsSuccessStatusCode)
         {
             var profile = await result.Content.ReadFromJsonAsync<ProfileViewModel>();
-            Avatar = profile?.Avatar;
-            FullName = profile?.FullName;
-            AppState.SetAvatar(Avatar);
+            ProfileState.SetFullName(profile?.FullName);
+            ProfileState.SetAvatar(profile?.Avatar);
         }
     }
 
@@ -73,12 +71,12 @@
             var content = new MultipartFormDataContent();
             content.Add(fileContent, "file", Path.GetFileName(e.File.Name));
 
-            var result = await Http.PostAsync("api/Profile/UpdateAvatar", content);
-            if (result.IsSuccessStatusCode)
+            var response = await Http.PostAsync("api/Profile/UpdateAvatar", content);
+            if (response.IsSuccessStatusCode)
             {
-                Avatar = await result.Content.ReadAsStringAsync();
-                AppState.SetAvatar(Avatar);
-                await LocalStorage.SetItemAsync("avatar", Avatar);
+                var result = await response.Content.ReadAsStringAsync();
+                ProfileState.SetAvatar(result);
+                await LocalStorage.SetItemAsync("avatar", result);
             }
         }
         catch (Exception)
@@ -90,11 +88,10 @@
     private async Task Delete()
     {
         IsDisabled = true;
-        var result = await Http.GetAsync("api/Profile/RemoveAvatar");
-        if (result.IsSuccessStatusCode)
+        var response = await Http.GetAsync("api/Profile/RemoveAvatar");
+        if (response.IsSuccessStatusCode)
         {
-            Avatar = null;
-            AppState.SetAvatar(null);
+            ProfileState.SetAvatar(null);
             await LocalStorage.RemoveItemAsync("avatar");
         }
         IsDisabled = false;
@@ -102,7 +99,7 @@
 
     public void Dispose()
     {
-        AppState.OnChange -= StateHasChanged;
+        ProfileState.OnChange -= StateHasChanged;
     }
 
 }

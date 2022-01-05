@@ -14,11 +14,11 @@
 
     private string GenerateCssClasses()
     {
-        string classes = "spinner-border ";
+        string classes = "spinner-border";
         if (IsCenter)
-            classes += "absolute-center ";
+            classes += " position-absolute center";
         if (IsSmall)
-            classes += "spinner-border-sm ";
+            classes += " spinner-border-sm";
 
         return classes;
     }

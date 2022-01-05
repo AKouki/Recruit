@@ -1,0 +1,13 @@
+﻿.custom-spinner {
+    border-width: 2px;
+}
+
+.spinner-border.center {
+    left: calc(50% - 1rem);
+    top: calc(50% - 1rem);
+}
+
+.spinner-border-sm.center {
+    left: calc(50% - 0.5rem);
+    top: calc(50% - 0.5rem);
+}

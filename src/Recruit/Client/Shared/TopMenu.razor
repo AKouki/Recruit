@@ -2,7 +2,7 @@
 @inject IAuthService AuthService
 @inject NavigationManager NavigationManager
 @inject ILocalStorageService LocalStorage
-@inject AppState AppState
+@inject ProfileState ProfileState
 @implements IDisposable
 
 <div class="top-menu">
@@ -30,9 +30,9 @@
                         <div class="dropdown">
                             <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <div class="d-flex align-items-center">
-                                    @if (!string.IsNullOrEmpty(AppState.UserAvatar))
+                                    @if (!string.IsNullOrEmpty(ProfileState.UserAvatar))
                                     {
-                                        <img class="avatar avatar-green me-1" src="@AppState.UserAvatar" />
+                                        <img class="avatar avatar-green me-1" src="@ProfileState.UserAvatar" />
                                     }
                                     else
                                     {
@@ -64,14 +64,13 @@
 </div>
 
 @code {
-
     protected override async Task OnInitializedAsync()
     {
-        AppState.OnChange += StateHasChanged;
+        ProfileState.OnChange += StateHasChanged;
 
         // Get avatar from local storage
         var avatar = await LocalStorage.GetItemAsync<string>("avatar");
-        AppState.SetAvatar(avatar);
+        ProfileState.SetAvatar(avatar);
     }
 
     private async Task BeginSignOut(MouseEventArgs args)
@@ -82,6 +81,6 @@
 
     public void Dispose()
     {
-        AppState.OnChange -= StateHasChanged;
+        ProfileState.OnChange -= StateHasChanged;
     }
 }

@@ -11,7 +11,7 @@ span.avatar {
     font-size: 32px;
 }
 
-.spinner-wrapper {
+::deep .spinner-wrapper {
     position: absolute;
     left: 0;
     top: 0;
