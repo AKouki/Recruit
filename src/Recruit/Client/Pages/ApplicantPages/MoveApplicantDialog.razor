@@ -16,7 +16,14 @@
                 <span class="name fw-500">
                     @Applicant?.FirstName @Applicant?.LastName
                 </span>
-                <span class="fs-14">@Applicant?.Headline / applied for @Applicant?.Job?.Title</span>
+                @if (string.IsNullOrEmpty(Applicant?.Headline))
+                {
+                    <span class="fs-14">Applied for @Applicant?.Job?.Title</span>
+                }
+                else
+                {
+                    <span class="fs-14">@Applicant?.Headline / applied for @Applicant?.Job?.Title</span>
+                }
             </div>
         </div>
     </div>
@@ -91,6 +98,9 @@
             model.ApplicantId = Applicant.Id;
             Stages?.Clear();
             Jobs = await Http.GetFromJsonAsync<List<Job>>("api/Jobs");
+
+            // Exclude current job from list
+            Jobs = Jobs?.Where(j => j.Id != Applicant.JobId).ToList();
         }
     }
 
