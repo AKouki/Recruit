@@ -26,6 +26,38 @@
     margin-right: 0;
 }
 
+/* =============== Profile Dropdown ============== */
+
+.profile-dropdown {
+    width: 270px;
+    border-top: 3px solid #737cd2;
+    box-shadow: 0 2px 5px rgb(52 63 75 / 10%);
+}
+
+.profile-header {
+    padding: 0.75rem 1rem;
+}
+
+.profile-header .user-info {
+    line-height: 1.4;
+}
+
+.profile-header .user-info .name {
+    color: #344357;
+}
+
+.profile-dropdown .dropdown-item {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+}
+
+.profile-dropdown .dropdown-item:hover {
+    background: unset;
+    color: #3845bf !important;
+}
+
+/*===============================================*/
+
 @media (max-width: 640.98px) {
     .top-menu {
         height: auto;

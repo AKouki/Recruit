@@ -82,6 +82,21 @@ a:hover {
     align-items: center;
 }
 
+.avatar-sm {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+}
+
+.avatar-lg {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
+    font-size: 21px;
+}
+
 .avatar-rounded {
     border-radius: 4px;
 }
@@ -231,9 +246,7 @@ td a:hover {
 /*===============================================*/
 
 .dropdown-menu {
-    border-radius: 0.15rem;
     border: 1px solid #e5e8ea;
-    padding: 0.5rem 0;
 }
 
 .dropdown-item {
