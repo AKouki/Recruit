@@ -3,36 +3,14 @@
 <EditForm Model="model" class="row g-3" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <div class="col-12">
-        <div class="d-flex align-items-center">
-            @if (!string.IsNullOrEmpty(Applicant?.ProfilePhoto))
-            {
-                <img src="@Applicant?.ProfilePhoto" class="avatar me-2" />
-            }
-            else
-            {
-                <span class="avatar avatar-green me-2">@Applicant?.FirstName?.ToUpper()[0]</span>
-            }
-            <div class="d-flex flex-column" style="line-height: 1.3">
-                <span class="name fw-500">
-                    @Applicant?.FirstName @Applicant?.LastName
-                </span>
-                @if (string.IsNullOrEmpty(Applicant?.Headline))
-                {
-                    <span class="fs-14">Applied for @Applicant?.Job?.Title</span>
-                }
-                else
-                {
-                    <span class="fs-14">@Applicant?.Headline / applied for @Applicant?.Job?.Title</span>
-                }
-            </div>
-        </div>
+        You have selected <span class="fw-500">@Applicants?.Count</span> applicant@(Applicants?.Count > 1 ? "s" : "")
     </div>
     @if (ShowError)
     {
         <div class="col-12">
             <div class="alert alert-danger mb-0 fs-14" role="alert">
                 <span class="fw-500">Error</span> <br />
-                Please make sure you have selected both position and stage and there is no other applicant with the same email in target job.
+                Please make sure you have selected both position and stage
             </div>
         </div>
     }
@@ -73,34 +51,30 @@
 
 
 @code {
-    private MoveApplicantViewModel model = new();
+    private BulkMoveApplicantViewModel model = new();
 
     public List<Job>? Jobs = new();
     public List<Stage>? Stages = new();
 
     [Parameter]
-    public Applicant? Applicant { get; set; }
+    public List<Applicant>? Applicants { get; set; }
 
     [Parameter]
     public EventCallback OnCancel { get; set; }
 
     [Parameter]
-    public EventCallback<Applicant> OnValidSubmit { get; set; }
+    public EventCallback<List<Applicant>> OnValidSubmit { get; set; }
 
     private bool IsDisabled = false;
     private bool ShowError = false;
 
     protected override async Task OnParametersSetAsync()
     {
-        if (Applicant != null)
+        if (Applicants?.Count > 0)
         {
             model = new();
-            model.ApplicantId = Applicant.Id;
             Stages?.Clear();
             Jobs = await Http.GetFromJsonAsync<List<Job>>("api/Jobs");
-
-            // Exclude current job from list
-            Jobs = Jobs?.Where(j => j.Id != Applicant.JobId).ToList();
         }
     }
 
@@ -109,16 +83,15 @@
         ShowError = false;
         IsDisabled = true;
 
-        if (Applicant != null)
+        if (Applicants?.Count > 0)
         {
-            model.ApplicantId = Applicant.Id;
-
-            var response = await Http.PostAsJsonAsync<MoveApplicantViewModel>($"api/Applicants/Move", model);
+            model.Applicants = Applicants.Select(a => a.Id).ToList();
+            var response = await Http.PostAsJsonAsync<BulkMoveApplicantViewModel>($"api/BulkActions/MoveApplicantsToJob", model);
 
             if (response.IsSuccessStatusCode)
             {
-                var updatedApplicant = await response.Content.ReadFromJsonAsync<Applicant>();
-                await OnValidSubmit.InvokeAsync(updatedApplicant);
+                var updatedApplicants = await response.Content.ReadFromJsonAsync<List<Applicant>>();
+                await OnValidSubmit.InvokeAsync(updatedApplicants);
             }
             else
             {

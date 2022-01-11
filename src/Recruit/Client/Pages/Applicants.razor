@@ -6,7 +6,18 @@
     <h3>Applicants</h3>
 </div>
 
-<div class="d-flex filters mb-3">
+<div class="d-flex align-items-center filters mb-3">
+    <div class="dropdown me-2">
+        <button class="btn btn-bulk-actions dropdown-toggle @(IsBulkActionsDisabled ? "disabled": "")" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Actions
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-down"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item" role="button" @onclick="@(() => ShowBulkCopyDialog = true)">Copy to job</a></li>
+            <li><a class="dropdown-item" role="button" @onclick="@(() => ShowBulkMoveDialog = true)">Move to job</a></li>
+            <li><a class="dropdown-item" role="button" @onclick="@(() => ShowBulkDeleteDialog = true)">Delete</a></li>
+        </ul>
+    </div>
     <select class="form-select form-select-sm" @onchange="FitlerByPosition" @onchange:stopPropagation="true">
         <option value="0">Position</option>
         @foreach (var item in Positions)
@@ -22,78 +33,100 @@
 }
 else
 {
-    <TableTemplate Items="filteredApplicants" Context="applicant" Virtualize="true" ShowTableBorder="true">
-        <TableHeader>
-            <th scope="col">Name</th>
-            <th scope="col">Applied for</th>
-            <th scope="col">Applied on</th>
-            <th scope="col">Stage</th>
-            <th scope="col">Email</th>
-            <th scope="col">Phone</th>
-            <th scope="col">Actions</th>
-        </TableHeader>
-        <RowTemplate>
-            <td>
-                <div class="d-flex align-items-center">
-                    @if (!string.IsNullOrEmpty(applicant.ProfilePhoto))
-                    {
-                        <img src="@applicant.ProfilePhoto" class="avatar me-2" />
-                    }
-                    else
-                    {
-                        <span class="avatar avatar-green me-2">@applicant.FirstName?.ToUpper()[0]</span>
-                    }
-                    <div class="d-flex flex-column">
-                        <a @onclick="@(() => ShowDetails(applicant.Id))" @onclick:stopPropagation="true" class="name fw-500">
-                            @applicant.FirstName @applicant.LastName
-                        </a>
-                        <span>@applicant.Headline</span>
-                    </div>
-                </div>
-            </td>
-            <td>
-                <NavLink class="fw-500" href="@($"Jobs/{applicant.Job?.Id}")">
-                    @applicant.Job?.Title
-                </NavLink>
-            </td>
-            <td>@applicant.ApplyDate.ToString("dd/MM/yyyy")</td>
-            <td>@applicant.Stage?.Name</td>
-            <td>
-                <NavLink href="@($"mailto:{applicant.Email?.ToLower()}")">
-                    @applicant.Email?.ToLower()
-                </NavLink>
-            </td>
-            <td>@applicant.Phone</td>
-            <td>
-                <div class="dropdown">
-                    <a class="btn btn-light dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-secondary feather feather-more-horizontal"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li>
-                            <a class="dropdown-item" @onclick="() => OpenCopyDialog(applicant)">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                Copy
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" @onclick="() => OpenMoveDialog(applicant)">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                                Move
-                            </a>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <a class="dropdown-item text-danger" @onclick="@(() => OpenDeleteDialog(applicant))">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user-x"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="18" y1="8" x2="23" y2="13"></line><line x1="23" y1="8" x2="18" y2="13"></line></svg>
-                                Remove
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </td>
-        </RowTemplate>
-    </TableTemplate>
+    <div class="@ResponsiveCss table-wrapper">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col" class="pe-0">
+                        <div class="form-check">
+                            <input class="form-check-input @(selectedApplicants.Count > 0 && selectedApplicants.Count < filteredApplicants?.Count ? "indeterminate" : "")" type="checkbox" id="checkAll"
+                               @onchange="@(() => SelectAll())"
+                               checked="@(selectedApplicants.Count == filteredApplicants?.Count)">
+                        </div>
+                    </th>
+                    <th scope="col" class="ps-2">Name</th>
+                    <th scope="col">Applied for</th>
+                    <th scope="col">Applied on</th>
+                    <th scope="col">Stage</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Phone</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <Virtualize Items="filteredApplicants" Context="applicant">
+                    <tr class="@(selectedApplicants.Any(a => a.Id == applicant.Id) ? "selected" : "")">
+                        <td class="pe-0">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="check@(applicant.Id)"
+                                   @onchange="@((e) => ToggleSelect((bool)e.Value!, applicant))"
+                                   checked="@(selectedApplicants.Any(a => a.Id == applicant.Id))">
+                            </div>
+                        </td>
+                        <td class="ps-2">
+                            <div class="d-flex align-items-center">
+                                @if (!string.IsNullOrEmpty(applicant.ProfilePhoto))
+                                {
+                                    <img src="@applicant.ProfilePhoto" class="avatar me-2" />
+                                }
+                                else
+                                {
+                                    <span class="avatar avatar-green me-2">@applicant.FirstName?.ToUpper()[0]</span>
+                                }
+                                <div class="d-flex flex-column">
+                                    <a @onclick="@(() => ShowDetails(applicant.Id))" @onclick:stopPropagation="true" class="name fw-500">
+                                        @applicant.FirstName @applicant.LastName
+                                    </a>
+                                    <span>@applicant.Headline</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <NavLink class="fw-500" href="@($"Jobs/{applicant.Job?.Id}")">
+                                @applicant.Job?.Title
+                            </NavLink>
+                        </td>
+                        <td>@applicant.ApplyDate.ToString("dd/MM/yyyy")</td>
+                        <td>@applicant.Stage?.Name</td>
+                        <td>
+                            <NavLink href="@($"mailto:{applicant.Email?.ToLower()}")">
+                                @applicant.Email?.ToLower()
+                            </NavLink>
+                        </td>
+                        <td>@applicant.Phone</td>
+                        <td>
+                            <div class="dropdown">
+                                <a class="btn btn-light dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-secondary feather feather-more-horizontal"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item" @onclick="() => OpenCopyDialog(applicant)">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                            Copy
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" @onclick="() => OpenMoveDialog(applicant)">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                                            Move
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item text-danger" @onclick="@(() => OpenDeleteDialog(applicant))">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user-x"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="18" y1="8" x2="23" y2="13"></line><line x1="23" y1="8" x2="18" y2="13"></line></svg>
+                                            Remove
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                </Virtualize>
+            </tbody>
+        </table>
+    </div>
 }
 
 <ApplicantDetails ApplicantId="CurrentApplicantId"
@@ -105,6 +138,11 @@ else
                Text="Are you sure you want to delete this applicant?"
                OnClose="OnDeleteDialogClose" />
 
+<ConfirmDialog @bind-IsVisible="ShowBulkDeleteDialog"
+               Title="Bulk Delete"
+               Text="Are you sure you want to delete all selected applicants?"
+               OnClose="OnBulkDeleteDialogClose" />
+
 <ModalTemplate @bind-IsVisible="ShowCopyDialog" Title="Copy">
     <CopyApplicantDialog Applicant="selectedApplicant"
                          OnCancel="HandleCancel"
@@ -115,4 +153,16 @@ else
     <MoveApplicantDialog Applicant="selectedApplicant"
                          OnCancel="HandleCancel"
                          OnValidSubmit="HandleMove" />
+</ModalTemplate>
+
+<ModalTemplate @bind-IsVisible="ShowBulkCopyDialog" Title="Copy to new project">
+    <BulkCopyApplicantsDialog Applicants="selectedApplicants"
+                              OnCancel="HandleCancel"
+                              OnValidSubmit="HandleBulkCopy" />
+</ModalTemplate>
+
+<ModalTemplate @bind-IsVisible="ShowBulkMoveDialog" Title="Move to new project">
+    <BulkMoveApplicantsDialog Applicants="selectedApplicants"
+                              OnCancel="HandleCancel"
+                              OnValidSubmit="HandleBulkMove" />
 </ModalTemplate>

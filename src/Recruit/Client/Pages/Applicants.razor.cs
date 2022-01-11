@@ -2,6 +2,7 @@
 using Recruit.Client.Extensions;
 using Recruit.Client.Pages.ApplicantPages;
 using Recruit.Shared;
+using Recruit.Shared.ViewModels;
 using System.Net.Http.Json;
 
 namespace Recruit.Client.Pages
@@ -20,6 +21,12 @@ namespace Recruit.Client.Pages
         private bool ShowDeleteDialog = false;
         private bool ShowCopyDialog = false;
         private bool ShowMoveDialog = false;
+        private bool ShowBulkCopyDialog = false;
+        private bool ShowBulkMoveDialog = false;
+        private bool ShowBulkDeleteDialog = false;
+
+
+        private string? ResponsiveCss = "";
 
         protected override async Task OnInitializedAsync()
         {
@@ -28,6 +35,21 @@ namespace Recruit.Client.Pages
                 Positions = applicants.Select(a => a.Job).DistinctBy(j => j?.Id).ToList();
 
             filteredApplicants = applicants;
+        }
+
+        protected override void OnAfterRender(bool firstRender)
+        {
+            if (firstRender)
+            {
+                // Important: The Virtualize component has problem with detecting height when table-responsive is used.
+                // So, we must add the table-responsive css after the Virtualize is initialized.
+                Task.Run(async () =>
+                {
+                    await Task.Delay(50);
+                    ResponsiveCss = "table-responsive";
+                    StateHasChanged();
+                });
+            }
         }
 
         public void ShowDetails(int? id)
@@ -70,6 +92,8 @@ namespace Recruit.Client.Pages
                 {
                     applicants?.Remove(selectedApplicant);
                 }
+
+                selectedApplicants.Clear();
             }
 
             ShowDeleteDialog = false;
@@ -86,13 +110,15 @@ namespace Recruit.Client.Pages
             }
         }
 
-
         private void HandleCancel()
         {
             selectedApplicant = null;
             ShowCopyDialog = false;
             ShowMoveDialog = false;
             ShowDeleteDialog = false;
+            ShowBulkCopyDialog = false;
+            ShowBulkMoveDialog = false;
+            ShowBulkDeleteDialog = false;
         }
 
         private void HandleCopy(Applicant applicant)
@@ -100,6 +126,7 @@ namespace Recruit.Client.Pages
             int index = applicants?.FindIndex(a => a.Id == selectedApplicant?.Id) ?? 0;
             applicants?.Insert(index + 1, applicant);
             ShowCopyDialog = false;
+            selectedApplicants.Clear();
             StateHasChanged();
         }
 
@@ -107,6 +134,7 @@ namespace Recruit.Client.Pages
         {
             applicants?.Replace(selectedApplicant!, applicant);
             ShowMoveDialog = false;
+            selectedApplicants.Clear();
             StateHasChanged();
         }
 
@@ -118,5 +146,79 @@ namespace Recruit.Client.Pages
                     applicants?.Where(a => a.Job?.Id == jobId).ToList() : applicants;
             }
         }
+
+        #region Bulk Actions
+        private List<Applicant> selectedApplicants = new();
+        private bool IsBulkActionsDisabled => selectedApplicants.Count == 0;
+
+        private void ToggleSelect(bool isChecked, Applicant applicant)
+        {
+            if (isChecked)
+                selectedApplicants.Add(applicant);
+            else
+                selectedApplicants.Remove(applicant);
+        }
+
+        private void SelectAll()
+        {
+            if (selectedApplicants.Count == filteredApplicants?.Count)
+                selectedApplicants.Clear();
+            else
+                selectedApplicants = new List<Applicant>(filteredApplicants!);
+        }
+
+        private async Task OnBulkDeleteDialogClose(bool confirmed)
+        {
+            if (confirmed)
+            {
+                var viewModel = new BulkActionViewModel() { Items = selectedApplicants.Select(a => a.Id).ToList() };
+                var response = await Http!.PostAsJsonAsync($"api/BulkActions/DeleteApplicants", viewModel);
+                if (response.IsSuccessStatusCode)
+                {
+                    var deletedApplicants = await response.Content.ReadFromJsonAsync<List<int>>();
+                    if (deletedApplicants?.Count > 0)
+                    {
+                        applicants = applicants?.Where(a => !deletedApplicants.Contains(a.Id)).ToList();
+                        filteredApplicants = applicants;
+                    }
+                }
+
+                selectedApplicants.Clear();
+            }
+
+            ShowBulkDeleteDialog = false;
+            StateHasChanged();
+        }
+
+        private void HandleBulkCopy(List<Applicant> updatedApplicants)
+        {
+            ShowBulkCopyDialog = false;
+            selectedApplicants.Clear();
+
+            if (updatedApplicants?.Count > 0)
+            {
+                updatedApplicants = updatedApplicants.OrderByDescending(a => a.ApplyDate).ToList();
+                applicants?.InsertRange(0, updatedApplicants);
+            }
+
+            StateHasChanged();
+        }
+
+        private void HandleBulkMove(List<Applicant> updatedApplicants)
+        {
+            ShowBulkMoveDialog = false;
+            selectedApplicants.Clear();
+
+            foreach (var applicant in updatedApplicants)
+            {
+                var applicantToUpdate = applicants?.FirstOrDefault(a => a.Id == applicant.Id);
+                if (applicantToUpdate != null)
+                    applicants.Replace(applicantToUpdate, applicant);
+            }
+
+            StateHasChanged();
+        }
+
+        #endregion
     }
 }

@@ -47,6 +47,10 @@ a:hover {
     font-size: .875rem;
 }
 
+.fs-16 {
+    font-size: 1rem;
+}
+
 .max-width-960 {
     max-width: 960px;
 }
@@ -196,8 +200,12 @@ th {
     border-bottom: 1px solid #f2f4f8 !important;
 }
 
-tbody tr:hover {
+tbody tr:hover:not(.selected) {
     background: #fafbff;
+}
+
+tr.selected {
+    background: #f0f2ff;
 }
 
 td {
@@ -211,6 +219,26 @@ td a {
 
 td a:hover {
     color: #3845bf;
+}
+
+th .form-check,
+td .form-check {
+    min-height: 0;
+    margin-bottom: 0;
+}
+
+th .form-check-input,
+td .form-check-input {
+    width: 1rem;
+    height: 1rem;
+    border-color: #cfcfcf;
+}
+
+.form-check-input.indeterminate {
+    background-color: #0d6efd;
+    border-color: #0d6efd !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10h8'/%3e%3c/svg%3e");
+
 }
 
 /*======================================*/
@@ -240,6 +268,21 @@ td a:hover {
 
 .btn-rounded {
     border-radius: 25px;
+}
+
+.btn-bulk-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    border: 1px solid rgb(206, 212, 218);
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+}
+
+.btn-bulk-actions svg {
+    margin-left: 5px;
+    margin-top: 1px;
 }
 
 

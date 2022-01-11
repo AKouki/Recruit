@@ -60,6 +60,8 @@
     {
         if (firstRender)
         {
+            // Important: The Virtualize component has problem with detecting height when table-responsive is used.
+            // So, we must add the table-responsive css after the Virtualize is initialized.
             Task.Run(async () =>
             {
                 await Task.Delay(50);

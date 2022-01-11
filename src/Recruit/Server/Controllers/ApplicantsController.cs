@@ -165,6 +165,7 @@ namespace Recruit.Server.Controllers
             var job = await _db.Jobs
                 .Where(j => j.Id == model.JobId)
                 .Include(j => j.Stages)
+                .Include(j => j.Applicants)
                 .FirstOrDefaultAsync();
 
             var stage = job?.Stages?.FirstOrDefault(s => s.Id == model.StageId);
@@ -172,10 +173,15 @@ namespace Recruit.Server.Controllers
             if (applicant == null || job == null || stage == null)
                 return NotFound();
 
+            // Check if another applicant with same email exists in target job
+            var exists = job.Applicants!.Any(a => a.Email == applicant.Email);
+            if (exists)
+                return BadRequest();
+
             applicant.JobId = job.Id;
             applicant.Stage = stage;
 
-            _db.Update(applicant);
+            _db.Applicants.Update(applicant);
             await _db.SaveChangesAsync();
 
             return Ok(applicant);
