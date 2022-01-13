@@ -54,13 +54,13 @@
         <label asp-for="Application.Photo" class="form-label"></label>
         <input asp-for="Application.Photo" accept=".jpg,.jpeg" class="form-control" />
         <span asp-validation-for="Application.Photo" class="text-danger"></span>
-        <div class="form-text">File types: .jpg, .jpeg. Maximum File Size: 1MB.</div>
+        <div class="form-text">Allowed file types: .jpg, .jpeg. Maximum file size: 1MB.</div>
     </div>
     <div class="col-12">
         <label asp-for="Application.Resume" class="form-label required"></label>
         <input asp-for="Application.Resume" accept=".pdf" class="form-control" />
         <span asp-validation-for="Application.Resume" class="text-danger"></span>
-        <div class="form-text">File types: .pdf. Maximum File Size: 2MB.</div>
+        <div class="form-text">Allowed file types: .pdf. Maximum file size: 2MB.</div>
     </div>
     <div class="col-12">
         <label asp-for="Application.Education" class="form-label"></label>
