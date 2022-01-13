@@ -54,6 +54,12 @@ else
                 </tr>
             </thead>
             <tbody>
+                @if (filteredApplicants?.Count == 0)
+                {
+                    <tr>
+                        <td colspan="8">No data available</td>
+                    </tr>
+                }
                 <Virtualize Items="filteredApplicants" Context="applicant">
                     <tr class="@(selectedApplicants.Any(a => a.Id == applicant.Id) ? "selected" : "")">
                         <td class="pe-0">
