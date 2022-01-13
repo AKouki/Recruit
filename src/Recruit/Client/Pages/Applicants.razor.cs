@@ -25,7 +25,6 @@ namespace Recruit.Client.Pages
         private bool ShowBulkMoveDialog = false;
         private bool ShowBulkDeleteDialog = false;
 
-
         private string? ResponsiveCss = "";
 
         protected override async Task OnInitializedAsync()
@@ -150,7 +149,8 @@ namespace Recruit.Client.Pages
         #region Bulk Actions
         private List<Applicant> selectedApplicants = new();
         private bool IsBulkActionsDisabled => selectedApplicants.Count == 0;
-
+        private bool IsSelectAllChecked => selectedApplicants.Count == filteredApplicants?.Count && selectedApplicants.Count > 0;
+        
         private void ToggleSelect(bool isChecked, Applicant applicant)
         {
             if (isChecked)

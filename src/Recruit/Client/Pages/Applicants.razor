@@ -41,7 +41,7 @@ else
                         <div class="form-check">
                             <input class="form-check-input @(selectedApplicants.Count > 0 && selectedApplicants.Count < filteredApplicants?.Count ? "indeterminate" : "")" type="checkbox" id="checkAll"
                                @onchange="@(() => SelectAll())"
-                               checked="@(selectedApplicants.Count == filteredApplicants?.Count)">
+                               checked="@IsSelectAllChecked">
                         </div>
                     </th>
                     <th scope="col" class="ps-2">Name</th>
