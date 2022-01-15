@@ -110,7 +110,7 @@
     public EventCallback<Interview> OnValidSubmit { get; set; }
 
     private bool IsLoading = true;
-    private bool IsDisabled = false;
+    private bool IsDisabled = true;
     private string? StatusMessage { get; set; }
     private string? CanSelectApplicantCss => Interview == null ? "" : "disabled";
 
@@ -140,6 +140,7 @@
         }
 
         IsLoading = false;
+        IsDisabled = false;
     }
 
     private async Task HandleSubmit()
