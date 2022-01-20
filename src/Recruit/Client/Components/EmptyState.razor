@@ -1,0 +1,44 @@
+﻿<div class="@GenerateCssClasses()">
+    <div class="icon">
+        @Icon
+    </div>
+    <h2 class="title">@Title</h2>
+    <p class="description">@Description</p>
+    @if (Actions != null)
+    {
+        <div class="actions">
+            @Actions
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment? Icon { get; set; }
+
+    [Parameter]
+    public RenderFragment? Title { get; set; }
+
+    [Parameter]
+    public RenderFragment? Description { get; set; }
+
+    [Parameter]
+    public RenderFragment? Actions { get; set; }
+
+    [Parameter]
+    public bool IsSmall { get; set; }
+
+    [Parameter]
+    public bool IsFullHeight { get; set; }
+
+    private string GenerateCssClasses()
+    {
+        string classes = "empty-state-container";
+        if (IsSmall)
+            classes += " small";
+        if (IsFullHeight)
+            classes += " h-100";
+
+        return classes;
+    }
+}

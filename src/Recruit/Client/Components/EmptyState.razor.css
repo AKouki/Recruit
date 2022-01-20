@@ -1,0 +1,66 @@
+﻿.empty-state-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.icon {
+    background: #f7f7f7;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 200px;
+    height: 200px;
+    min-width: 200px;
+    min-height: 200px;
+    margin-bottom: 10px;
+}
+
+.icon ::deep svg {
+    color: #a2a4af;
+    width: 50%;
+    height: 50%;
+}
+
+.title {
+    margin: 20px 0;
+    font-size: 28px;
+    color: #35475a;
+    font-weight: 500;
+    text-align: center;
+}
+
+.description {
+    font-size: 1rem;
+    font-weight: 400;
+    color: gray;
+    max-width: 570px;
+    text-align: center;
+}
+
+.actions {
+    margin: 20px 10px;
+}
+
+.small .icon {
+    width: 150px;
+    height: 150px;
+    min-width: 150px;
+    min-height: 150px;
+}
+
+.small .title {
+    font-size: 20px;
+    margin: 7px 0;
+}
+
+.small .description {
+    font-size: 0.875rem;
+}
+
+.small .actions {
+    margin: 7px;
+}
