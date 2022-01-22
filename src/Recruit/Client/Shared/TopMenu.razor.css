@@ -91,10 +91,6 @@
         justify-content: space-between;
         align-items: center;
     }
-
-    ::deep input[type="text"] {
-        width: 280px;
-    }
 }
 
 .notifications-wrapper {

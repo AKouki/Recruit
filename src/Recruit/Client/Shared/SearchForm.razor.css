@@ -1,23 +1,23 @@
-﻿input[type="text"] {
+﻿input[type="search"] {
+    width: 280px;
     outline: none;
     border: 2px solid #eee;
     border-radius: 0.25rem;
-    padding: 5px 2.3rem;
-    padding-right: 1.5rem;
     color: #555;
     overflow: hidden;
+    padding: 5px 12px;
+    padding-left: 32px;
 }
 
-input[type="text"]:focus {
+input[type="search"]:focus {
     border-color: #3845bf;
 }
 
 .svg-container {
     position: absolute;
+    left: 10px;
     top: 0;
-    left: 0;
-    margin-left: 10px;
-    bottom: 0;
+    height: 100%;
     display: flex;
     align-items: center;
 }
@@ -58,10 +58,6 @@ input[type="text"]:focus {
 
 .search-result.show {
     display: block;
-}
-
-a {
-    padding: 0 2px;
 }
 
 ::deep a:hover {
