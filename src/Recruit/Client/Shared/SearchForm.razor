@@ -7,55 +7,49 @@
     <div class="svg-container">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
     </div>
-    <div class="box-shadow @SearchResultCssClass">
+    <div class="box-shadow @SearchResultCss">
         <div class="search-result-content">
-            @if (result != null)
+            @if (result?.Applicants.Count() > 0)
             {
-                @if (result.Applicants.Count() > 0)
-                {
-                    <h6>Applicants</h6>
-                    <ul class="list-unstyled mb-3">
-                        @foreach (var applicant in result.Applicants)
-                        {
-                            <li class="mt-2">
-                                <a class="d-flex align-items-center cursor-pointer" @onclick="@(() => ShowDetails(applicant.Id))">
-                                    @if (!string.IsNullOrEmpty(applicant.ProfilePhoto))
-                                    {
-                                        <img src="@applicant.ProfilePhoto" class="avatar me-2"/>
-                                    }
-                                    else
-                                    {
-                                        <span class="avatar avatar-green me-2">@applicant.FirstName?.ToUpper()[0]</span>
-                                    }
-                                    <span class="single-line">@applicant.FirstName @applicant.LastName</span>
-                                    <span class="single-line ms-2 text-secondary">applied for @applicant.Job?.Title</span>
-                                </a>
-                            </li>
-                        }
+                <h6>Applicants</h6>
+                <ul class="list-unstyled mb-3">
+                    @foreach (var applicant in result.Applicants)
+                    {
+                        <li class="mt-2">
+                            <a class="d-flex align-items-center" role="button" @onclick="@(() => ShowDetails(applicant.Id))">
+                                @if (!string.IsNullOrEmpty(applicant.ProfilePhoto))
+                                {
+                                    <img src="@applicant.ProfilePhoto" class="avatar me-2" />
+                                }
+                                else
+                                {
+                                    <span class="avatar avatar-green me-2">@applicant.FirstName?.ToUpper()[0]</span>
+                                }
+                                <span class="single-line">@applicant.FirstName @applicant.LastName</span>
+                                <span class="single-line ms-2 text-secondary">applied for @applicant.Job?.Title</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            }
 
-                    </ul>
-                }
-
-                @if (result.Jobs.Count() > 0)
-                {
-                    <h6>Jobs</h6>
-                    <ul class="list-unstyled mb-3">
-
-                        @foreach (var job in result.Jobs)
-                        {
-                            <li class="mt-2">
-                                <NavLink href="@($"Jobs/{job.Id}")" class="d-flex align-items-center" @onclick="HideResults">
-                                    <span class="avatar avatar-rounded avatar-project me-2">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-briefcase"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
-                                    </span>
-                                    <span class="single-line">@job.Title</span>
-                                    <span class="single-line ms-2 text-secondary"> in @job.City, @job.Country</span>
-                                </NavLink>
-                            </li>
-                        }
-
-                    </ul>
-                }
+            @if (result?.Jobs.Count() > 0)
+            {
+                <h6>Jobs</h6>
+                <ul class="list-unstyled mb-3">
+                    @foreach (var job in result.Jobs)
+                    {
+                        <li class="mt-2">
+                            <NavLink href="@($"Jobs/{job.Id}")" class="d-flex align-items-center" @onclick="HideResults">
+                                <span class="avatar avatar-rounded avatar-project me-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-briefcase"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                                </span>
+                                <span class="single-line">@job.Title</span>
+                                <span class="single-line ms-2 text-secondary"> in @job.City, @job.Country</span>
+                            </NavLink>
+                        </li>
+                    }
+                </ul>
             }
         </div>
     </div>
@@ -63,7 +57,7 @@
 
 @if (showSearchResult)
 {
-    <div class="outside-clickable-container" @onclick="HideResults">
+    <div class="outside-clickable-container" @onclick="() => showSearchResult = false">
     </div>
 }
 
@@ -72,7 +66,7 @@
 @code {
     private SearchResult? result;
     private bool showSearchResult;
-    private string? SearchResultCssClass => showSearchResult ? "search-result show" : "search-result";
+    private string? SearchResultCss => showSearchResult ? "search-result show" : "search-result";
 
     private Timer? debounceTimer;
     private double debounceInterval = 300;
@@ -108,8 +102,6 @@
 
     public async void Search(object? sender, ElapsedEventArgs args)
     {
-        result = null;
-
         if (!string.IsNullOrEmpty(SearchTerm))
             result = await Http.GetFromJsonAsync<SearchResult?>($"api/Search?searchTerm={SearchTerm}");
 

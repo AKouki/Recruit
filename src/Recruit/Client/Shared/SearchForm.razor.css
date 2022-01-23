@@ -43,31 +43,27 @@ input[type="search"]:focus {
 .search-result {
     position: absolute;
     background: white;
-    border-radius: 0.25rem;
-    border: 1px solid #eee;
-    width: 450px;
-    z-index: 20;
     margin-top: 0.25rem;
+    width: 450px;
+    max-height: 500px;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: 0.25rem;
+    z-index: 20;
     display: none;
-}
-
-.search-result-content {
-    padding: 1rem;
-    transition: margin-top .2s;
 }
 
 .search-result.show {
     display: block;
 }
 
+.search-result-content {
+    padding: 1rem;
+}
+
 ::deep a:hover {
     background: #f4f6f8;
     border-radius: 0.25rem;
-
-}
-
-a img {
-    margin-right: 10px;
 }
 
 a span:not(.avatar) {
