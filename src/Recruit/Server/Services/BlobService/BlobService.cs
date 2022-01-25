@@ -185,6 +185,7 @@ namespace Recruit.Server.Services.BlobService
             BlobBatchClient blobBatchClient = _blobServiceClient.GetBlobBatchClient();
             await blobBatchClient.DeleteBlobsAsync(blobUris);
         }
+
         private async Task DeleteFromAzureStorageEmulator(List<string> blobNames, BlobContainerClient blobContainerClient)
         {
             foreach (var blobName in blobNames)
