@@ -18,9 +18,9 @@
             <li><a class="dropdown-item" role="button" @onclick="@(() => ShowBulkDeleteDialog = true)">Delete</a></li>
         </ul>
     </div>
-    <select class="form-select form-select-sm" @onchange="FitlerByPosition" @onchange:stopPropagation="true">
+    <select class="form-select form-select-sm @(filterJobIdValue > 0 ? "highlight" : "")" value="@filterJobIdValue" @onchange="FitlerByPosition" @onchange:stopPropagation="true">
         <option value="0">Position</option>
-        @foreach (var item in Positions)
+        @foreach (var item in Positions ?? Enumerable.Empty<Job>())
         {
             <option value="@item?.Id">@item?.Title</option>
         }

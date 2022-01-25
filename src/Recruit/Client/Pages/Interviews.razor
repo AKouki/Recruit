@@ -8,15 +8,15 @@
     <a class="btn btn-primary btn-sm" @onclick="() => OpenScheduleDialog(null)">Schedule</a>
 </div>
 
-<div class="d-flex filters mb-3">
-    <select class="form-select form-select-sm" value="@filterDateValue" @onchange="FilterByDate" @onchange:stopPropagation="true">
+<div class="d-flex align-items-center filters mb-3">
+    <select class="form-select form-select-sm @(filterDateValue > 0 ? "highlight" : "")" value="@filterDateValue" @onchange="FilterByDate" @onchange:stopPropagation="true">
         <option value="0" selected>Date</option>
         <option value="1">Today</option>
         <option value="2">Upcoming</option>
     </select>
-    <select class="form-select form-select-sm" value="@filterJobIdValue" @onchange="FitlerByPosition" @onchange:stopPropagation="true">
+    <select class="form-select form-select-sm @(filterJobIdValue > 0 ? "highlight" : "")" value="@filterJobIdValue" @onchange="FitlerByPosition" @onchange:stopPropagation="true">
         <option value="0" selected>Position</option>
-        @foreach (var item in Positions)
+        @foreach (var item in Positions ?? Enumerable.Empty<Job>())
         {
             <option value="@item?.Id">@item?.Title</option>
         }
@@ -96,10 +96,10 @@ else
     private List<Interview>? interviews;
     private List<Interview>? filteredInterviews;
     private Interview? selectedInterview { get; set; }
+    private List<Job>? Positions => interviews?.Select(i => i.Applicant?.Job!).DistinctBy(j => j.Id).ToList();
 
     private int filterDateValue = 0;
     private int filterJobIdValue = 0;
-    public List<Job?> Positions { get; set; } = new();
 
     private int? CurrentApplicantId { get; set; }
 
@@ -109,9 +109,6 @@ else
     protected override async Task OnInitializedAsync()
     {
         interviews = await Http.GetFromJsonAsync<List<Interview>>("api/Interviews");
-        if (interviews?.Count > 0)
-            Positions = interviews.Select(i => i.Applicant?.Job).DistinctBy(j => j?.Id).ToList();
-
         filteredInterviews = interviews;
     }
 
@@ -130,7 +127,6 @@ else
     {
         ShowDeleteDialog = true;
         selectedInterview = interview;
-        StateHasChanged();
     }
 
     private async Task OnDeleteDialogClose(bool confirmed)
@@ -144,8 +140,8 @@ else
             }
         }
 
+        ApplyFilters();
         ShowDeleteDialog = false;
-        StateHasChanged();
     }
 
     private void OpenScheduleDialog(Interview? interview)
@@ -161,8 +157,10 @@ else
         else
             interviews.Replace(selectedInterview, interview);
 
+        // Reorder
         interviews = interviews?.OrderBy(i => i.ScheduledAt).ToList();
-        filteredInterviews = interviews;
+
+        ApplyFilters();
 
         selectedInterview = null;
         ShowScheduleDialog = false;
@@ -179,7 +177,7 @@ else
         if (int.TryParse(args.Value?.ToString(), out int dateValue))
         {
             filterDateValue = dateValue;
-            ApplyFilter();
+            ApplyFilters();
         }
     }
 
@@ -188,12 +186,15 @@ else
         if (int.TryParse(args.Value?.ToString(), out int jobId))
         {
             filterJobIdValue = jobId;
-            ApplyFilter();
+            ApplyFilters();
         }
     }
-
-    private void ApplyFilter()
+    private void ApplyFilters()
     {
+        // Reset position filter if theres no position in list after the changes
+        if (!Positions!.Any(j => j.Id == filterJobIdValue))
+            filterJobIdValue = 0;
+
         filteredInterviews = filterDateValue == 1 ?
             interviews?.Where(i => i.ScheduledAt.Date == DateTime.Now.Date).ToList() : interviews;
 

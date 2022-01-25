@@ -13,10 +13,11 @@ namespace Recruit.Client.Pages
 
         private List<Applicant>? applicants;
         private List<Applicant>? filteredApplicants;
-        private int? CurrentApplicantId { get; set; }
         private Applicant? selectedApplicant { get; set; }
+        private List<Job>? Positions => applicants?.Select(a => a.Job!).DistinctBy(j => j.Id).ToList();
 
-        public List<Job?> Positions { get; set; } = new();
+        private int filterJobIdValue = 0;
+        private int? CurrentApplicantId { get; set; }
 
         private bool ShowDeleteDialog = false;
         private bool ShowCopyDialog = false;
@@ -30,9 +31,6 @@ namespace Recruit.Client.Pages
         protected override async Task OnInitializedAsync()
         {
             applicants = await Http!.GetFromJsonAsync<List<Applicant>>("api/Applicants");
-            if (applicants?.Count > 0)
-                Positions = applicants.Select(a => a.Job).DistinctBy(j => j?.Id).ToList();
-
             filteredApplicants = applicants;
         }
 
@@ -90,6 +88,7 @@ namespace Recruit.Client.Pages
                 if (response.IsSuccessStatusCode)
                 {
                     applicants?.Remove(selectedApplicant);
+                    ApplyFilters();
                 }
 
                 selectedApplicants.Clear();
@@ -134,16 +133,31 @@ namespace Recruit.Client.Pages
             applicants?.Replace(selectedApplicant!, applicant);
             ShowMoveDialog = false;
             selectedApplicants.Clear();
+            ApplyFilters();
             StateHasChanged();
         }
 
         private void FitlerByPosition(ChangeEventArgs args)
         {
-            if (int.TryParse(args.Value?.ToString(), out int jobId))
+            if (int.TryParse(args.Value?.ToString(), out int value))
             {
-                filteredApplicants = jobId > 0 ?
-                    applicants?.Where(a => a.Job?.Id == jobId).ToList() : applicants;
+                filterJobIdValue = value;
+                ApplyFilters();
             }
+        }
+
+        private void ApplyFilters()
+        {
+            // Reset position filter if theres no position in list after the changes
+            if (!Positions!.Any(j => j.Id == filterJobIdValue))
+                filterJobIdValue = 0;
+
+            // Apply filters
+            filteredApplicants = filterJobIdValue > 0 ?
+                    applicants?.Where(a => a.Job?.Id == filterJobIdValue).ToList() : applicants;
+
+            // Refresh selected items
+            selectedApplicants = selectedApplicants.Where(a => filteredApplicants!.Contains(a)).ToList();
         }
 
         #region Bulk Actions
@@ -179,7 +193,7 @@ namespace Recruit.Client.Pages
                     if (deletedApplicants?.Count > 0)
                     {
                         applicants = applicants?.Where(a => !deletedApplicants.Contains(a.Id)).ToList();
-                        filteredApplicants = applicants;
+                        ApplyFilters();
                     }
                 }
 
@@ -214,6 +228,8 @@ namespace Recruit.Client.Pages
                 var applicantToUpdate = applicants?.FirstOrDefault(a => a.Id == applicant.Id);
                 if (applicantToUpdate != null)
                     applicants.Replace(applicantToUpdate, applicant);
+
+                ApplyFilters();
             }
 
             StateHasChanged();
