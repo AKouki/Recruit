@@ -10,6 +10,9 @@
         Task DeleteAsync(string container, string blobName);
         Task DeleteResumeAsync(string blobName);
         Task DeletePhotoAsync(string blobName);
+        Task DeleteAllAsync(string container, List<string> blobNames);
+        Task DeleteResumesAsync(List<string> blobNames);
+        Task DeletePhotosAsync(List<string> blobNames);
 
     }
 }

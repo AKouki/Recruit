@@ -7,17 +7,21 @@ namespace Recruit.Server.Services.BlobService
 {
     public class BlobService : IBlobService
     {
-        private readonly IConfiguration _configuration;
         private readonly ILogger<BlobService> _logger;
+        private readonly IWebHostEnvironment _env;
+        private readonly IConfiguration _configuration;
         private readonly BlobServiceClient _blobServiceClient;
 
         private readonly string ResumesContainerName;
         private readonly string PhotosContainerName;
 
-        public BlobService(ILogger<BlobService> logger, 
+        public BlobService(
+            ILogger<BlobService> logger,
+            IWebHostEnvironment env,
             IConfiguration configuration)
         {
             _logger = logger;
+            _env = env;
             _configuration = configuration;
             _blobServiceClient = new BlobServiceClient(_configuration["AzureBlobStorageSettings:ConnectionString"]);
 
@@ -138,14 +142,69 @@ namespace Recruit.Server.Services.BlobService
             }
         }
 
-        public Task DeleteResumeAsync(string blobName)
+        public async Task DeleteResumeAsync(string blobName)
         {
-            return DeleteAsync(ResumesContainerName, blobName);
+            await DeleteAsync(ResumesContainerName, blobName);
         }
 
-        public Task DeletePhotoAsync(string blobName)
+        public async Task DeletePhotoAsync(string blobName)
         {
-            return DeleteAsync(PhotosContainerName, blobName);
+            await DeleteAsync(PhotosContainerName, blobName);
+        }
+
+        public async Task DeleteAllAsync(string container, List<string> blobNames)
+        {
+            try
+            {
+                BlobContainerClient blobContainerClient = _blobServiceClient.GetBlobContainerClient(container);
+
+                // Since the Azure Storage Emulator does not support batch delete, we must use different approach.
+                if (_env.IsDevelopment())
+                    await DeleteFromAzureStorageEmulator(blobNames, blobContainerClient);
+                else
+                    await DeleteFromCloud(blobNames, blobContainerClient);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error batch deleting blobs for container {container}", ex.Message);
+            }
+        }
+
+        private async Task DeleteFromCloud(List<string> blobNames, BlobContainerClient blobContainerClient)
+        {
+            var blobUris = new List<Uri>();
+            foreach (var blobName in blobNames)
+            {
+                if (!string.IsNullOrEmpty(blobName))
+                {
+                    BlobClient blobClient = blobContainerClient.GetBlobClient(Path.GetFileName(blobName).Split("?")[0]);
+                    blobUris.Add(blobClient.Uri);
+                }
+            }
+
+            BlobBatchClient blobBatchClient = _blobServiceClient.GetBlobBatchClient();
+            await blobBatchClient.DeleteBlobsAsync(blobUris);
+        }
+        private async Task DeleteFromAzureStorageEmulator(List<string> blobNames, BlobContainerClient blobContainerClient)
+        {
+            foreach (var blobName in blobNames)
+            {
+                if (!string.IsNullOrEmpty(blobName))
+                {
+                    BlobClient blobClient = blobContainerClient.GetBlobClient(Path.GetFileName(blobName).Split("?")[0]);
+                    await blobClient.DeleteIfExistsAsync();
+                }
+            }
+        }
+
+        public async Task DeleteResumesAsync(List<string> blobNames)
+        {
+            await DeleteAllAsync(ResumesContainerName, blobNames);
+        }
+
+        public async Task DeletePhotosAsync(List<string> blobNames)
+        {
+            await DeleteAllAsync(PhotosContainerName, blobNames);
         }
     }
 }

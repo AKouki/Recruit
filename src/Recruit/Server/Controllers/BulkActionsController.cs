@@ -153,10 +153,21 @@ namespace Recruit.Server.Controllers
                 .Include(a => a.Resume)
                 .ToListAsync();
 
+            // Delete resumes and profile photos from Blob Storage
+            var resumesToDelete = applicantsToDelete.Select(a => a.Resume?.FilePath).ToList();
+            if (resumesToDelete.Any())
+                await _blobService.DeleteResumesAsync(resumesToDelete!);
+
+            var photosToDelete = applicantsToDelete
+                .Where(a => !string.IsNullOrEmpty(a.ProfilePhoto))
+                .Select(a => a.ProfilePhoto)
+                .ToList();
+            if (photosToDelete.Any())
+                await _blobService.DeletePhotosAsync(photosToDelete!);
+
+            // Delete applicants from database
             _db.Applicants.RemoveRange(applicantsToDelete);
             await _db.SaveChangesAsync();
-
-            // TODO: Delete photo and resume blobs
 
             return Ok(applicantsToDelete.Select(a => a.Id).ToList());
         }
