@@ -417,7 +417,7 @@ form label {
 
 /*===============================================*/
 
-.filters > select {
+.filters > * {
     width: auto;
     min-width: 130px;
     max-width: 130px;
@@ -425,25 +425,33 @@ form label {
     height: 32px;
 }
 
+.filters > *:last-child {
+    margin-right: 0;
+}
+
+.filters > .dropdown-bulk-actions {
+    min-width: auto;
+}
+
 .filters .highlight {
     border: 2px solid #1f75f3;
 }
 
-.fitlers > select:last-child {
-    margin-right: 0;
-    margin-bottom: 0;
-}
-
 @media (max-width: 640.98px) {
     .filters {
-        flex-direction: column;
+        flex-direction: column-reverse;
     }
 
-    .filters > select {
+    .filters > select,
+    .filters > .dropdown {
         width: 100%;
         max-width: 100%;
         margin-right: 0;
         margin-bottom: 10px;
+    }
+
+    .filters .btn-bulk-actions {
+        width: 150px;
     }
 }
 
