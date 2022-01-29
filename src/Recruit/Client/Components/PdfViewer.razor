@@ -1,9 +1,13 @@
 ﻿@inject HttpClient Http
 
 <div class="pdf-viewer">
-    @if (IsRemote)
+    @if (HasErrors)
     {
-        if (!HasLoaded)
+        <span class="fs-14 text-secondary py-2">Couldn't load the pdf file.</span>
+    }
+    else
+    {
+        if (IsLoading)
         {
             <span class="fs-14 text-secondary py-2">Loading...</span>
         }
@@ -12,47 +16,45 @@
             <iframe src="@Base64Pdf#view=FitH" style="width:100%; height:750px;"></iframe>
         }
     }
-    else
-    {
-        <iframe src="@DocumentPath#view=FitH" style="width:100%; height:750px;"></iframe>
-    }
 </div>
 
 @code {
     [Parameter]
     public string? RemotePath { get; set; }
 
-    [Parameter]
-    public string? DocumentPath { get; set; }
-
     private string? Base64Pdf { get; set; }
 
-    private bool HasLoaded;
-
-    private bool IsRemote => !string.IsNullOrEmpty(RemotePath);
+    private bool IsLoading;
+    private bool HasErrors;
 
     protected override async Task OnParametersSetAsync()
     {
-        Base64Pdf = null;
-        
-        // Remote has precedence over local (DocumentPath)
-        if (IsRemote)
+        if (!string.IsNullOrEmpty(RemotePath))
         {
+            Base64Pdf = null;
             await LoadRemotePdf();
+        }
+        else
+        {
+            HasErrors = true;
         }
     }
 
     private async Task LoadRemotePdf()
     {
-        HasLoaded = false;
+        IsLoading = true;
+
         var result = await Http.GetAsync(RemotePath);
         if (result.IsSuccessStatusCode)
         {
             var bytes = await result.Content.ReadAsByteArrayAsync();
             var base64String = Convert.ToBase64String(bytes);
             Base64Pdf = "data:application/pdf;base64," + base64String;
-            HasLoaded = true;
+
+            IsLoading = false;
         }
+
+        HasErrors = !result.IsSuccessStatusCode;
     }
 
 }
