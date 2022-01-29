@@ -12,21 +12,21 @@
         <RecentApplicants OnSelectApplicant="ShowDetails" />
         <DuePositions />
     </div>
-    <ApplicantDetails ApplicantId="@CurrentApplicantId"
+    <ApplicantDetails Applicant="CurrentApplicant"
                       OnStageUpdate="() => {}"
                       OnClose="HideDetails" />
 </AuthorizeView>
 
 @code {
-    private int? CurrentApplicantId { get; set; }
+    private Applicant? CurrentApplicant { get; set; }
 
-    private void ShowDetails(int? id)
+    private void ShowDetails(Applicant? applicant)
     {
-        CurrentApplicantId = id;
+        CurrentApplicant = applicant;
     }
 
     private void HideDetails()
     {
-        CurrentApplicantId = null;
+        CurrentApplicant = null;
     }
 }

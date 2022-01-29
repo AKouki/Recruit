@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Recruit.Client.Extensions;
-using Recruit.Client.Pages.ApplicantPages;
 using Recruit.Shared;
 using Recruit.Shared.ViewModels;
 using System.Net.Http.Json;
@@ -17,7 +16,6 @@ namespace Recruit.Client.Pages
         private List<Job>? Positions => applicants?.Select(a => a.Job!).DistinctBy(j => j.Id).ToList();
 
         private int filterJobIdValue = 0;
-        private int? CurrentApplicantId { get; set; }
 
         private bool ShowDeleteDialog = false;
         private bool ShowCopyDialog = false;
@@ -49,14 +47,14 @@ namespace Recruit.Client.Pages
             }
         }
 
-        public void ShowDetails(int? id)
+        public void ShowDetails(Applicant? applicant)
         {
-            CurrentApplicantId = id;
+            selectedApplicant = applicant;
         }
 
         public void HideDetails()
         {
-            CurrentApplicantId = null;
+            selectedApplicant = null;
         }
 
         private void OpenDeleteDialog(Applicant applicant)

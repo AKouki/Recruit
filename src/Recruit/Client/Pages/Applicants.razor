@@ -80,7 +80,7 @@ else
                                     <span class="avatar avatar-green me-2">@applicant.FirstName?.ToUpper()[0]</span>
                                 }
                                 <div class="d-flex flex-column">
-                                    <a @onclick="@(() => ShowDetails(applicant.Id))" @onclick:stopPropagation="true" class="name fw-500">
+                                    <a @onclick="@(() => ShowDetails(applicant))" @onclick:stopPropagation="true" class="name fw-500">
                                         @applicant.FirstName @applicant.LastName
                                     </a>
                                     <span>@applicant.Headline</span>
@@ -135,7 +135,7 @@ else
     </div>
 }
 
-<ApplicantDetails ApplicantId="CurrentApplicantId"
+<ApplicantDetails Applicant="selectedApplicant"
                   OnStageUpdate="HandleStageUpdate"
                   OnClose="HideDetails" />
 

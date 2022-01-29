@@ -16,7 +16,7 @@
                     @foreach (var applicant in result.Applicants)
                     {
                         <li class="mt-2">
-                            <a class="d-flex align-items-center" role="button" @onclick="@(() => ShowDetails(applicant.Id))">
+                            <a class="d-flex align-items-center" role="button" @onclick="@(() => ShowDetails(applicant))">
                                 @if (!string.IsNullOrEmpty(applicant.ProfilePhoto))
                                 {
                                     <img src="@applicant.ProfilePhoto" class="avatar me-2" />
@@ -61,7 +61,7 @@
     </div>
 }
 
-<ApplicantDetails ApplicantId="CurrentApplicantId" OnClose="HideDetails" />
+<ApplicantDetails Applicant="CurrentApplicant" OnClose="HideDetails" />
 
 @code {
     private SearchResult? result;
@@ -91,7 +91,7 @@
         }
     }
 
-    private int? CurrentApplicantId { get; set; }
+    private Applicant? CurrentApplicant { get; set; }
 
     protected override void OnInitialized()
     {
@@ -121,15 +121,15 @@
         StateHasChanged();
     }
 
-    public void ShowDetails(int? id)
+    public void ShowDetails(Applicant? applicant)
     {
-        CurrentApplicantId = id;
+        CurrentApplicant = applicant;
         HideResults();
     }
 
     public void HideDetails()
     {
-        CurrentApplicantId = null;
+        CurrentApplicant = null;
     }
 
     public void Dispose()

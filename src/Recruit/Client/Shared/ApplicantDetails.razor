@@ -219,11 +219,11 @@
 
 @code {
     [Parameter]
-    public int? ApplicantId { get; set; }
+    public Applicant? Applicant { get; set; }
 
-    public Applicant? Applicant;
+    private Applicant? PrevApplicant { get; set; }
 
-    public List<Stage>? Stages { get; set; }
+    private List<Stage>? Stages { get; set; }
 
     [Parameter]
     public EventCallback<Applicant> OnStageUpdate { get; set; }
@@ -243,15 +243,14 @@
     {
         ActiveTabIndex = 1;
 
-        if (ApplicantId != null)
+        // Prevent refetching applicant details for the same applicant
+        if (Applicant != null && Applicant.Id != PrevApplicant?.Id)
         {
-            Applicant = await Http.GetFromJsonAsync<Applicant>($"api/Applicants/{ApplicantId}");
+            Applicant = await Http.GetFromJsonAsync<Applicant>($"api/Applicants/{Applicant.Id}");
             Stages = Applicant?.Job?.Stages?.ToList();
         }
-        else
-        {
-            Applicant = null;
-        }
+
+        PrevApplicant = Applicant;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -286,7 +285,6 @@
     public async Task HideDetails()
     {
         Applicant = null;
-        ApplicantId = null;
         await OnClose.InvokeAsync();
     }
 

@@ -85,7 +85,7 @@ else
 
 }
 
-<ApplicantDetails ApplicantId="CurrentApplicantId"
+<ApplicantDetails Applicant="CurrentApplicant"
                   OnStageUpdate="HandleStageUpdate"
                   OnClose="HideDetails"/>
 
@@ -97,13 +97,12 @@ else
               @bind-IsVisible="ShowInviteDialog" />
 }
 
-
 @code {
     [Parameter]
     public string? Id { get; set; }
 
     private JobDetailsViewModel? job;
-    private int? CurrentApplicantId { get; set; }
+    private Applicant? CurrentApplicant { get; set; }
 
     private bool ShowInviteDialog = false;
 
@@ -151,7 +150,7 @@ else
 
     private void OpenInviteDialog()
     {
-        CurrentApplicantId = null;
+        CurrentApplicant = null;
         ShowInviteDialog = true;
         StateHasChanged();
     }
@@ -162,14 +161,14 @@ else
         StateHasChanged();
     }
 
-    public void ShowDetails(Applicant applicant)
+    public void ShowDetails(Applicant? applicant)
     {
-        CurrentApplicantId = applicant.Id;
+        CurrentApplicant = applicant;
     }
 
     public void HideDetails()
     {
-        CurrentApplicantId = null;
+        CurrentApplicant = null;
         StateHasChanged();
     }
 

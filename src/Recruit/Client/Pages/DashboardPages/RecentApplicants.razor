@@ -1,6 +1,6 @@
 ﻿@inject HttpClient Http
 
-<div class="dashboard-item recent-applicants" @onclick="@(() => ShowDetails(null))">
+<div class="dashboard-item recent-applicants">
     <div class="d-flex justify-content-between align-items-center">
         <h6>Recent Applicants</h6>
         <select id="jobType" class="form-select form-select-sm" value="@SelectedJobId" @onchange="UpdateList" style="width:150px">
@@ -24,23 +24,23 @@
             }
             else
             {
-                @foreach (var item in FilteredApplicants ?? Enumerable.Empty<Applicant>())
+                @foreach (var applicant in FilteredApplicants ?? Enumerable.Empty<Applicant>())
                 {
                     <li class="pb-3">
                         <div class="d-flex align-items-center">
-                            @if (!string.IsNullOrEmpty(item.ProfilePhoto))
+                            @if (!string.IsNullOrEmpty(applicant.ProfilePhoto))
                             {
-                                <img src="@item.ProfilePhoto" class="avatar me-2" />
+                                <img src="@applicant.ProfilePhoto" class="avatar me-2" />
                             }
                             else
                             {
-                                <span class="avatar avatar-green me-2">@item.FirstName?.ToUpper()[0]</span>
+                                <span class="avatar avatar-green me-2">@applicant.FirstName?.ToUpper()[0]</span>
                             }
                             <div class="d-flex flex-column">
-                                <a @onclick:stopPropagation="true" @onclick="@(() => ShowDetails(item.Id))" class="cursor-pointer fs-14 fw-500">
-                                    @item.FirstName @item.LastName
+                                <a @onclick:stopPropagation="true" @onclick="@(() => OnSelectApplicant.InvokeAsync(applicant))" class="cursor-pointer fs-14 fw-500">
+                                    @applicant.FirstName @applicant.LastName
                                 </a>
-                                <span class="fs-14 text-secondary">applied for <span class="fw-400 text-secondary">@item.Job?.Title</span></span>
+                                <span class="fs-14 text-secondary">applied for <span class="fw-400 text-secondary">@applicant.Job?.Title</span></span>
                             </div>
                         </div>
                     </li>
@@ -60,7 +60,7 @@
     public int SelectedJobId { get; set; } = 0;
 
     [Parameter]
-    public EventCallback<int?> OnSelectApplicant { get; set; }
+    public EventCallback<Applicant?> OnSelectApplicant { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -89,11 +89,6 @@
                 FilteredApplicants = Applicants?.OrderByDescending(a => a.ApplyDate).Take(10).ToList();
             }
         }
-    }
-
-    private async Task ShowDetails(int? id)
-    {
-        await OnSelectApplicant.InvokeAsync(id);
     }
 
 }

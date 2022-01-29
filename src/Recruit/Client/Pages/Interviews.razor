@@ -53,7 +53,7 @@ else
                     <span class="avatar avatar-green me-2">@interview.Applicant?.FirstName?.ToUpper()[0]</span>
                     }
                 <div class="d-flex flex-column">
-                    <a @onclick:stopPropagation="true" @onclick="@(() => ShowDetails(interview.Applicant?.Id))" class="name fw-500">
+                    <a @onclick:stopPropagation="true" @onclick="@(() => ShowDetails(interview.Applicant))" class="name fw-500">
                         @interview.Applicant?.FirstName @interview.Applicant?.LastName
                     </a>
                     <span>@interview.Applicant?.Headline</span>
@@ -84,7 +84,7 @@ else
               OnValidSubmit="HandleSchedule" />
 </ModalTemplate>
 
-<ApplicantDetails ApplicantId="CurrentApplicantId"
+<ApplicantDetails Applicant="CurrentApplicant"
                   OnClose="HideDetails" />
 
 <ConfirmDialog Title="Cancel Interview"
@@ -101,7 +101,7 @@ else
     private int filterDateValue = 0;
     private int filterJobIdValue = 0;
 
-    private int? CurrentApplicantId { get; set; }
+    private Applicant? CurrentApplicant { get; set; }
 
     private bool ShowScheduleDialog = false;
     private bool ShowDeleteDialog = false;
@@ -112,14 +112,14 @@ else
         filteredInterviews = interviews;
     }
 
-    public void ShowDetails(int? id)
+    public void ShowDetails(Applicant? applicant)
     {
-        CurrentApplicantId = id;
+        CurrentApplicant = applicant;
     }
 
     public void HideDetails()
     {
-        CurrentApplicantId = null;
+        CurrentApplicant = null;
         selectedInterview = null;
     }
 
