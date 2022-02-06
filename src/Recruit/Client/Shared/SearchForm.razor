@@ -61,7 +61,9 @@
     </div>
 }
 
-<ApplicantDetails Applicant="CurrentApplicant" OnClose="HideDetails" />
+<ApplicantDetails @bind-IsVisible="ShowApplicantDetails"
+                  Applicant="CurrentApplicant"
+                  OnClose="HideDetails" />
 
 @code {
     private SearchResult? result;
@@ -92,6 +94,7 @@
     }
 
     private Applicant? CurrentApplicant { get; set; }
+    private bool ShowApplicantDetails = false;
 
     protected override void OnInitialized()
     {
@@ -123,12 +126,14 @@
 
     public void ShowDetails(Applicant? applicant)
     {
+        ShowApplicantDetails = true;
         CurrentApplicant = applicant;
         HideResults();
     }
 
     public void HideDetails()
     {
+        ShowApplicantDetails = false;
         CurrentApplicant = null;
     }
 

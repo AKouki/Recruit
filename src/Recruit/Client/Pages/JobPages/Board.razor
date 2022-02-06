@@ -87,7 +87,7 @@ else
 
 }
 
-<ApplicantDetails Applicant="CurrentApplicant"
+<ApplicantDetails @bind-IsVisible="ShowApplicantDetails" Applicant="CurrentApplicant"
                   OnStageUpdate="HandleStageUpdate"
                   OnClose="HideDetails" />
 
@@ -105,6 +105,7 @@ else
     private JobDetailsViewModel? job;
     private Applicant? CurrentApplicant { get; set; }
 
+    private bool ShowApplicantDetails = false;
     private bool ShowInviteDialog = false;
 
     private IJSObjectReference? module;
@@ -191,11 +192,13 @@ else
 
     public void ShowDetails(Applicant? applicant)
     {
+        ShowApplicantDetails = true;
         CurrentApplicant = applicant;
     }
 
     public void HideDetails()
     {
+        ShowApplicantDetails = false;
         CurrentApplicant = null;
         StateHasChanged();
     }

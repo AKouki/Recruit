@@ -4,7 +4,7 @@
 @inject IJSRuntime JS
 
 <div class="@ShowDetailsPageCss" id="applicant-details">
-    @if (Applicant != null)
+    @if (Applicant != null && IsVisible)
     {
         <span class="close-button" @onclick="HideDetails" @onclick:stopPropagation="true">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"></polyline></svg>
@@ -231,7 +231,13 @@
     [Parameter]
     public EventCallback<Applicant> OnClose { get; set; }
 
-    private bool showDetailsPage => Applicant == null ? false : true;
+    [Parameter]
+    public bool IsVisible { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsVisibleChanged { get; set; }
+
+    private bool showDetailsPage => Applicant != null && IsVisible == true ? true : false;
     private string? ShowDetailsPageCss => showDetailsPage ? "applicant-details show" : "applicant-details";
     private bool ShowLoading = false;
 
@@ -285,6 +291,7 @@
     public async Task HideDetails()
     {
         Applicant = null;
+        IsVisible = false;
         await OnClose.InvokeAsync();
     }
 

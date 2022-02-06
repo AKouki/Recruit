@@ -12,21 +12,25 @@
         <RecentApplicants OnSelectApplicant="ShowDetails" />
         <DuePositions />
     </div>
-    <ApplicantDetails Applicant="CurrentApplicant"
+    <ApplicantDetails @bind-IsVisible="ShowApplicantDetails"
+                      Applicant="CurrentApplicant"
                       OnStageUpdate="() => {}"
                       OnClose="HideDetails" />
 </AuthorizeView>
 
 @code {
     private Applicant? CurrentApplicant { get; set; }
+    private bool ShowApplicantDetails = false;
 
     private void ShowDetails(Applicant? applicant)
     {
+        ShowApplicantDetails = true;
         CurrentApplicant = applicant;
     }
 
     private void HideDetails()
     {
+        ShowApplicantDetails = false;
         CurrentApplicant = null;
     }
 }

@@ -135,7 +135,8 @@ else
     </div>
 }
 
-<ApplicantDetails Applicant="selectedApplicant"
+<ApplicantDetails @bind-IsVisible="ShowApplicantDetails"
+                  Applicant="selectedApplicant"
                   OnStageUpdate="HandleStageUpdate"
                   OnClose="HideDetails" />
 

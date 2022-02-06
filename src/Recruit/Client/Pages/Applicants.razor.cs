@@ -17,6 +17,7 @@ namespace Recruit.Client.Pages
 
         private int filterJobIdValue = 0;
 
+        private bool ShowApplicantDetails = false;
         private bool ShowDeleteDialog = false;
         private bool ShowCopyDialog = false;
         private bool ShowMoveDialog = false;
@@ -49,11 +50,13 @@ namespace Recruit.Client.Pages
 
         public void ShowDetails(Applicant? applicant)
         {
+            ShowApplicantDetails = true;
             selectedApplicant = applicant;
         }
 
         public void HideDetails()
         {
+            ShowApplicantDetails = false;
             selectedApplicant = null;
         }
 
