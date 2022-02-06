@@ -256,7 +256,8 @@ namespace Recruit.Server.Data.Migrations
                     Skills = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ApplyDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     JobId = table.Column<int>(type: "int", nullable: false),
-                    StageId = table.Column<int>(type: "int", nullable: true)
+                    StageId = table.Column<int>(type: "int", nullable: true),
+                    Order = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {

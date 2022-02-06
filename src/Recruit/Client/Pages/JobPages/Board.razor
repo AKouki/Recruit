@@ -1,5 +1,7 @@
 ﻿@page "/Jobs/{Id}"
 @inject HttpClient Http
+@implements IAsyncDisposable
+@inject IJSRuntime JS
 @attribute [Authorize]
 
 @if (job == null)
@@ -55,10 +57,10 @@ else
                     <span>@stage.Name</span>
                     <span>@GetApplicantsCount(stage)</span>
                 </div>
-                <div class="stage-item-applicants">
+                <div class="stage-item-applicants sortable connectedSortable" id="@stage.Id">
                     @foreach (var applicant in GetApplicants(stage))
                     {
-                        <a @onclick="@(() => ShowDetails(applicant))" @onclick:stopPropagation="true" class="d-block">
+                        <a class="d-block" @onclick="@(() => ShowDetails(applicant))" @onclick:stopPropagation="true" id="@applicant.Id" data-position="@applicant.Order">
                             <div class="applicant-card d-flex flex-column mb-2 overflow-hidden">
                                 <div class="d-flex justify-content-start align-items-start">
                                     @if (!string.IsNullOrEmpty(applicant.ProfilePhoto))
@@ -87,7 +89,7 @@ else
 
 <ApplicantDetails Applicant="CurrentApplicant"
                   OnStageUpdate="HandleStageUpdate"
-                  OnClose="HideDetails"/>
+                  OnClose="HideDetails" />
 
 @if (job != null)
 {
@@ -100,22 +102,46 @@ else
 @code {
     [Parameter]
     public string? Id { get; set; }
-
     private JobDetailsViewModel? job;
     private Applicant? CurrentApplicant { get; set; }
 
     private bool ShowInviteDialog = false;
 
-    protected override async Task OnParametersSetAsync()
+    private IJSObjectReference? module;
+
+    protected override async Task OnInitializedAsync()
     {
         if (!string.IsNullOrEmpty(Id))
         {
-            var response = await Http.GetAsync($"api/Jobs/Details/{Id}");
-            if (response.IsSuccessStatusCode)
-            {
-                job = await response.Content.ReadFromJsonAsync<JobDetailsViewModel>();
-            }
+            await LoadJobs();
+            await ApplySortable();
         }
+    }
+
+    private async Task LoadJobs()
+    {
+        var response = await Http.GetAsync($"api/Jobs/Details/{Id}");
+        if (response.IsSuccessStatusCode)
+        {
+            job = null;
+            StateHasChanged();
+            job = await response.Content.ReadFromJsonAsync<JobDetailsViewModel>();
+            StateHasChanged();
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/board.js");
+        }
+    }
+
+    private async Task ApplySortable()
+    {
+        if (module != null)
+            await module.InvokeVoidAsync("ApplySortable", DotNetObjectReference.Create(this), nameof(HandleDrop));
     }
 
     private IEnumerable<Stage> GetStages()
@@ -127,8 +153,10 @@ else
     private IEnumerable<Applicant> GetApplicants(Stage stage)
     {
         var applicants = job?.Applicants?
-            .Where(a => a.Stage?.Id == stage.Id)
-            .ToList();
+        .Where(a => a.Stage?.Id == stage.Id)
+        .OrderBy(a => a.Order)
+        .ThenBy(a => a.ApplyDate)
+        .ToList();
 
         return applicants.EmptyIfNull();
     }
@@ -170,6 +198,53 @@ else
     {
         CurrentApplicant = null;
         StateHasChanged();
+    }
+
+    [JSInvokable]
+    public async Task HandleDrop(int newStageId, List<OrderViewModel> items)
+    {
+        if (items.Count > 0)
+        {
+            // Update local applicants list before the request for smoother experience.
+            // If the request fails, the list will be refreshed.
+            UpdateApplicantsOrder(newStageId, items);
+
+            // Prepeare the model
+            var model = new UpdateOrderViewModel()
+                {
+                    StageId = newStageId,
+                    Items = items
+                };
+
+            // Send the update request
+            var response = await Http.PostAsJsonAsync<UpdateOrderViewModel>($"api/Applicants/UpdateStatusAndOrder", model);
+            if (!response.IsSuccessStatusCode)
+            {
+                await LoadJobs();
+                await ApplySortable();
+            }
+        }
+    }
+
+    private void UpdateApplicantsOrder(int newStageId, List<OrderViewModel> items)
+    {
+        var stage = job?.Stages.FirstOrDefault(s => s.Id == newStageId);
+        foreach (var item in items)
+        {
+            var applicant = job?.Applicants.FirstOrDefault(a => a.Id == item.ApplicantId);
+            if (applicant != null)
+            {
+                applicant.Stage = stage;
+                applicant.Order = item.Position;
+            }
+        }
+        StateHasChanged();
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (module != null)
+            await module.DisposeAsync();
     }
 
 }

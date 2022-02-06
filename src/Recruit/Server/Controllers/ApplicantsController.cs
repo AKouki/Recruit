@@ -71,6 +71,34 @@ namespace Recruit.Server.Controllers
             return Ok(applicant);
         }
 
+        [HttpPost("UpdateStatusAndOrder")]
+        public async Task<IActionResult> UpdateStatusAndOrder([FromBody] UpdateOrderViewModel model)
+        {
+            // Get the target stage
+            var stage = await _db.Stages.FirstOrDefaultAsync(s => s.Id == model.StageId);
+            if (stage == null)
+                return NotFound();
+
+            // Get applicants to update stage and/or order
+            var applicantIds = model.Items.Select(a => a.ApplicantId).ToList();
+            var applicants = _db.Applicants.Where(a => applicantIds.Contains(a.Id)).ToList();
+
+            // Perform update
+            foreach (var applicant in applicants)
+            {
+                if (applicant.Stage != stage)
+                    applicant.Stage = stage;
+
+                var item = model.Items.FirstOrDefault(i => i.ApplicantId == applicant.Id);
+                applicant.Order = item?.Position ?? 0;
+            }
+
+            _db.Applicants.UpdateRange(applicants);
+            await _db.SaveChangesAsync();
+
+            return Ok();
+        }
+
         [HttpPost("Copy")]
         public async Task<IActionResult> Copy([FromBody] MoveApplicantViewModel model)
         {

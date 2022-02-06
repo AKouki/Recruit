@@ -87,7 +87,7 @@ namespace Recruit.Server.Controllers
                 Summary = model.Summary,
                 ApplyDate = DateTime.Now,
                 Job = job,
-                Stage = job.Stages?.FirstOrDefault(s => s.Name == "Screen"),
+                Stage = job.Stages?.FirstOrDefault(s => s.Name == "Screen")
             };
 
             if (!string.IsNullOrEmpty(model.EducationJson))

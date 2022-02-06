@@ -50,7 +50,7 @@
 
 .applicant-card:hover {
     cursor: pointer;
-    background: rgba(56, 69, 191, 0.1);
+    background: #EBEDF9;
 }
 
 .applicant-card .name {
@@ -72,6 +72,12 @@
 
 .job-details span:last-child::after {
     content: '';
+}
+
+/* ============== Sortable ============== */
+
+.ui-sortable-helper > div {
+    border: 2px solid #3776e8;
 }
 
 @media (max-width: 640.98px) {

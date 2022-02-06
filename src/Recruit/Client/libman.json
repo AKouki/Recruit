@@ -10,6 +10,20 @@
         "js/bootstrap.bundle.min.js",
         "css/bootstrap.min.css"
       ]
+    },
+    {
+      "library": "jquery@3.6.0",
+      "destination": "wwwroot/lib/jquery/",
+      "files": [
+        "jquery.min.js"
+      ]
+    },
+    {
+      "library": "jqueryui@1.12.1",
+      "destination": "wwwroot/lib/jqueryui/",
+      "files": [
+        "jquery-ui.min.js"
+      ]
     }
   ]
 }
