@@ -7,6 +7,7 @@
         public string? Location { get; set; }
         public string? Department { get; set; }
         public string? JobType { get; set; }
+        public bool Published { get; set; }
         public List<Stage> Stages { get; set; }
         public List<Applicant> Applicants { get; set; }
 

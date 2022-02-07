@@ -72,6 +72,7 @@ namespace Recruit.Server.Controllers
                 Location = $"{job.City}, {job.Country}",
                 Department = job.Department?.Name,
                 JobType = job.JobType.GetDisplayName(),
+                Published = job.Published,
                 Applicants = job.Applicants?.ToList() ?? new List<Applicant>(),
                 Stages = job.Stages?.ToList() ?? new List<Stage>()
             };

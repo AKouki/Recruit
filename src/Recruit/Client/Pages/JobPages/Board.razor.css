@@ -74,6 +74,28 @@
     content: '';
 }
 
+.btn-published {
+    background: #30b582;
+    border-color: #30b582;
+    color: white;
+}
+
+.btn-published:hover {
+    background: #2ea879;
+    border-color: #2ea879;
+}
+
+.btn-draft {
+    background: #f4bd61;
+    color: white;
+    border-color: #f4bd61;
+}
+
+.btn-draft:hover {
+    background: #eab45a;
+    border-color: #eab45a;
+}
+
 /* ============== Sortable ============== */
 
 .ui-sortable-helper > div {
