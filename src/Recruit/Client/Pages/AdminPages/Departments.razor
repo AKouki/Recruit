@@ -15,10 +15,10 @@
     {
         <a class="btn btn-primary btn-sm" @onclick="() => OpenEditDialog(null)">Create</a>
 
-        <ul class="list-unstyled departments-list mt-2">
+        <ul class="list-unstyled custom-list mt-2">
             @foreach (var department in departments ?? Enumerable.Empty<Department>())
             {
-                <li class="department" @onclick="(() => OpenEditDialog(department))" @onclick:stopPropagation>
+                <li @onclick="(() => OpenEditDialog(department))" @onclick:stopPropagation>
                     <div class="d-flex justify-content-between align-items-center">
                         <span>
                             @department.Name

@@ -23,11 +23,10 @@
             <a class="btn btn-primary btn-sm" @onclick="() => OpenCreateDialog()">Create</a>
         </div>
 
-
-        <ul class="list-unstyled email-templates-list mt-2">
+        <ul class="list-unstyled custom-list mt-2">
             @foreach (var emailTemplate in filteredEmailTemplates ?? Enumerable.Empty<EmailTemplate>())
             {
-                <li class="email-template" @onclick="(() => OpenEditDialog(emailTemplate))" @onclick:stopPropagation>
+                <li @onclick="(() => OpenEditDialog(emailTemplate))" @onclick:stopPropagation>
                     <div class="d-flex justify-content-between align-items-center">
                         <span>
                             @emailTemplate.Name

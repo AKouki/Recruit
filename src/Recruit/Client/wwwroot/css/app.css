@@ -244,6 +244,71 @@ td .form-check-input {
 /*======================================*/
 
 
+/* ================ List =============== */
+ul.custom-list {
+
+}
+
+ul.custom-list li {
+    background: white;
+    padding: 10px 5px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.05s ease-in-out;
+}
+
+ul.custom-list li:hover {
+    background: #fafbfc;
+    cursor: pointer;
+}
+
+ul.custom-list li:last-child {
+    border-bottom: none;
+}
+
+ul.custom-list .actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+ul.custom-list .actions button {
+    background: none;
+    border: none;
+    color: #777;
+    padding: 3px 5px;
+}
+
+ul.custom-list .actions button:hover {
+    color: #333;
+}
+
+ul.custom-list .actions svg {
+    width: 18px;
+    height: 18px;
+}
+
+/*======================================*/
+
+.search-container {
+    position: relative;
+}
+
+.search-container input[type="search"] {
+    max-width: 220px;
+    padding-left: 25px;
+}
+
+.search-container svg {
+    position: absolute;
+    top: 6px;
+    left: 5px;
+}
+
+/*======================================*/
+
+
 /* ============== Custom Scrollbar ============== */
 
 ::-webkit-scrollbar {
