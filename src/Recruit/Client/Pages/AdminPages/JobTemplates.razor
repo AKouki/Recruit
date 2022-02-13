@@ -1,4 +1,4 @@
-﻿@page "/Admin/EmailTemplates"
+﻿@page "/Admin/JobTemplates"
 @inject HttpClient Http
 @attribute [Authorize]
 
@@ -7,7 +7,7 @@
 <AdminNavMenu />
 
 <div class="max-width-960">
-    @if (emailTemplates == null)
+    @if (jobTemplates == null)
     {
         <p>Loading...</p>
     }
@@ -24,18 +24,18 @@
         </div>
 
         <ul class="list-unstyled custom-list mt-2">
-            @foreach (var emailTemplate in GetFilteredEmailTemplates() ?? Enumerable.Empty<Template>())
+            @foreach (var jobTemplate in GetFilteredJobTemplates() ?? Enumerable.Empty<Template>())
             {
-                <li @onclick="(() => OpenEditDialog(emailTemplate))" @onclick:stopPropagation>
+                <li @onclick="(() => OpenEditDialog(jobTemplate))" @onclick:stopPropagation>
                     <div class="d-flex justify-content-between align-items-center">
                         <span>
-                            @emailTemplate.Name
+                            @jobTemplate.Name
                         </span>
                         <div class="actions">
-                            <button class="me-2" @onclick="(() => OpenEditDialog(emailTemplate))" @onclick:stopPropagation>
+                            <button class="me-2" @onclick="(() => OpenEditDialog(jobTemplate))" @onclick:stopPropagation>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
                             </button>
-                            <button @onclick="(() => OpenDeleteDialog(emailTemplate))" @onclick:stopPropagation>
+                            <button @onclick="(() => OpenDeleteDialog(jobTemplate))" @onclick:stopPropagation>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x-circle"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
                             </button>
                         </div>
@@ -47,7 +47,7 @@
 </div>
 
 <ModalTemplate @bind-IsVisible="ShowCreateDialog" Title="@(model.Id == 0 ? "Create" : "Edit")">
-    <EditForm Model="model" class="row g-2" OnValidSubmit="HandleValidSubmit">
+    <EditForm Model="model" class="row g-2" OnValidSubmit="HandleCreation">
         <DataAnnotationsValidator />
         <div class="col-12 mt-0">
             <label for="name" class="form-label">Name</label>
@@ -72,7 +72,7 @@
                @bind-IsVisible="ShowDeleteDialog" />
 
 @code {
-    private List<Template>? emailTemplates;
+    private List<Template>? jobTemplates;
     private Template? selectedTemplate;
     private Template model = new();
 
@@ -84,7 +84,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        emailTemplates = await Http.GetFromJsonAsync<List<Template>>("api/Templates/EmailTemplates");
+        jobTemplates = await Http.GetFromJsonAsync<List<Template>>("api/Templates/JobTemplates");
     }
 
     private void OpenDeleteDialog(Template template)
@@ -101,7 +101,7 @@
             var response = await Http.DeleteAsync($"api/Templates/{selectedTemplate.Id}");
             if (response.IsSuccessStatusCode)
             {
-                emailTemplates?.Remove(selectedTemplate);
+                jobTemplates?.Remove(selectedTemplate);
             }
         }
 
@@ -112,27 +112,21 @@
     private void OpenCreateDialog()
     {
         selectedTemplate = null;
-        model = new() 
+        model = new()
         { 
-            TemplateType = TemplateType.Email 
+            TemplateType = TemplateType.Job 
         };
         ShowCreateDialog = true;
     }
 
-    private void OpenEditDialog(Template template)
+    private async Task OpenEditDialog(Template template)
     {
         selectedTemplate = template;
-        model = new()
-        {
-            Id = template.Id,
-            Name = template.Name,
-            Body = template.Body,
-            TemplateType = TemplateType.Email
-        };
+        model = await Http.GetFromJsonAsync<Template>($"api/Templates/{template.Id}") ?? new() { TemplateType = TemplateType.Job };
         ShowCreateDialog = true;
     }
 
-    private async Task HandleValidSubmit()
+    private async Task HandleCreation()
     {
         IsDisabled = true;
         var response = model.Id == 0 ?
@@ -145,9 +139,9 @@
             if (createdItem != null)
             {
                 if (model.Id == 0)
-                    emailTemplates?.Add(createdItem);
+                    jobTemplates?.Add(createdItem);
                 else
-                    emailTemplates?.Replace(selectedTemplate!, createdItem);
+                    jobTemplates?.Replace(selectedTemplate!, createdItem);
             }
 
             ShowCreateDialog = false;
@@ -155,9 +149,9 @@
         IsDisabled = false;
     }
 
-    private List<Template>? GetFilteredEmailTemplates()
+    private List<Template>? GetFilteredJobTemplates()
     {
-        return emailTemplates?
+        return jobTemplates?
         .Where(t => t.Name!.ToLower().Contains(searchTerm.ToLower().Trim()))
         .OrderBy(t => t.Name)
         .ToList();

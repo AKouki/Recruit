@@ -18,7 +18,7 @@ namespace Recruit.Server.Data
         public DbSet<Stage> Stages => Set<Stage>();
         public DbSet<Interview> Interviews => Set<Interview>();
         public DbSet<Department> Departments => Set<Department>();
-        public DbSet<EmailTemplate> EmailTemplates => Set<EmailTemplate>();
+        public DbSet<Template> Templates => Set<Template>();
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

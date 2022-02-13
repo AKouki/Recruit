@@ -15,7 +15,7 @@
     {
         <div class="d-flex justify-content-between align-items-center">
             <div class="search-container">
-                <input type="search" @oninput="OnSearchTextChange" class="form-control form-control-sm search" placeholder="Search..." />
+                <input type="search" @bind-value="searchTerm" @bind-value:event="oninput" class="form-control form-control-sm search" placeholder="Search..." />
                 <div class="svg-container text-muted">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 </div>
@@ -24,7 +24,7 @@
         </div>
 
         <ul class="list-unstyled custom-list mt-2">
-            @foreach (var department in filteredDepartments?.OrderBy(d => d.Name).ToList() ?? Enumerable.Empty<Department>())
+            @foreach (var department in GetFilteredDepartments() ?? Enumerable.Empty<Department>())
             {
                 <li @onclick="(() => OpenEditDialog(department))" @onclick:stopPropagation>
                     <div class="d-flex justify-content-between align-items-center">
@@ -76,7 +76,6 @@
 
 @code {
     private List<Department>? departments;
-    private List<Department>? filteredDepartments;
     private Department? selectedDepartment;
     private string? departmentName;
 
@@ -85,10 +84,11 @@
     private bool ShowErrors = false;
     private bool IsDisabled = false;
 
+    private string searchTerm = "";
+
     protected override async Task OnInitializedAsync()
     {
         departments = await Http.GetFromJsonAsync<List<Department>>("api/Departments");
-        filteredDepartments = departments;
     }
 
     private void OpenDeleteDialog(Department department)
@@ -106,7 +106,6 @@
             if (response.IsSuccessStatusCode)
             {
                 departments?.Remove(selectedDepartment);
-                filteredDepartments = departments;
             }
         }
 
@@ -170,12 +169,11 @@
         IsDisabled = false;
     }
     
-    private void OnSearchTextChange(ChangeEventArgs args)
+    private List<Department>? GetFilteredDepartments()
     {
-        var value = args?.Value?.ToString();
-        if (!string.IsNullOrEmpty(value))
-            filteredDepartments = departments?.Where(t => t.Name!.ToLower().Contains(value.ToLower().Trim())).ToList();
-        else
-            filteredDepartments = departments;
+        return departments?
+        .Where(t => t.Name!.ToLower().Contains(searchTerm.ToLower().Trim()))
+        .OrderBy(t => t.Name)
+        .ToList();
     }
 }
