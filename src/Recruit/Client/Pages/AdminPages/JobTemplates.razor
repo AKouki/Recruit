@@ -61,7 +61,7 @@
         </div>
         <div class="col-12 footer">
             <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal" @onclick="() => ShowCreateDialog = false">Cancel</button>
-            <button type="submit" class="btn btn-primary btn-sm" disabled="@IsDisabled">@(model.Id == 0 ? "Create" : "Edit")</button>
+            <button type="submit" class="btn btn-primary btn-sm" disabled="@IsDisabled">@(model.Id == 0 ? "Create" : "Update")</button>
         </div>
     </EditForm>
 </ModalTemplate>
@@ -135,13 +135,13 @@
 
         if (response.IsSuccessStatusCode)
         {
-            var createdItem = await response.Content.ReadFromJsonAsync<Template>();
-            if (createdItem != null)
+            var newItem = await response.Content.ReadFromJsonAsync<Template>();
+            if (newItem != null)
             {
                 if (model.Id == 0)
-                    jobTemplates?.Add(createdItem);
+                    jobTemplates?.Add(newItem);
                 else
-                    jobTemplates?.Replace(selectedTemplate!, createdItem);
+                    jobTemplates?.Replace(selectedTemplate!, newItem);
             }
 
             ShowCreateDialog = false;

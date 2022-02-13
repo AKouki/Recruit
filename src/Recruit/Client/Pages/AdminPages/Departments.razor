@@ -20,7 +20,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 </div>
             </div>
-            <a class="btn btn-primary btn-sm" @onclick="() => OpenEditDialog(null)">Create</a>
+            <a class="btn btn-primary btn-sm" @onclick="() => OpenCreateDialog()">Create</a>
         </div>
 
         <ul class="list-unstyled custom-list mt-2">
@@ -47,26 +47,26 @@
     }
 </div>
 
-<ModalTemplate @bind-IsVisible="ShowCreateDialog" Title="@(selectedDepartment == null ? "Create" : "Edit")">
-    <input type="text" id="departmentName" class="form-control"
-           @bind="departmentName"
-           @oninput="() => ShowErrors = false"
-           placeholder="Enter department name" />
-    @if (ShowErrors)
-    {
-        <span class="form-text text-danger">This department already exists.</span>
-    }
-    <div class="d-flex justify-content-end align-items-center mt-2 mb-1">
-        <button type="button" class="btn btn-light btn-sm me-2" data-bs-dismiss="modal" @onclick="() => ShowCreateDialog = false">Cancel</button>
-        @if (selectedDepartment == null)
-        {
-            <button type="button" class="btn btn-primary btn-sm" @onclick="HandleCreate" disabled="@IsDisabled">Create</button>
-        }
-        else
-        {
-            <button type="button" class="btn btn-primary btn-sm" @onclick="HandleUpdate" disabled="@IsDisabled">Update</button>
-        }
-    </div>
+<ModalTemplate @bind-IsVisible="ShowCreateDialog" Title="@(model.Id == 0 ? "Create" : "Edit")">
+    <EditForm Model="model" class="row g-2" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <div class="col-12 mt-0">
+            <label for="name" class="form-label">Name</label>
+            <InputText id="name" class="form-control"
+                       @bind-Value="model.Name"
+                       @oninput="@(() => ShowErrors = false)"
+                       placeholder="Enter department name" />
+            <ValidationMessage For="() => model.Name" />
+            @if (ShowErrors)
+            {
+                <span class="validation-message">This department already exists.</span>
+            }
+        </div>
+        <div class="col-12 footer">
+            <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal" @onclick="() => ShowCreateDialog = false">Cancel</button>
+            <button type="submit" class="btn btn-primary btn-sm" disabled="@IsDisabled">@(model.Id == 0 ? "Create" : "Update")</button>
+        </div>
+    </EditForm>
 </ModalTemplate>
 
 <ConfirmDialog @bind-IsVisible="ShowDeleteDialog"
@@ -77,7 +77,7 @@
 @code {
     private List<Department>? departments;
     private Department? selectedDepartment;
-    private string? departmentName;
+    private Department model = new();
 
     private bool ShowDeleteDialog = false;
     private bool ShowCreateDialog = false;
@@ -113,26 +113,43 @@
         StateHasChanged();
     }
 
-    private void OpenEditDialog(Department? department)
+    private void OpenCreateDialog()
     {
-        ShowErrors = false;
-        selectedDepartment = department;
-        departmentName = selectedDepartment?.Name ?? "";
+        selectedDepartment = null;
+        model = new();
         ShowCreateDialog = true;
     }
 
-    private async Task HandleCreate()
+    private void OpenEditDialog(Department department)
+    {
+        ShowErrors = false;
+        selectedDepartment = department;
+        model = new Department()
+        {
+            Id = department.Id,
+            Name = department.Name
+        };
+        ShowCreateDialog = true;
+    }
+
+    private async Task HandleValidSubmit()
     {
         ShowErrors = false;
         IsDisabled = true;
+        var response = model.Id == 0 ?
+            await Http.PostAsJsonAsync<Department>("api/Departments", model) :
+            await Http.PutAsJsonAsync<Department>($"api/Departments/{model.Id}", model);
 
-        var model = new Department() { Name = departmentName };
-        var response = await Http.PostAsJsonAsync<Department>($"api/Departments", model);
         if (response.IsSuccessStatusCode)
         {
-            var createdItem = await response.Content.ReadFromJsonAsync<Department>();
-            if (createdItem != null) 
-                departments?.Add(createdItem);
+            var newItem = await response.Content.ReadFromJsonAsync<Department>();
+            if (newItem != null)
+            {
+                if (model.Id == 0)
+                    departments?.Add(newItem);
+                else
+                    departments?.Replace(selectedDepartment!, newItem);
+            }
 
             ShowCreateDialog = false;
         }
@@ -140,32 +157,6 @@
         {
             ShowErrors = true;
         }
-
-        selectedDepartment = null;
-        IsDisabled = false;
-    }
-
-    private async Task HandleUpdate()
-    {
-        ShowErrors = false;
-        IsDisabled = true;
-
-        if (selectedDepartment != null)
-        {
-            var model = new Department() { Name = departmentName };
-            var response = await Http.PutAsJsonAsync<Department>($"api/Departments/{selectedDepartment.Id}", model);
-            if (response.IsSuccessStatusCode)
-            {
-                selectedDepartment.Name = departmentName;
-                ShowCreateDialog = false;
-            }
-            else
-            {
-                ShowErrors = true;
-            }
-        }
-
-        selectedDepartment = null;
         IsDisabled = false;
     }
     

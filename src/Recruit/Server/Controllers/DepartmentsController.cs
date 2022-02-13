@@ -65,7 +65,7 @@ namespace Recruit.Server.Controllers
             _db.Departments.Update(department);
             await _db.SaveChangesAsync();
 
-            return Ok();
+            return Ok(department);
         }
 
         [HttpDelete("{id}")]
