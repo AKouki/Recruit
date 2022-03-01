@@ -1,0 +1,96 @@
+﻿@inject HttpClient Http
+
+<EditForm Model="@Model" OnValidSubmit="HandleValidSubmit" class="send-email-form row g-2">
+    <DataAnnotationsValidator />
+    <div class="col-12">
+        <label for="title" class="form-label">Subject</label>
+        <InputText id="title" @bind-Value="Model.Subject" class="form-control" />
+        <ValidationMessage For="() => Model.Subject"/>
+    </div>
+    <div class="col-12">
+        <label for="title" class="form-label">Template</label>
+        <select id="title" class="form-select" @onchange="OnTemplateChanged">
+            <option value="0">Select a template</option>
+            @foreach (var template in EmailTemplates)
+            {
+                <option value="@template.Id">@template.Name</option>
+            }
+        </select>
+    </div>
+    <div class="col-12">
+        <label for="title" class="form-label">Message</label>
+        <InputTextArea id="title" @bind-Value="Model.Body" class="form-control" rows="5" />
+        <ValidationMessage For="() => Model.Body"/>
+    </div>
+    <div class="col-8">
+        <span class="fs-14 fw-500">Placeholders:</span><br/>
+        <span class="fs-14">{candidate_name}</span>
+        <span class="fs-14">{candidate_first_name}</span>
+        <span class="fs-14">{candidate_last_name}</span>
+        <span class="fs-14">{job_title}</span>
+        <span class="fs-14">{user}</span>
+    </div>
+    <div class="col-4 d-flex justify-content-end align-items-center">
+        <button type="button" class="btn btn-light btn-sm me-2 @(IsDisabled ? "disabled" : "")" @onclick="OnCancel">Cancel</button>
+        <button type="submit" class="btn btn-primary btn-sm @(IsDisabled ? "disabled" : "")">Send email</button>
+    </div>
+</EditForm>
+
+@code {
+    public SendEmailViewModel Model = new();
+
+    public List<Template> EmailTemplates = new();
+
+    [Parameter]
+    public Applicant? Applicant { get; set; }
+
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    [Parameter]
+    public EventCallback<EmailItemViewModel> OnValidSubmit { get; set; }
+
+    private bool IsDisabled = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        EmailTemplates = await Http.GetFromJsonAsync<List<Template>>("api/Templates/EmailTemplates") ?? new();
+    }
+
+    protected override void OnParametersSet()
+    {
+        Model.Subject = Applicant?.Job?.Title;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        IsDisabled = true;
+        if (Applicant != null)
+        {
+            var model = new SendEmailViewModel()
+                {
+                    ApplicantId = Applicant.Id,
+                    Subject = Model.Subject,
+                    Body = Model.Body
+                };
+
+            var response = await Http.PostAsJsonAsync<SendEmailViewModel>("api/Emails/Send", model);
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<EmailItemViewModel>();
+                await OnValidSubmit.InvokeAsync(result);
+            }
+        }
+        IsDisabled = false;
+    }
+
+    private void OnTemplateChanged(ChangeEventArgs args)
+    {
+        if (int.TryParse(args.Value?.ToString(), out int templateId))
+        {
+            var template = EmailTemplates.FirstOrDefault(t => t.Id == templateId);
+            Model.Body = template?.Body;
+        }
+    }
+
+}

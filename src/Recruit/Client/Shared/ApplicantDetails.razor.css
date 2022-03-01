@@ -126,6 +126,54 @@
     padding-left: 1rem;
 }
 
+.contact-header form {
+    border-bottom: 2px solid #333;
+}
+
+.contact-header {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+::deep .send-email-form {
+    padding-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.contact-history {
+    padding: 20px 10px;
+    margin-bottom: 10px;
+}
+
+.email-item {
+    position: relative;
+    margin-bottom: 18px;
+    padding-bottom: 20px;
+}
+
+.email-item:not(:last-child) {
+    border-bottom: 1px solid #eee;
+}
+
+.email-body ::deep p {
+    line-height: normal;
+    margin-bottom: 0.75rem;
+}
+
+.email-body ::deep p:last-child {
+    margin-bottom: 0 !important;
+}
+
+.btn-delete-email {
+    position: absolute;
+    right: 10px;
+    top: 0;
+    display: none;
+}
+
+.email-item:hover .btn-delete-email {
+    display: block;
+}
 
 @media (max-width: 640.98px) {
     .applicant-details {

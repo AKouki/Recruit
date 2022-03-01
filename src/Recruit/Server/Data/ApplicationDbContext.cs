@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Recruit.Server.Models;
 using Recruit.Shared;
 using System.Reflection;
 
@@ -19,6 +20,7 @@ namespace Recruit.Server.Data
         public DbSet<Interview> Interviews => Set<Interview>();
         public DbSet<Department> Departments => Set<Department>();
         public DbSet<Template> Templates => Set<Template>();
+        public DbSet<EmailItem> Emails => Set<EmailItem>();
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

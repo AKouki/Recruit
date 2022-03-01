@@ -320,6 +320,35 @@ namespace Recruit.Server.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Emails",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SenderId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ReceiverId = table.Column<int>(type: "int", nullable: false),
+                    Subject = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Body = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SentDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Emails", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Emails_Applicants_ReceiverId",
+                        column: x => x.ReceiverId,
+                        principalTable: "Applicants",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Emails_AspNetUsers_SenderId",
+                        column: x => x.SenderId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Experience",
                 columns: table => new
                 {
@@ -438,6 +467,16 @@ namespace Recruit.Server.Data.Migrations
                 column: "ApplicantId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Emails_ReceiverId",
+                table: "Emails",
+                column: "ReceiverId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Emails_SenderId",
+                table: "Emails",
+                column: "SenderId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Experience_ApplicantId",
                 table: "Experience",
                 column: "ApplicantId");
@@ -481,6 +520,9 @@ namespace Recruit.Server.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Education");
+
+            migrationBuilder.DropTable(
+                name: "Emails");
 
             migrationBuilder.DropTable(
                 name: "Experience");

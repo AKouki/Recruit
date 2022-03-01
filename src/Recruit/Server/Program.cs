@@ -3,6 +3,7 @@ using Recruit.Server.Data;
 using Recruit.Shared.Validators;
 using Recruit.Server.Extensions;
 using Recruit.Server.Services.BlobService;
+using Recruit.Server.Services.EmailService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,8 @@ builder.Services.AddJwtAuthentication(builder.Configuration);
 
 builder.Services.AddScoped<IBlobService, BlobService>();
 builder.Services.AddSingleton<IFileValidator, FileValidator>();
+builder.Services.AddTransient<IEmailService, EmailService>();
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
 var app = builder.Build();
 
