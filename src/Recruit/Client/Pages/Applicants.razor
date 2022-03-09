@@ -152,24 +152,24 @@ else
 
 <ModalTemplate @bind-IsVisible="ShowCopyDialog" Title="Copy">
     <CopyApplicantDialog Applicant="selectedApplicant"
-                         OnCancel="HandleCancel"
-                         OnValidSubmit="HandleCopy" />
+                         OnValidSubmit="HandleCopy"
+                         OnCancel="HandleCancel" />
 </ModalTemplate>
 
 <ModalTemplate @bind-IsVisible="ShowMoveDialog" Title="Move">
     <MoveApplicantDialog Applicant="selectedApplicant"
-                         OnCancel="HandleCancel"
-                         OnValidSubmit="HandleMove" />
+                         OnValidSubmit="HandleMove"
+                         OnCancel="HandleCancel" />
 </ModalTemplate>
 
 <ModalTemplate @bind-IsVisible="ShowBulkCopyDialog" Title="Copy to new project">
     <BulkCopyApplicantsDialog Applicants="selectedApplicants"
-                              OnCancel="HandleCancel"
-                              OnValidSubmit="HandleBulkCopy" />
+                              OnValidSubmit="HandleBulkCopy"
+                              OnCancel="HandleCancel" />
 </ModalTemplate>
 
 <ModalTemplate @bind-IsVisible="ShowBulkMoveDialog" Title="Move to new project">
     <BulkMoveApplicantsDialog Applicants="selectedApplicants"
-                              OnCancel="HandleCancel"
-                              OnValidSubmit="HandleBulkMove" />
+                              OnValidSubmit="HandleBulkMove"
+                              OnCancel="HandleCancel" />
 </ModalTemplate>
