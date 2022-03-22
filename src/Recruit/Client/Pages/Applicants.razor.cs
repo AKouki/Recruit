@@ -16,6 +16,7 @@ namespace Recruit.Client.Pages
         private List<Job>? Positions => applicants?.Select(a => a.Job!).DistinctBy(j => j.Id).ToList();
 
         private int filterJobIdValue = 0;
+        private bool ShowClearFiltersButton => filterJobIdValue > 0;
 
         private bool ShowApplicantDetails = false;
         private bool ShowDeleteDialog = false;
@@ -24,6 +25,7 @@ namespace Recruit.Client.Pages
         private bool ShowBulkCopyDialog = false;
         private bool ShowBulkMoveDialog = false;
         private bool ShowBulkDeleteDialog = false;
+
 
         private string? ResponsiveCss = "";
 
@@ -138,6 +140,7 @@ namespace Recruit.Client.Pages
             StateHasChanged();
         }
 
+        #region Filters
         private void FitlerByPosition(ChangeEventArgs args)
         {
             if (int.TryParse(args.Value?.ToString(), out int value))
@@ -160,6 +163,14 @@ namespace Recruit.Client.Pages
             // Refresh selected items
             selectedApplicants = selectedApplicants.Where(a => filteredApplicants!.Contains(a)).ToList();
         }
+
+        private void ClearFilters()
+        {
+            filterJobIdValue = 0;
+            ApplyFilters();
+        }
+
+        #endregion
 
         #region Bulk Actions
         private List<Applicant> selectedApplicants = new();

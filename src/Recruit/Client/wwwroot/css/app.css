@@ -486,7 +486,8 @@ form label {
 
 /*===============================================*/
 
-.filters > * {
+.filters > select,
+.filters > .dropdown {
     width: auto;
     min-width: 130px;
     max-width: 130px;
@@ -506,9 +507,17 @@ form label {
     border: 2px solid #1f75f3;
 }
 
+.btn-clear-filters {
+    background: none;
+    border: none;
+    display: flex;
+    align-items: center;
+    padding: 0;
+}
+
 @media (max-width: 640.98px) {
     .filters {
-        flex-direction: column-reverse;
+        flex-direction: column;
     }
 
     .filters > select,
@@ -521,6 +530,10 @@ form label {
 
     .filters .btn-bulk-actions {
         width: 150px;
+    }
+
+    .btn-clear-filters {
+        align-self: flex-start;
     }
 }
 
