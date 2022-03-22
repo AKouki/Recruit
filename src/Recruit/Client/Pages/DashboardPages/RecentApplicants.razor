@@ -3,13 +3,15 @@
 <div class="dashboard-item recent-applicants">
     <div class="d-flex justify-content-between align-items-center">
         <h6>Recent Applicants</h6>
-        <select id="jobType" class="form-select form-select-sm" value="@SelectedJobId" @onchange="UpdateList" style="width:150px">
-            <option value="0" selected>All</option>
-            @foreach (var item in Jobs ?? Enumerable.Empty<Job>())
-            {
-                <option value="@item.Id">@item.Title</option>
-            }
-        </select>
+        <div class="filters">
+            <select id="jobType" class="form-select form-select-sm @(SelectedJobId > 0 ? "highlight" : "")" value="@SelectedJobId" @onchange="UpdateList" style="width:150px">
+                <option value="0" selected>All</option>
+                @foreach (var item in Jobs ?? Enumerable.Empty<Job>())
+                {
+                    <option value="@item.Id">@item.Title</option>
+                }
+            </select>
+        </div>
     </div>
     @if (!HasLoaded)
     {
