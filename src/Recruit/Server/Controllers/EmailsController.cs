@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Recruit.Server.Data;
+using Recruit.Server.Helpers;
 using Recruit.Server.Models;
 using Recruit.Server.Services.EmailService;
 using Recruit.Shared;
@@ -69,7 +70,7 @@ namespace Recruit.Server.Controllers
             try
             {
                 // Send email
-                var htmlMessage = GenerateHtmlMessage(model.Body, applicant, sender);
+                var htmlMessage = EmailHelper.GenerateHtmlMessage(model.Body, applicant, sender);
                 await _emailService.SendEmailAsync(applicant.Email!, model.Subject!, htmlMessage);
 
                 // Store email in database
@@ -104,17 +105,6 @@ namespace Recruit.Server.Controllers
             await _db.SaveChangesAsync();
 
             return Ok();
-        }
-
-        private string GenerateHtmlMessage(string? body, Applicant applicant, ApplicationUser user)
-        {
-            body = body?.Replace("{candidate_name}", $"{applicant.FirstName} {applicant.LastName}");
-            body = body?.Replace("{candidate_first_name}", applicant.FirstName);
-            body = body?.Replace("{candidate_last_name}", applicant.LastName);
-            body = body?.Replace("{job_title}", applicant.Job?.Title);
-            body = body?.Replace("{user}", user.FullName);
-            body = body?.Replace("\n", "<br/>");
-            return body?.Trim() ?? "";
         }
     }
 }

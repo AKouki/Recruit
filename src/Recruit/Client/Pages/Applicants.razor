@@ -15,6 +15,7 @@
         <ul class="dropdown-menu">
             <li><a class="dropdown-item" role="button" @onclick="@(() => ShowBulkCopyDialog = true)">Copy to job</a></li>
             <li><a class="dropdown-item" role="button" @onclick="@(() => ShowBulkMoveDialog = true)">Move to job</a></li>
+            <li><a class="dropdown-item" role="button" @onclick="@(() => ShowBulkSendEmailDialog = true)">Send email</a></li>
             <li><a class="dropdown-item" role="button" @onclick="@(() => ShowBulkDeleteDialog = true)">Delete</a></li>
         </ul>
     </div>
@@ -180,4 +181,10 @@ else
     <BulkMoveApplicantsDialog Applicants="selectedApplicants"
                               OnValidSubmit="HandleBulkMove"
                               OnCancel="HandleCancel" />
+</ModalTemplate>
+
+<ModalTemplate @bind-IsVisible="ShowBulkSendEmailDialog" Title="Email candidates">
+    <BulkSendEmailDialog Applicants="selectedApplicants"
+                         OnValidSubmit="HandleBulkSendEmail"
+                         OnCancel="HandleCancel" />
 </ModalTemplate>

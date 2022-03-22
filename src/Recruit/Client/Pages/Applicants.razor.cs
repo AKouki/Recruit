@@ -24,6 +24,7 @@ namespace Recruit.Client.Pages
         private bool ShowMoveDialog = false;
         private bool ShowBulkCopyDialog = false;
         private bool ShowBulkMoveDialog = false;
+        private bool ShowBulkSendEmailDialog = false;
         private bool ShowBulkDeleteDialog = false;
 
 
@@ -120,6 +121,7 @@ namespace Recruit.Client.Pages
             ShowBulkCopyDialog = false;
             ShowBulkMoveDialog = false;
             ShowBulkDeleteDialog = false;
+            ShowBulkSendEmailDialog = false;
         }
 
         private void HandleCopy(Applicant applicant)
@@ -245,6 +247,12 @@ namespace Recruit.Client.Pages
             }
 
             StateHasChanged();
+        }
+
+        private void HandleBulkSendEmail()
+        {
+            ShowBulkSendEmailDialog = false;
+            selectedApplicants.Clear();
         }
 
         #endregion

@@ -1,8 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Recruit.Server.Data;
+using Recruit.Server.Helpers;
+using Recruit.Server.Models;
 using Recruit.Server.Services.BlobService;
+using Recruit.Server.Services.EmailService;
 using Recruit.Shared;
 using Recruit.Shared.ViewModels;
 
@@ -15,11 +19,20 @@ namespace Recruit.Server.Controllers
     {
         private readonly ApplicationDbContext _db;
         private readonly IBlobService _blobService;
+        private readonly IEmailService _emailService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public BulkActionsController(ApplicationDbContext db, IBlobService blobService)
+
+        public BulkActionsController(
+            ApplicationDbContext db,
+            IBlobService blobService,
+            IEmailService emailService,
+            UserManager<ApplicationUser> userManager)
         {
             _db = db;
             _blobService = blobService;
+            _emailService = emailService;
+            _userManager = userManager;
         }
 
         [HttpPost("CopyApplicantsToJob")]
@@ -170,6 +183,46 @@ namespace Recruit.Server.Controllers
             await _db.SaveChangesAsync();
 
             return Ok(applicantsToDelete.Select(a => a.Id).ToList());
+        }
+
+        [HttpPost("SendEmail")]
+        public async Task<IActionResult> SendEmail([FromBody] BulkSendEmailViewModel model)
+        {
+            var list = new List<int>();
+            var applicants = await _db.Applicants
+                .Where(a => model.ApplicantIds!.Contains(a.Id))
+                .Include(a => a.Job)
+                .ToListAsync();
+
+            var sender = await _userManager.FindByEmailAsync(User.Identity!.Name);
+
+            foreach (var applicant in applicants)
+            {
+                try
+                {
+                    // Send email
+                    var htmlMessage = EmailHelper.GenerateHtmlMessage(model.Body, applicant, sender);
+                    await _emailService.SendEmailAsync(applicant.Email!, model.Subject!, htmlMessage);
+
+                    // Store email in database
+                    var sentEmail = new EmailItem()
+                    {
+                        Sender = sender,
+                        Receiver = applicant,
+                        Subject = model.Subject?.Trim(),
+                        Body = htmlMessage,
+                        SentDate = DateTime.Now
+                    };
+
+                    _db.Emails.Add(sentEmail);
+                    await _db.SaveChangesAsync();
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            return Ok();
         }
     }
 }
