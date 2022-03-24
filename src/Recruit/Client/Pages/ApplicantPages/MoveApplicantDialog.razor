@@ -90,7 +90,7 @@
     private bool IsDisabled = false;
     private bool ShowError = false;
 
-    protected override async Task OnParametersSetAsync()
+    protected override async Task OnInitializedAsync()
     {
         if (Applicant != null)
         {
