@@ -1,11 +1,11 @@
-﻿@if (IsVisible)
+﻿@if (IsShown)
 {
-    <div class="modal fade @(IsVisible ? "show d-block" : "d-none")" style="background-color:rgba(0,0,0,.5);" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade @ShowCss d-block" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">@Title</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="() => IsVisibleChanged.InvokeAsync(false)"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="@(() => Close())"></button>
                 </div>
                 <div class="modal-body">
                     @ChildContent
@@ -13,6 +13,7 @@
             </div>
         </div>
     </div>
+    <div class="modal-backdrop fade @ShowCss" @onclick="@(() => Close())"></div>
 }
 
 @code {
@@ -27,4 +28,31 @@
 
     [Parameter]
     public EventCallback<bool> IsVisibleChanged { get; set; }
+
+    // Used for fade animation
+    private bool IsShown = false;
+    private string? ShowCss = "";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (IsVisible && !IsShown)
+            await Show();
+        else if (IsShown)
+            await Close();
+    }
+
+    private async Task Show()
+    {
+        IsShown = true;
+        await Task.Delay(100); // Let bootstrap apply fade animation
+        ShowCss = "show";
+    }
+
+    private async Task Close()
+    {
+        ShowCss = "";
+        await Task.Delay(300); // Let bootstrap apply fade animation
+        IsShown = false;
+        await IsVisibleChanged.InvokeAsync(false);
+    }
 }
