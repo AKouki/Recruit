@@ -125,10 +125,10 @@ namespace Recruit.Career.Pages
         private void AddPhotoAndResume(MultipartFormDataContent content)
         {
             if (Application?.Photo != null)
-                content.Add(new StreamContent(Application.Photo.OpenReadStream()), "Photo", Application.Photo.FileName);
+                content.Add(new StreamContent(Application.Photo.OpenReadStream()), "Photo", Path.GetFileName(Application.Photo.FileName));
 
             if (Application?.Resume != null)
-                content.Add(new StreamContent(Application.Resume.OpenReadStream()), "Resume", Application.Resume.FileName);
+                content.Add(new StreamContent(Application.Resume.OpenReadStream()), "Resume", Path.GetFileName(Application.Resume.FileName));
         }
     }
 }

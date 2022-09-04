@@ -108,7 +108,7 @@ namespace Recruit.Server.Controllers
                 var blobName = Guid.NewGuid().ToString("N") + Path.GetExtension(model.Resume.FileName);
                 var uploaded = await _blobService.UploadResumeAsync(model.Resume, blobName);
                 if (uploaded)
-                    newApplicant.Resume = new Attachment() { FileName = model.Resume?.FileName, FilePath = blobName };
+                    newApplicant.Resume = new Attachment() { FileName = Path.GetFileName(model.Resume.FileName), FilePath = blobName };
             }
 
             // Upload photo
