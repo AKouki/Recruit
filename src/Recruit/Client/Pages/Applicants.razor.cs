@@ -127,7 +127,7 @@ namespace Recruit.Client.Pages
         private void HandleCopy(Applicant applicant)
         {
             int index = applicants?.FindIndex(a => a.Id == selectedApplicant?.Id) ?? 0;
-            applicants?.Insert(index + 1, applicant);
+            applicants?.Insert(index, applicant);
             ShowCopyDialog = false;
             selectedApplicants.Clear();
             StateHasChanged();

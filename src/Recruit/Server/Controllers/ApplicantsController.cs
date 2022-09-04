@@ -136,7 +136,7 @@ namespace Recruit.Server.Controllers
                 Phone = applicant.Phone,
                 Address = applicant.Address,
                 Skills = applicant.Skills,
-                ApplyDate = applicant.ApplyDate,
+                ApplyDate = applicant.ApplyDate.AddSeconds(5), // We want copied records to show before
                 JobId = job.Id,
                 Stage = stage,
                 Education = new List<Education>(),
