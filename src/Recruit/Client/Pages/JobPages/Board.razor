@@ -103,13 +103,11 @@ else
                   OnStageUpdate="HandleStageUpdate"
                   OnClose="HideDetails" />
 
-@if (job != null)
-{
-    <InviteDialog JobId="@job.JobId"
-              JobTitle="@job.JobTitle"
-              OnClose="OnInviteDialogClose"
-              @bind-IsVisible="ShowInviteDialog" />
-}
+<ModalTemplate @bind-IsVisible="ShowInviteDialog" Title="Invite Candidates">
+    <InviteDialog JobId="@job!.JobId"
+                  JobTitle="@job.JobTitle"
+                  OnCancel="OnInviteDialogClose" />
+</ModalTemplate>
 
 @code {
     [Parameter]
