@@ -12,14 +12,14 @@
       ]
     },
     {
-      "library": "jquery@3.6.0",
+      "library": "jquery@3.6.1",
       "destination": "wwwroot/lib/jquery/",
       "files": [
         "jquery.min.js"
       ]
     },
     {
-      "library": "jqueryui@1.12.1",
+      "library": "jqueryui@1.13.2",
       "destination": "wwwroot/lib/jqueryui/",
       "files": [
         "jquery-ui.min.js"
