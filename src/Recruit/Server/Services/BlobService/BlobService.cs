@@ -88,12 +88,12 @@ namespace Recruit.Server.Services.BlobService
             return UploadAsync(file, PhotosContainerName, blobName, "image/jpeg");
         }
 
-        public async Task<string> CopyBlobAsync(string blobName)
+        public async Task<string> CopyBlobAsync(string containerName, string blobName)
         {
             try
             {
                 BlobContainerClient blobContainerClient = _blobServiceClient
-                    .GetBlobContainerClient(ResumesContainerName);
+                    .GetBlobContainerClient(containerName);
 
                 BlobClient sourceBlob = blobContainerClient.GetBlobClient(blobName);
 
@@ -112,7 +112,7 @@ namespace Recruit.Server.Services.BlobService
                     // Break the lease on source blob
                     await lease.BreakAsync();
 
-                    return newBlobName;
+                    return destBlob.Uri.AbsoluteUri;
                 }
             }
             catch (Exception ex)
@@ -121,6 +121,16 @@ namespace Recruit.Server.Services.BlobService
             }
 
             return string.Empty;
+        }
+
+        public async Task<string> CopyResumeAsync(string blobName)
+        {
+            return await CopyBlobAsync(ResumesContainerName, blobName);
+        }
+
+        public async Task<string> CopyPhotoAsync(string blobName)
+        {
+            return await CopyBlobAsync(PhotosContainerName, blobName);
         }
 
         public async Task DeleteAsync(string containerName, string blobName)

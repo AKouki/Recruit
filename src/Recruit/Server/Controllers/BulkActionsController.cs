@@ -66,9 +66,9 @@ namespace Recruit.Server.Controllers
                         LastName = applicant.LastName,
                         Headline = applicant.Headline,
                         Summary = applicant.Summary,
-                        ProfilePhoto = applicant.ProfilePhoto,
                         Email = applicant.Email,
                         Phone = applicant.Phone,
+                        ProfilePhoto = applicant.ProfilePhoto,
                         Address = applicant.Address,
                         Skills = applicant.Skills,
                         ApplyDate = DateTime.Now.AddSeconds(index++),
@@ -103,14 +103,22 @@ namespace Recruit.Server.Controllers
                         });
                     }
 
+                    // Copy photo
+                    if (!string.IsNullOrEmpty(applicant.ProfilePhoto))
+                    {
+                        var newBlobUri = await _blobService.CopyPhotoAsync(Path.GetFileName(applicant.ProfilePhoto));
+                        if (!string.IsNullOrEmpty(newBlobUri))
+                            newApplicant.ProfilePhoto = newBlobUri;
+                    }
+
                     // Copy resume
                     if (!string.IsNullOrEmpty(applicant.Resume?.FilePath))
                     {
-                        var newBlobName = await _blobService.CopyBlobAsync(applicant.Resume.FilePath);
+                        var newBlobUri = await _blobService.CopyResumeAsync(applicant.Resume.FilePath);
                         newApplicant.Resume = new Attachment()
                         {
                             FileName = applicant.Resume.FileName,
-                            FilePath = newBlobName
+                            FilePath = Path.GetFileName(newBlobUri) // For resumes we want only the blob name
                         };
                     }
 
