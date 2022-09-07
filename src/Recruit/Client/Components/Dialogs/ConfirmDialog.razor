@@ -1,7 +1,7 @@
 ﻿@if (IsShown)
 {
     <div class="modal fade @ShowCss d-block" id="myModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog" style="z-index: 1055">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">@Title</h5>
@@ -16,8 +16,8 @@
                 </div>
             </div>
         </div>
+        <div class="modal-backdrop fade @ShowCss" @onclick="() => Close()"></div>
     </div>
-    <div class="modal-backdrop fade @ShowCss" @onclick="Cancel"></div>
 }
 
 @code {
@@ -44,7 +44,7 @@
     {
         if (IsVisible && !IsShown)
             await Show();
-        else if (IsShown)
+        else if (!IsVisible && IsShown)
             await Close();
     }
 
