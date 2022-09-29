@@ -115,7 +115,7 @@
     }
 
     .stage-item-applicants {
-        min-height: auto;
+        min-height: 50px;
     }
 
 }
