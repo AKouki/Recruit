@@ -118,8 +118,9 @@ namespace Recruit.Server.Controllers
                 var uploaded = await _blobService.UploadPhotoAsync(model.Photo, blobName);
                 if (uploaded)
                 {
-                    string storageAccountName = _configuration["AzureBlobStorageSettings:StorageAccountName"];
-                    newApplicant.ProfilePhoto = _env.IsDevelopment() ?
+                    string? storageAccountName = _configuration["AzureBlobStorageSettings:StorageAccountName"];
+                    bool useStorageEmulator = _env.IsDevelopment() || string.IsNullOrEmpty(storageAccountName);
+                    newApplicant.ProfilePhoto = useStorageEmulator ?
                         $"http://127.0.0.1:10000/devstoreaccount1/photos/{blobName}" :
                         $"https://{storageAccountName}.blob.core.windows.net/photos/{blobName}";
                 }

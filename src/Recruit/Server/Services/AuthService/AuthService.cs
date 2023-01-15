@@ -15,7 +15,7 @@ namespace Recruit.Server.Services.AuthService
             _tokenService = tokenService;
         }
 
-        public async Task<AuthResult> LoginAsync(string? email, string? password)
+        public async Task<AuthResult> LoginAsync(string email, string password)
         {
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
@@ -32,7 +32,7 @@ namespace Recruit.Server.Services.AuthService
                 return new AuthResult()
                 {
                     Succeeded = true,
-                    Token = _tokenService.GenerateToken(email, user.FullName),
+                    Token = _tokenService.GenerateToken(email, user.FullName!),
                     FullName = user.FullName,
                     Avatar = user.Avatar
                 };
@@ -44,7 +44,7 @@ namespace Recruit.Server.Services.AuthService
             };
         }
 
-        public async Task<AuthResult> RegisterAsync(string? email, string? password, string? fullName)
+        public async Task<AuthResult> RegisterAsync(string email, string password, string fullName)
         {
             var user = new ApplicationUser() { UserName = email, Email = email, FullName = fullName };
             var result = await _userManager.CreateAsync(user, password);
@@ -65,7 +65,7 @@ namespace Recruit.Server.Services.AuthService
             };
         }
 
-        public async Task<AuthResult> ChangePasswordAsync(string? email, string? oldPassword, string? newPassword)
+        public async Task<AuthResult> ChangePasswordAsync(string email, string oldPassword, string newPassword)
         {
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
@@ -89,7 +89,7 @@ namespace Recruit.Server.Services.AuthService
                 return new AuthResult()
                 {
                     Succeeded = true,
-                    Token = _tokenService.GenerateToken(email, user.FullName),
+                    Token = _tokenService.GenerateToken(email, user.FullName!),
                     FullName = user.FullName,
                     Avatar = user.Avatar
                 };

@@ -36,7 +36,7 @@ namespace Recruit.Server.Controllers
         [HttpGet("MyProfile")]
         public async Task<IActionResult> Get()
         {
-            var user = await _userManager.FindByEmailAsync(User.Identity?.Name);
+            var user = await _userManager.FindByEmailAsync(User.Identity?.Name!);
             if (user == null)
                 return BadRequest();
 
@@ -54,7 +54,7 @@ namespace Recruit.Server.Controllers
         [HttpPut("UpdateProfile")]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileViewModel viewModel)
         {
-            var user = await _userManager.FindByNameAsync(User.Identity?.Name);
+            var user = await _userManager.FindByNameAsync(User.Identity?.Name!);
             if (user == null)
                 return BadRequest();
 
@@ -71,7 +71,7 @@ namespace Recruit.Server.Controllers
             if (!_fileValidator.IsValidPhoto(file))
                 return BadRequest();
 
-            var user = await _userManager.FindByEmailAsync(User.Identity?.Name);
+            var user = await _userManager.FindByEmailAsync(User.Identity?.Name!);
             if (user == null)
                 return BadRequest();
 
@@ -86,10 +86,12 @@ namespace Recruit.Server.Controllers
                     await _blobService.DeletePhotoAsync(oldBlobName);
 
                 // Update database
-                string storageAccountName = _configuration["AzureBlobStorageSettings:StorageAccountName"];
-                user.Avatar = _env.IsDevelopment() ?
+                string? storageAccountName = _configuration["AzureBlobStorageSettings:StorageAccountName"];
+                bool useStorageEmulator = _env.IsDevelopment() || string.IsNullOrEmpty(storageAccountName);
+                user.Avatar = useStorageEmulator ?
                     $"http://127.0.0.1:10000/devstoreaccount1/photos/{blobName}" :
                     $"https://{storageAccountName}.blob.core.windows.net/photos/{blobName}";
+
                 await _userManager.UpdateAsync(user);
             }
 
@@ -99,7 +101,7 @@ namespace Recruit.Server.Controllers
         [HttpGet("RemoveAvatar")]
         public async Task<IActionResult> RemoveAvatar()
         {
-            var user = await _userManager.FindByEmailAsync(User.Identity?.Name);
+            var user = await _userManager.FindByEmailAsync(User.Identity?.Name!);
             if (user == null)
                 return BadRequest();
 
