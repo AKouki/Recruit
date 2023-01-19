@@ -24,8 +24,12 @@ builder.Services.AddJwtAuthentication(builder.Configuration);
 
 builder.Services.AddScoped<IBlobService, BlobService>();
 builder.Services.AddSingleton<IFileValidator, FileValidator>();
+
+// Select one email service
 builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+//builder.Services.AddTransient<IEmailService, SendGridEmailService>();
+//builder.Services.Configure<SendGridOptions>(builder.Configuration.GetSection("SendGridOptions"));
 
 var app = builder.Build();
 

@@ -17,7 +17,7 @@ namespace Recruit.Server.Services.EmailService
             _logger = logger;
         }
 
-        public Task SendEmailAsync(string email, string subject, string htmlMessage)
+        public async Task SendEmailAsync(string email, string subject, string htmlContent)
         {
 
             //try
@@ -35,7 +35,7 @@ namespace Recruit.Server.Services.EmailService
             //    {
             //        From = new MailAddress(_emailSettings.Username!),
             //        Subject = subject,
-            //        Body = htmlMessage,
+            //        Body = htmlContent,
             //        IsBodyHtml = true
             //    };
             //    emailMessage.To.Add(new MailAddress(email));
@@ -48,7 +48,7 @@ namespace Recruit.Server.Services.EmailService
             //    throw;
             //}
 
-            return Task.CompletedTask;
+            await Task.Delay(0);
         }
     }
 }
