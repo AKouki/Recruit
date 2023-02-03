@@ -37,6 +37,22 @@ namespace Recruit.Server.Controllers
             return applicants;
         }
 
+        [HttpGet("Recent")]
+        public async Task<IEnumerable<Applicant>>? Recent()
+        {
+            var applicants = await _db.Applicants
+                .Include(a => a.Job!)
+                    .ThenInclude(s => s.Stages)
+                .Include(a => a.Interview)
+                .Include(a => a.Education)
+                .Include(a => a.Experience)
+                .OrderByDescending(a => a.ApplyDate)
+                .Take(10)
+                .ToListAsync();
+
+            return applicants;
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {

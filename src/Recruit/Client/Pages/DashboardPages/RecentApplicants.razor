@@ -66,9 +66,15 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Applicants = await Http.GetFromJsonAsync<List<Applicant>>("api/Applicants");
-        FilteredApplicants = Applicants?.OrderByDescending(a => a.ApplyDate).Take(10).ToList();
-        Jobs = Applicants?.Select(s => s.Job!).GroupBy(s => s.Id).Select(s => s.First()).ToList();
+        Applicants = await Http.GetFromJsonAsync<List<Applicant>>("api/Applicants/Recent");
+        FilteredApplicants = Applicants;
+
+        Jobs = Applicants?
+        .Select(a => a.Job!)
+        .DistinctBy(j => j.Id)
+        .OrderBy(j => j.Title)
+        .ToList();
+
         HasLoaded = true;
     }
 
