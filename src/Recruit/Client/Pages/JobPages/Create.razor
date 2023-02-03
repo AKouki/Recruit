@@ -116,6 +116,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         departments = await Http.GetFromJsonAsync<List<Department>>("api/Departments");
+        departments = departments?.OrderBy(d => d.Name).ToList();
         IsLoadingDepartments = false;
     }
 

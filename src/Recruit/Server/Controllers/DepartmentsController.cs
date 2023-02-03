@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Recruit.Server.Data;
@@ -20,9 +19,9 @@ namespace Recruit.Server.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<Department> Get()
+        public async Task<IEnumerable<Department>> Get()
         {
-            return _db.Departments.OrderBy(d => d.Id).ToList();
+            return await _db.Departments.ToListAsync();
         }
 
         [HttpGet("{id}")]

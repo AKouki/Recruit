@@ -127,6 +127,7 @@ else
             }
 
             departments = await Http.GetFromJsonAsync<List<Department>>("api/Departments");
+            departments = departments?.OrderBy(d => d.Name).ToList();
             IsLoadingDepartments = false;
         }
     }

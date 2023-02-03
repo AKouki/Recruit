@@ -125,10 +125,10 @@
         ShowErrors = false;
         selectedDepartment = department;
         model = new Department()
-        {
-            Id = department.Id,
-            Name = department.Name
-        };
+            {
+                Id = department.Id,
+                Name = department.Name
+            };
         ShowCreateDialog = true;
     }
 
@@ -159,7 +159,7 @@
         }
         IsDisabled = false;
     }
-    
+
     private List<Department>? GetFilteredDepartments()
     {
         return departments?
