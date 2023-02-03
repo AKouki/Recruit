@@ -35,6 +35,10 @@
     height: calc(100% - 55px);
 }
 
+::deep .due-positions .table-responsive {
+    height: calc(100% - 55px);
+}
+
 @media (max-width: 960.98px) {
     .dashboard {
         flex-direction: column;
@@ -46,10 +50,7 @@
         margin-right: 5px !important;
     }
 
-    ::deep .upcoming-interviews {
-        width: 100%;
-    }
-
+    ::deep .upcoming-interviews,
     ::deep .due-positions,
     ::deep .recent-applicants {
         width: 100%;
