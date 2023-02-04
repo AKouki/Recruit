@@ -25,24 +25,23 @@ namespace Recruit.Server.Controllers
         {
             var searchResult = new SearchResult();
 
-            try
+            if (!string.IsNullOrWhiteSpace(searchTerm))
             {
                 searchTerm = searchTerm.Trim();
 
                 var jobs = await _db.Jobs
+                    .AsNoTracking()
                     .Where(j => j.Title!.Contains(searchTerm))
                     .ToListAsync();
 
                 var applicants = await _db.Applicants
+                    .AsNoTracking()
                     .Where(a => a.FirstName!.Contains(searchTerm) || a.LastName!.Contains(searchTerm))
                     .Include(a => a.Job)
                     .ToListAsync();
 
                 searchResult.Jobs = jobs;
                 searchResult.Applicants = applicants;
-            }
-            catch (Exception)
-            {
             }
 
             return searchResult;

@@ -105,7 +105,7 @@
 
     public async void Search(object? sender, ElapsedEventArgs args)
     {
-        if (!string.IsNullOrEmpty(SearchTerm))
+        if (!string.IsNullOrWhiteSpace(SearchTerm))
             result = await Http.GetFromJsonAsync<SearchResult?>($"api/Search?searchTerm={SearchTerm}");
 
         ShowResults();
