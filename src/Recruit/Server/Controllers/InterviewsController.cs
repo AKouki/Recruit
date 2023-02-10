@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Recruit.Server.Data;
@@ -14,19 +13,20 @@ namespace Recruit.Server.Controllers
     public class InterviewsController : ControllerBase
     {
         private readonly ApplicationDbContext _db;
+
         public InterviewsController(ApplicationDbContext db)
         {
             _db = db;
         }
 
         [HttpGet]
-        public IEnumerable<Interview>? Get()
+        public async Task<IEnumerable<Interview>> Get()
         {
-            var interviews =_db.Interviews
+            var interviews = await _db.Interviews
                 .Include(s => s.Applicant!)
                     .ThenInclude(a => a.Job)
                 .OrderBy(i => i.ScheduledAt)
-                .ToList();
+                .ToListAsync();
 
             return interviews;
         }

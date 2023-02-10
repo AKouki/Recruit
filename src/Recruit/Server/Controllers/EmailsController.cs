@@ -6,7 +6,6 @@ using Recruit.Server.Data;
 using Recruit.Server.Helpers;
 using Recruit.Server.Models;
 using Recruit.Server.Services.EmailService;
-using Recruit.Shared;
 using Recruit.Shared.ViewModels;
 
 namespace Recruit.Server.Controllers
@@ -63,14 +62,16 @@ namespace Recruit.Server.Controllers
             var applicant = await _db.Applicants
                 .Include(a => a.Job)
                 .FirstOrDefaultAsync(a => a.Id == model.ApplicantId);
-            var sender = await _userManager.FindByEmailAsync(User.Identity!.Name);
+
+            var sender = await _userManager.FindByEmailAsync(User.Identity?.Name!);
+
             if (applicant == null || sender == null)
                 return NotFound();
 
             try
             {
                 // Send email
-                var htmlMessage = EmailHelper.GenerateHtmlMessage(model.Body, applicant, sender);
+                var htmlMessage = EmailHelper.GenerateHtmlContent(model.Body, applicant, sender);
                 await _emailService.SendEmailAsync(applicant.Email!, model.Subject!, htmlMessage);
 
                 // Store email in database

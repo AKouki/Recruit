@@ -23,7 +23,7 @@ namespace Recruit.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<Applicant>>? Get()
+        public async Task<IEnumerable<Applicant>> Get()
         {
             var applicants = await _db.Applicants
                 .Include(a => a.Job!)
@@ -38,7 +38,7 @@ namespace Recruit.Server.Controllers
         }
 
         [HttpGet("Recent")]
-        public async Task<IEnumerable<Applicant>>? Recent()
+        public async Task<IEnumerable<Applicant>> Recent()
         {
             var applicants = await _db.Applicants
                 .Include(a => a.Job!)

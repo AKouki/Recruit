@@ -5,7 +5,7 @@ namespace Recruit.Server.Helpers
 {
     public class EmailHelper
     {
-        public static string GenerateHtmlMessage(string? body, Applicant applicant, ApplicationUser user)
+        public static string GenerateHtmlContent(string? body, Applicant applicant, ApplicationUser user)
         {
             body = body?.Replace("{candidate_name}", $"{applicant.FirstName} {applicant.LastName}");
             body = body?.Replace("{candidate_first_name}", applicant.FirstName);

@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Recruit.Client.Pages;
 using Recruit.Server.Data;
+using Recruit.Server.Services.BlobService;
 using Recruit.Shared;
 using Recruit.Shared.Extensions;
 using Recruit.Shared.ViewModels;
@@ -14,9 +16,12 @@ namespace Recruit.Server.Controllers
     public class JobsController : ControllerBase
     {
         private readonly ApplicationDbContext _db;
-        public JobsController(ApplicationDbContext db)
+        private readonly IBlobService _blobService;
+
+        public JobsController(ApplicationDbContext db, IBlobService blobService)
         {
             _db = db;
+            _blobService = blobService;
         }
 
         [HttpGet]
@@ -32,9 +37,9 @@ namespace Recruit.Server.Controllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            var job = _db.Jobs.Find(id);
+            var job = await _db.Jobs.FindAsync(id);
             if (job == null)
                 return NotFound();
 
@@ -83,13 +88,11 @@ namespace Recruit.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] Job job)
         {
-            var department = _db.Departments.Find(job.DepartmentId);
-
             var newJob = new Job()
             {
                 Title = job.Title,
                 Description = job.Description,
-                Department = department,
+                DepartmentId = job.DepartmentId,
                 Country = job.Country,
                 City = job.City,
                 ContactPhone = job.ContactPhone,
@@ -102,18 +105,15 @@ namespace Recruit.Server.Controllers
                 Expires = job.Expires,
                 SalaryFrom = job.SalaryFrom,
                 SalaryTo = job.SalaryTo,
-                Published = job.Published
+                Published = job.Published,
+                Stages = new List<Stage>()
+                {
+                    new Stage() { Name = "Screen" },
+                    new Stage() { Name = "Interview" },
+                    new Stage() { Name = "Offer" },
+                    new Stage() { Name = "Hire" }
+                }
             };
-
-            var stages = new List<Stage>()
-            {
-                new Stage() { Name = "Screen" },
-                new Stage() { Name = "Interview" },
-                new Stage() { Name = "Offer" },
-                new Stage() { Name = "Hire" }
-            };
-
-            newJob.Stages = stages;
 
             _db.Jobs.Add(newJob);
             await _db.SaveChangesAsync();
@@ -128,11 +128,9 @@ namespace Recruit.Server.Controllers
             if (jobToEdit == null)
                 return NotFound();
 
-            var department = _db.Departments.Find(job.DepartmentId);
-
             jobToEdit.Title = job.Title;
             jobToEdit.Description = job.Description;
-            jobToEdit.DepartmentId = department?.Id;
+            jobToEdit.DepartmentId = job.DepartmentId;
             jobToEdit.Country = job.Country;
             jobToEdit.City = job.City;
             jobToEdit.ContactPhone = job.ContactPhone;
@@ -213,13 +211,11 @@ namespace Recruit.Server.Controllers
                 SalaryTo = job.SalaryTo,
                 Published = false,
                 Applicants = new List<Applicant>(),
-                Stages = new List<Stage>()
+                Stages = job.Stages?.Select(s => new Stage()
+                {
+                    Name = s.Name
+                }).ToList()
             };
-
-            foreach (var stage in job.Stages ?? Enumerable.Empty<Stage>())
-            {
-                newJob?.Stages?.Add(new Stage() { Name = stage.Name });
-            }
 
             _db.Jobs.Add(newJob);
             await _db.SaveChangesAsync();
@@ -239,17 +235,40 @@ namespace Recruit.Server.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var job = await _db.Jobs
-                .Include(j => j.Applicants)
-                .Include(j => j.Stages)
+                .Include(j => j.Applicants!)
+                    .ThenInclude(a => a.Resume)
                 .FirstOrDefaultAsync(j => j.Id == id);
 
             if (job == null)
                 return NotFound();
 
+            await DeleteApplicantFiles(job);
+
             _db.Jobs.Remove(job);
             await _db.SaveChangesAsync();
 
             return Ok();
+        }
+
+        private async Task DeleteApplicantFiles(Job job)
+        {
+            var applicants = job.Applicants?.ToList() ?? new();
+
+            // Delete resumes
+            var resumesToDelete = applicants
+                .Where(a => !string.IsNullOrWhiteSpace(a.Resume?.FileName))
+                .Select(a => a.Resume?.FilePath)
+                .ToList();
+            if (resumesToDelete.Any())
+                await _blobService.DeleteResumesAsync(resumesToDelete!);
+
+            // Delete profile photos
+            var photosToDelete = applicants
+                .Where(a => !string.IsNullOrEmpty(a.ProfilePhoto))
+                .Select(a => a.ProfilePhoto)
+                .ToList();
+            if (photosToDelete.Any())
+                await _blobService.DeleteResumesAsync(photosToDelete!);
         }
     }
 }

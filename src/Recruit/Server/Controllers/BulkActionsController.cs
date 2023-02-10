@@ -22,7 +22,6 @@ namespace Recruit.Server.Controllers
         private readonly IEmailService _emailService;
         private readonly UserManager<ApplicationUser> _userManager;
 
-
         public BulkActionsController(
             ApplicationDbContext db,
             IBlobService blobService,
@@ -168,13 +167,12 @@ namespace Recruit.Server.Controllers
         [HttpPost("DeleteApplicants")]
         public async Task<IActionResult> DeleteApplicants([FromBody] BulkActionViewModel viewModel)
         {
-            var list = new List<int>();
             var applicantsToDelete = await _db.Applicants
                 .Where(a => viewModel.Items.Contains(a.Id))
                 .Include(a => a.Resume)
                 .ToListAsync();
 
-            // Delete resumes and profile photos from Blob Storage
+            // Delete resume and profile photo from Blob Storage
             var resumesToDelete = applicantsToDelete.Select(a => a.Resume?.FilePath).ToList();
             if (resumesToDelete.Any())
                 await _blobService.DeleteResumesAsync(resumesToDelete!);
@@ -196,38 +194,31 @@ namespace Recruit.Server.Controllers
         [HttpPost("SendEmail")]
         public async Task<IActionResult> SendEmail([FromBody] BulkSendEmailViewModel model)
         {
-            var list = new List<int>();
             var applicants = await _db.Applicants
                 .Where(a => model.ApplicantIds!.Contains(a.Id))
                 .Include(a => a.Job)
                 .ToListAsync();
 
-            var sender = await _userManager.FindByEmailAsync(User.Identity!.Name);
+            var sender = await _userManager.FindByEmailAsync(User.Identity!.Name!);
 
             foreach (var applicant in applicants)
             {
-                try
-                {
-                    // Send email
-                    var htmlMessage = EmailHelper.GenerateHtmlMessage(model.Body, applicant, sender);
-                    await _emailService.SendEmailAsync(applicant.Email!, model.Subject!, htmlMessage);
+                // Send email
+                var htmlMessage = EmailHelper.GenerateHtmlContent(model.Body, applicant, sender!);
+                await _emailService.SendEmailAsync(applicant.Email!, model.Subject!, htmlMessage);
 
-                    // Store email in database
-                    var sentEmail = new EmailItem()
-                    {
-                        Sender = sender,
-                        Receiver = applicant,
-                        Subject = model.Subject?.Trim(),
-                        Body = htmlMessage,
-                        SentDate = DateTime.Now
-                    };
-
-                    _db.Emails.Add(sentEmail);
-                    await _db.SaveChangesAsync();
-                }
-                catch (Exception)
+                // Store email in database
+                var sentEmail = new EmailItem()
                 {
-                }
+                    Sender = sender,
+                    Receiver = applicant,
+                    Subject = model.Subject?.Trim(),
+                    Body = htmlMessage,
+                    SentDate = DateTime.Now
+                };
+
+                _db.Emails.Add(sentEmail);
+                await _db.SaveChangesAsync();
             }
 
             return Ok();

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Recruit.Server.Data;
 using Recruit.Shared.ViewModels;
 
@@ -22,15 +22,15 @@ namespace Recruit.Server.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<UserViewModel> Get()
+        public async Task<IEnumerable<UserViewModel>> Get()
         {
-            var users = _db.Users.Select(u => new UserViewModel()
+            var users = await _db.Users.Select(u => new UserViewModel()
             {
                 FullName = u.FullName,
                 Email = u.Email,
                 Username = u.UserName,
                 Avatar = u.Avatar
-            }).ToList();
+            }).ToListAsync();
 
             return users;
         }
@@ -51,14 +51,9 @@ namespace Recruit.Server.Controllers
             if (user == null)
                 return NotFound();
 
-            try
-            {
-                await _userManager.DeleteAsync(user);
-            }
-            catch (Exception)
-            {
+            var result = await _userManager.DeleteAsync(user);
+            if (!result.Succeeded)
                 return BadRequest();
-            }
 
             return Ok();
         }

@@ -12,6 +12,7 @@ namespace Recruit.Server.Controllers
     public class StagesController : ControllerBase
     {
         private readonly ApplicationDbContext _db;
+
         public StagesController(ApplicationDbContext db)
         {
             _db = db;

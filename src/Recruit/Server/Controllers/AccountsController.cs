@@ -10,6 +10,7 @@ namespace Recruit.Server.Controllers
     public class AccountsController : ControllerBase
     {
         private readonly IAuthService _authService;
+
         public AccountsController(IAuthService authService)
         {
             _authService = authService;
